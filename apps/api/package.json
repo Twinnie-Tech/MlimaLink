@@ -3,46 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "projectType": "application",
+    "name": "api",
     "targets": {
-      "build": {
-        "executor": "@nx/esbuild:esbuild",
-        "outputs": [
-          "{options.outputPath}"
-        ],
-        "defaultConfiguration": "production",
-        "options": {
-          "platform": "node",
-          "outputPath": "apps/api/dist",
-          "format": [
-            "cjs"
-          ],
-          "bundle": true,
-          "main": "apps/api/src/main.ts",
-          "tsConfig": "apps/api/tsconfig.app.json",
-          "assets": [
-            "apps/api/src/assets"
-          ],
-          "esbuildOptions": {
-            "sourcemap": true,
-            "outExtension": {
-              ".js": ".js"
-            }
-          }
-        },
-        "configurations": {
-          "development": {},
-          "production": {
-            "generateLockfile": true,
-            "esbuildOptions": {
-              "sourcemap": false,
-              "outExtension": {
-                ".js": ".js"
-              }
-            }
-          }
-        }
-      },
       "prune-lockfile": {
         "dependsOn": [
           "build"
@@ -51,23 +13,11 @@
         "executor": "@nx/js:prune-lockfile",
         "outputs": [
           "{workspaceRoot}/apps/api/dist/package.json",
-          "{workspaceRoot}/apps/api/dist/pnpm-lock.yaml",
-          "{workspaceRoot}/apps/api/dist/pnpm-workspace.yaml",
-          "{workspaceRoot}/apps/api/dist/patches",
-          "{workspaceRoot}/apps/api/dist/local_path_modules"
+          "{workspaceRoot}/apps/api/dist/package-lock.json"
         ],
         "options": {
           "buildTarget": "build"
-        },
-        "inputs": [
-          "default",
-          "^default",
-          "{workspaceRoot}/pnpm-workspace.yaml",
-          "{workspaceRoot}/package.json",
-          {
-            "runtime": "node -e \"try{console.log('pnpm major '+require('child_process').execSync('pnpm --version',{stdio:['ignore','pipe','ignore']}).toString().trim().split('.')[0])}catch{console.log('pnpm major unavailable')}\""
-          }
-        ]
+        }
       },
       "copy-workspace-modules": {
         "dependsOn": [
@@ -97,36 +47,16 @@
           "build"
         ],
         "options": {
-          "buildTarget": "@org/api:build",
+          "buildTarget": "api:build",
           "runBuildTargetDependencies": false
         },
         "configurations": {
           "development": {
-            "buildTarget": "@org/api:build:development"
+            "buildTarget": "api:build:development"
           },
           "production": {
-            "buildTarget": "@org/api:build:production"
+            "buildTarget": "api:build:production"
           }
-        }
-      },
-      "test": {
-        "options": {
-          "passWithNoTests": true
-        }
-      },
-      "docker:build": {
-        "dependsOn": [
-          "build",
-          "prune"
-        ]
-      },
-      "nx-release-publish": {
-        "dependsOn": [
-          "docker:build"
-        ],
-        "executor": "@nx/js:release-publish",
-        "options": {
-          "registry": "https://registry.npmjs.org"
         }
       }
     },
@@ -135,8 +65,17 @@
     ]
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "@org/api-products": "*",
-    "@org/models": "*"
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.4.7",
+    "@org/api-products": "^0.0.1",
+    "@org/models": "^0.0.1",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.0"
   }
 }

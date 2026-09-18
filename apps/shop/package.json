@@ -8,20 +8,11 @@
       "scope:shop"
     ],
     "targets": {
-      "serve": {
-        "dependsOn": [
-          "@org/api:serve"
-        ]
-      },
-      "dev": {
-        "dependsOn": [
-          "@org/api:serve"
-        ]
-      },
+      "serve": {},
+      "dev": {},
       "preview": {
         "dependsOn": [
-          "build",
-          "@org/api:serve"
+          "build"
         ]
       }
     }

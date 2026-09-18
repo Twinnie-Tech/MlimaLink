@@ -4,9 +4,6 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/api"
-    },
-    {
       "path": "./apps/shop-e2e"
     },
     {
@@ -32,6 +29,15 @@
     },
     {
       "path": "./packages/shared/test-utils"
+    },
+    {
+      "path": "./apps/api"
+    },
+    {
+      "path": "./apps/api-gateway-e2e"
+    },
+    {
+      "path": "./apps/api-gateway"
     }
   ]
 }

@@ -34,7 +34,7 @@ describe('useCategories', () => {
     expect(result.current.categories).toEqual(mockCategories);
     expect(result.current.error).toBeNull();
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:3333/api/products/categories',
+      'http://localhost:3000/api/products/categories',
     );
   });
 
