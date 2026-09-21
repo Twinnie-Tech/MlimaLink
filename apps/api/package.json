@@ -48,7 +48,9 @@
         ],
         "options": {
           "buildTarget": "api:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "watch": false,
+          "inspect": false
         },
         "configurations": {
           "development": {

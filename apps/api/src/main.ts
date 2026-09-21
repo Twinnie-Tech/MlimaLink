@@ -29,7 +29,12 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   const host = process.env.HOST ?? 'localhost';
-  const port = process.env.PORT ? Number(process.env.PORT) : 3333;
+  // Prefer API_PORT so a shared PORT (e.g. gateway e2e) does not collide
+  const port = process.env.API_PORT
+    ? Number(process.env.API_PORT)
+    : process.env.PORT
+      ? Number(process.env.PORT)
+      : 3333;
 
   await app.listen(port, host);
   Logger.log(

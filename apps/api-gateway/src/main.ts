@@ -16,7 +16,9 @@ async function bootstrap() {
     allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept',
   });
 
-  const apiTarget = process.env.API_URL ?? 'http://localhost:3333';
+  const apiTarget =
+    process.env.API_URL ??
+    `http://localhost:${process.env.API_PORT ? Number(process.env.API_PORT) : 3333}`;
   const expressApp = app.getHttpAdapter().getInstance();
 
   expressApp.use(
@@ -30,7 +32,11 @@ async function bootstrap() {
   );
 
   const host = process.env.HOST ?? 'localhost';
-  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+  const port = process.env.GATEWAY_PORT
+    ? Number(process.env.GATEWAY_PORT)
+    : process.env.PORT
+      ? Number(process.env.PORT)
+      : 3000;
 
   await app.listen(port, host);
   Logger.log(`🚀 API Gateway running on: http://${host}:${port}`);

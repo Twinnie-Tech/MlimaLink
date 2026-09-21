@@ -7,7 +7,11 @@
     "targets": {
       "e2e": {
         "outputs": ["{projectRoot}/test-output/jest/coverage"],
-        "dependsOn": ["@org/api-gateway:build", "@org/api-gateway:serve"],
+        "dependsOn": [
+          "api:serve",
+          "@org/api-gateway:build",
+          "@org/api-gateway:serve"
+        ],
         "options": {
           "passWithNoTests": true
         }

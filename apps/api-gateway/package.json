@@ -43,11 +43,14 @@
         "executor": "@nx/js:node",
         "defaultConfiguration": "development",
         "dependsOn": [
-          "build"
+          "build",
+          "api:serve"
         ],
         "options": {
           "buildTarget": "@org/api-gateway:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "watch": false,
+          "inspect": false
         },
         "configurations": {
           "development": {
