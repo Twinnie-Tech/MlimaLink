@@ -28,4 +28,6 @@ jobs:
       - run: npx playwright install --with-deps
 
       - run: npx nx format:check --base="remotes/origin/main"
-      - run: npx nx run-many -t lint test build typecheck e2e
+      - run: npx nx run-many -t lint test build typecheck
+      # e2e projects share API/gateway ports — run sequentially
+      - run: npx nx run-many -t e2e --parallel=1

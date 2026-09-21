@@ -69,9 +69,7 @@ describe('useProducts', () => {
     expect(result.current.totalPages).toBe(1);
     expect(result.current.error).toBeNull();
 
-    expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/products?page=1&pageSize=12',
-    );
+    expect(fetch).toHaveBeenCalledWith('/api/products?page=1&pageSize=12');
   });
 
   it('should fetch products with filters', async () => {
@@ -96,7 +94,7 @@ describe('useProducts', () => {
 
     expect(fetch).toHaveBeenCalledTimes(1);
     const callUrl = vi.mocked(fetch).mock.calls[0][0] as string;
-    expect(callUrl).toContain('http://localhost:3000/api/products?');
+    expect(callUrl).toContain('/api/products?');
     expect(callUrl).toContain('page=2');
     expect(callUrl).toContain('pageSize=20');
     expect(callUrl).toContain('category=Electronics');
@@ -124,9 +122,7 @@ describe('useProducts', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/products?page=1&pageSize=12',
-    );
+    expect(fetch).toHaveBeenCalledWith('/api/products?page=1&pageSize=12');
   });
 
   it('should handle fetch errors', async () => {
@@ -188,7 +184,7 @@ describe('useProducts', () => {
     });
 
     const lastCallUrl = vi.mocked(fetch).mock.calls[1][0] as string;
-    expect(lastCallUrl).toContain('http://localhost:3000/api/products?');
+    expect(lastCallUrl).toContain('/api/products?');
     expect(lastCallUrl).toContain('page=1');
     expect(lastCallUrl).toContain('pageSize=12');
     expect(lastCallUrl).toContain('category=Electronics');
@@ -220,8 +216,6 @@ describe('useProducts', () => {
       expect(fetch).toHaveBeenCalledTimes(2);
     });
 
-    expect(fetch).toHaveBeenLastCalledWith(
-      'http://localhost:3000/api/products?page=2&pageSize=12',
-    );
+    expect(fetch).toHaveBeenLastCalledWith('/api/products?page=2&pageSize=12');
   });
 });

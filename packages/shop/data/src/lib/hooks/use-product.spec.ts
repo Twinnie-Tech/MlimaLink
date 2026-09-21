@@ -43,7 +43,7 @@ describe('useProduct', () => {
 
     expect(result.current.product).toEqual(mockProduct);
     expect(result.current.error).toBeNull();
-    expect(fetch).toHaveBeenCalledWith('http://localhost:3000/api/products/1');
+    expect(fetch).toHaveBeenCalledWith('/api/products/1');
   });
 
   it('should handle fetch errors', async () => {
@@ -100,7 +100,7 @@ describe('useProduct', () => {
 
     expect(result.current.product).toEqual(product1);
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith('http://localhost:3000/api/products/1');
+    expect(fetch).toHaveBeenCalledWith('/api/products/1');
 
     // Change id
     rerender({ id: '2' });
@@ -110,9 +110,7 @@ describe('useProduct', () => {
     });
 
     expect(fetch).toHaveBeenCalledTimes(2);
-    expect(fetch).toHaveBeenLastCalledWith(
-      'http://localhost:3000/api/products/2',
-    );
+    expect(fetch).toHaveBeenLastCalledWith('/api/products/2');
   });
 
   it('should not fetch if id is not provided', () => {

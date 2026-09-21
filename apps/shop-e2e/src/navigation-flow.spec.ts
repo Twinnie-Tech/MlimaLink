@@ -11,8 +11,9 @@ test.describe('Navigation Flow', () => {
     await page.waitForURL('**/products');
     expect(page.url()).toContain('/products');
 
-    // Click on a specific product
+    // Wait for products to load from the API
     const productCard = page.locator('[class*="product-card"]').first();
+    await expect(productCard).toBeVisible({ timeout: 30_000 });
     const productName = await productCard.locator('h3').textContent();
     await productCard.click();
 
@@ -43,6 +44,7 @@ test.describe('Navigation Flow', () => {
 
     // Click a product
     const firstProduct = page.locator('[class*="product-card"]').first();
+    await expect(firstProduct).toBeVisible({ timeout: 30_000 });
     await firstProduct.click();
     await page.waitForURL('**/products/*');
     const detailUrl = page.url();
@@ -62,6 +64,7 @@ test.describe('Navigation Flow', () => {
     // First, get a valid product ID by visiting the products page
     await page.goto('/products');
     const firstProduct = page.locator('[class*="product-card"]').first();
+    await expect(firstProduct).toBeVisible({ timeout: 30_000 });
     await firstProduct.click();
     await page.waitForURL('**/products/*');
 

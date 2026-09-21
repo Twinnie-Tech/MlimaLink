@@ -7,17 +7,23 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/apps/shop',
   server: {
     port: 4200,
-    host: 'localhost',
+    host: '127.0.0.1',
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://127.0.0.1:3000',
         secure: false,
       },
     },
   },
   preview: {
     port: 4200,
-    host: 'localhost',
+    host: '127.0.0.1',
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        secure: false,
+      },
+    },
   },
   plugins: [react()],
   build: {

@@ -4,7 +4,21 @@
   "private": true,
   "nx": {
     "implicitDependencies": [
-      "@org/shop"
-    ]
+      "@org/shop",
+      "@org/api-gateway",
+      "api"
+    ],
+    "targets": {
+      "e2e": {
+        "dependsOn": [
+          "api:build",
+          "@org/api-gateway:build",
+          "@org/shop:build"
+        ],
+        "options": {
+          "command": "node ../../tools/run-shop-e2e.mjs"
+        }
+      }
+    }
   }
 }

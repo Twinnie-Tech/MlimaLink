@@ -6,7 +6,7 @@ import {
   ProductFilter,
 } from '@org/models';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 export function useProducts(filter?: ProductFilter, page = 1, pageSize = 12) {
   const [products, setProducts] = useState<Product[]>([]);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Product, ApiResponse } from '@org/models';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 export function useProduct(id: string | undefined) {
   const [product, setProduct] = useState<Product | null>(null);

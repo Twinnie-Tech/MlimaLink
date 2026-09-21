@@ -7,6 +7,7 @@ test.describe('Product Detail Page', () => {
 
     // Click first product to navigate to detail page
     const firstProduct = page.locator('[class*="product-card"]').first();
+    await expect(firstProduct).toBeVisible({ timeout: 30_000 });
     await firstProduct.click();
     await page.waitForURL('**/products/*');
   });
@@ -92,7 +93,7 @@ test.describe('Product Detail Page', () => {
     const outOfStockCards = page.locator(
       '[class*="product-card"][class*="out-of-stock"]',
     );
-    await expect(outOfStockCards.first()).toBeVisible();
+    await expect(outOfStockCards.first()).toBeVisible({ timeout: 30_000 });
 
     await outOfStockCards.first().click();
     await page.waitForURL('**/products/*');

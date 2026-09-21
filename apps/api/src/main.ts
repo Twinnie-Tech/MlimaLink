@@ -28,7 +28,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  const host = process.env.HOST ?? 'localhost';
+  const host = process.env.HOST ?? '0.0.0.0';
   // Prefer API_PORT so a shared PORT (e.g. gateway e2e) does not collide
   const port = process.env.API_PORT
     ? Number(process.env.API_PORT)

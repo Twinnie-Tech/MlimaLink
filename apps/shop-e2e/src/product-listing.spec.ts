@@ -72,6 +72,7 @@ test.describe('Product Listing Page', () => {
     page,
   }) => {
     const firstProduct = page.locator('[class*="product-card"]').first();
+    await expect(firstProduct).toBeVisible({ timeout: 30_000 });
     await firstProduct.click();
 
     await page.waitForURL('**/products/*');
