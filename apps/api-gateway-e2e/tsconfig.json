@@ -4,8 +4,9 @@
     "outDir": "out-tsc/@org/api-gateway-e2e",
     "esModuleInterop": true,
     "noUnusedLocals": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "types": ["jest", "node"]
   },
-  "include": ["jest.config.ts", "src/**/*.ts"],
+  "include": ["jest.config.cts", "src/**/*.ts"],
   "references": []
 }
