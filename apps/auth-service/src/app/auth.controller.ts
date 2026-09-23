@@ -2,7 +2,10 @@ import { Controller, Next, Post, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
 import {
+  checkOtpRegistration,
   hashPassword,
+  sendOtp,
+  trackOtp,
   validateRegistrationData,
   verifyOtp,
 } from '../utils/auth.helper';
@@ -24,10 +27,11 @@ export class AuthController {
     try {
       validateRegistrationData(req.body, 'user');
 
-      const { name, email, password } = req.body as {
+      const { name, email } = req.body as {
         name: string;
         email: string;
         password: string;
+        otp: string;
       };
 
       const existingUser = await this.prisma.users.findUnique({
@@ -38,24 +42,15 @@ export class AuthController {
         throw validationError('User already exists with this email!');
       }
 
-      const hashedPassword = await hashPassword(password);
+      await checkOtpRegistration(email, next);
+      await trackOtp(email, next);
+      await sendOtp(name, email, 'user_registration');
 
-      const user = await this.prisma.users.create({
-        data: {
-          name,
-          email,
-          password: hashedPassword,
-          role: 'user',
-        },
-      });
-
-      const { password: _password, ...safeUser } = user;
-
-      return res.status(201).json({
+      res.status(200).json({
         success: true,
-        message: 'User registered successfully',
-        user: safeUser,
+        message: 'OTP sent successfully. Please check your email.',
       });
+
     } catch (error) {
       return next(error);
     }

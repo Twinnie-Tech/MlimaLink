@@ -44,31 +44,40 @@ export function validateRegistrationData(
 /** Blocks OTP send when lock / spam / cooldown keys are present. */
 export async function checkOtpRegistration(
   email: string,
-  next: NextFunction,
+  _next: NextFunction,
 ): Promise<void> {
   await ensureRedisConnected();
 
   if (await redisClient.get(`otp_lock:${email}`)) {
-    return next(
-      validationError(
-        'Account locked due to multiple failed attempts! Try again after 30 minutes.',
-      ),
+    throw validationError(
+      'Account locked due to multiple failed attempts! Try again after 30 minutes.',
     );
   }
 
   if (await redisClient.get(`otp_spam_lock:${email}`)) {
-    return next(
-      validationError(
-        'Too many OTP requests! Please wait 1 hour before requesting again.',
-      ),
+    throw validationError(
+      'Too many OTP requests! Please wait 1 hour before requesting again.',
     );
   }
 
   if (await redisClient.get(`otp_cooldown:${email}`)) {
-    return next(
-      validationError('Please wait 1 minute before requesting a new OTP!'),
-    );
+    throw validationError('Please wait 1 minute before requesting a new OTP!');
   }
+}
+
+export async function trackOtp(
+  email: string,
+  _next: NextFunction,
+): Promise<void> { 
+ await ensureRedisConnected();
+ const otpRequest = `otp_request_count:${email}`;
+ const otpRequestCount = await redisClient.get(otpRequest);
+ if (otpRequestCount && parseInt(otpRequestCount) >= 5) {
+  throw validationError('Too many OTP requests! Please wait 1 hour before requesting again.');
+ } else {
+  await redisClient.set(otpRequest, 1, 'EX', OTP_TTL_SECONDS);
+ }
+ await redisClient.incr(otpRequest);
 }
 
 /** Generate OTP, email it via Gmail template, store in Redis (24h) + cooldown (60s). */
