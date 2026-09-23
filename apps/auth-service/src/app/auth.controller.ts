@@ -50,7 +50,6 @@ export class AuthController {
         success: true,
         message: 'OTP sent successfully. Please check your email.',
       });
-
     } catch (error) {
       return next(error);
     }

@@ -68,16 +68,18 @@ export async function checkOtpRegistration(
 export async function trackOtp(
   email: string,
   _next: NextFunction,
-): Promise<void> { 
- await ensureRedisConnected();
- const otpRequest = `otp_request_count:${email}`;
- const otpRequestCount = await redisClient.get(otpRequest);
- if (otpRequestCount && parseInt(otpRequestCount) >= 5) {
-  throw validationError('Too many OTP requests! Please wait 1 hour before requesting again.');
- } else {
-  await redisClient.set(otpRequest, 1, 'EX', OTP_TTL_SECONDS);
- }
- await redisClient.incr(otpRequest);
+): Promise<void> {
+  await ensureRedisConnected();
+  const otpRequest = `otp_request_count:${email}`;
+  const otpRequestCount = await redisClient.get(otpRequest);
+  if (otpRequestCount && parseInt(otpRequestCount) >= 5) {
+    throw validationError(
+      'Too many OTP requests! Please wait 1 hour before requesting again.',
+    );
+  } else {
+    await redisClient.set(otpRequest, 1, 'EX', OTP_TTL_SECONDS);
+  }
+  await redisClient.incr(otpRequest);
 }
 
 /** Generate OTP, email it via Gmail template, store in Redis (24h) + cooldown (60s). */
