@@ -15,7 +15,10 @@
   },
   "nx": {
     "name": "errors",
-    "tags": ["scope:shared", "type:util"]
+    "tags": [
+      "scope:shared",
+      "type:util"
+    ]
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",

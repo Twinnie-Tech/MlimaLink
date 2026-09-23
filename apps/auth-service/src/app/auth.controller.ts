@@ -1,16 +1,7 @@
-import {
-  Controller,
-  Next,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Controller, Next, Post, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
-import {
-  hashPassword,
-  validateRegistrationData,
-} from '../utils/auth.helper';
+import { hashPassword, validateRegistrationData } from '../utils/auth.helper';
 import { PrismaService } from './prisma.service';
 import { validationError } from '@org/errors';
 
@@ -96,7 +87,7 @@ export class AuthController {
       const isOtpValid = await checkOtpRegistration(email);
       if (!isOtpValid) {
         throw validationError('Invalid OTP!');
-      } 
+      }
 
       const hashedPassword = await hashPassword(password);
 

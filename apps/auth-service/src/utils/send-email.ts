@@ -38,9 +38,7 @@ export async function sendEmail(
   const html = ejs.render(templateSource, data);
 
   const from =
-    process.env.SMTP_FROM ??
-    process.env.SMTP_USER ??
-    process.env.GMAIL_USER;
+    process.env.SMTP_FROM ?? process.env.SMTP_USER ?? process.env.GMAIL_USER;
 
   await transporter.sendMail({
     from,

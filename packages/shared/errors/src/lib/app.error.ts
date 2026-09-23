@@ -1,9 +1,5 @@
 export type ErrorDetails =
-  | Record<string, unknown>
-  | string[]
-  | string
-  | null
-  | undefined;
+  Record<string, unknown> | string[] | string | null | undefined;
 
 /**
  * Operational application error used across Nest services.

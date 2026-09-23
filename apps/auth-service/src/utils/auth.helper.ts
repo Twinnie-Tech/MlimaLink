@@ -1,8 +1,4 @@
-import {
-  randomBytes,
-  randomInt,
-  scrypt as scryptCallback,
-} from 'crypto';
+import { randomBytes, randomInt, scrypt as scryptCallback } from 'crypto';
 import { promisify } from 'util';
 import type { NextFunction } from 'express';
 import { validationError } from '@org/errors';

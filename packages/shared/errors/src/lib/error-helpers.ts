@@ -5,13 +5,7 @@ export function notFound(
   resource = 'Resource',
   details?: ErrorDetails,
 ): AppError {
-  return new AppError(
-    `${resource} not found`,
-    404,
-    true,
-    details,
-    'NOT_FOUND',
-  );
+  return new AppError(`${resource} not found`, 404, true, details, 'NOT_FOUND');
 }
 
 /** Alias for missing domain entity. */
