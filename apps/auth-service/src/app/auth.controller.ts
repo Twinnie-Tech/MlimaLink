@@ -1,7 +1,11 @@
 import { Controller, Next, Post, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
-import { hashPassword, validateRegistrationData } from '../utils/auth.helper';
+import {
+  hashPassword,
+  validateRegistrationData,
+  verifyOtp,
+} from '../utils/auth.helper';
 import { PrismaService } from './prisma.service';
 import { validationError } from '@org/errors';
 
@@ -67,13 +71,15 @@ export class AuthController {
     try {
       validateRegistrationData(req.body, 'seller');
 
-      const { name, email, password, phone_number, country } = req.body as {
-        name: string;
-        email: string;
-        password: string;
-        phone_number: string;
-        country: string;
-      };
+      const { name, email, password, phone_number, country, otp } =
+        req.body as {
+          name: string;
+          email: string;
+          password: string;
+          phone_number: string;
+          country: string;
+          otp: string;
+        };
 
       const existingUser = await this.prisma.users.findUnique({
         where: { email },
@@ -83,9 +89,7 @@ export class AuthController {
         throw validationError('Seller already exists with this email!');
       }
 
-      //CheckOtpRegistration
-      const isOtpValid = await checkOtpRegistration(email);
-      if (!isOtpValid) {
+      if (!otp || !(await verifyOtp(email, otp))) {
         throw validationError('Invalid OTP!');
       }
 

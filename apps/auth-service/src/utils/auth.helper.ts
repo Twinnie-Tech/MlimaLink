@@ -93,6 +93,13 @@ export async function sendOtp(
   return otp;
 }
 
+/** Compare submitted OTP against the value stored in Redis. */
+export async function verifyOtp(email: string, otp: string): Promise<boolean> {
+  await ensureRedisConnected();
+  const storedOtp = await redisClient.get(`otp:${email}`);
+  return storedOtp !== null && storedOtp === otp;
+}
+
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString('hex');
   const derivedKey = (await scrypt(password, salt, 64)) as Buffer;
