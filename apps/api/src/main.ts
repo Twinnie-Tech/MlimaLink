@@ -4,17 +4,25 @@
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // Nest built-in CORS (do not use the raw `cors` package)
   app.enableCors({
-    origin: '*',
-    methods: 'GET,POST,PUT,DELETE,OPTIONS',
-    allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept',
+    origin: process.env.CORS_ORIGIN?.split(',') ?? true,
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
+    credentials: true,
   });
+
+  app.use(cookieParser());
+  app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
@@ -29,7 +37,6 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   const host = process.env.HOST ?? '0.0.0.0';
-  // Prefer API_PORT so a shared PORT (e.g. gateway e2e) does not collide
   const port = process.env.API_PORT
     ? Number(process.env.API_PORT)
     : process.env.PORT

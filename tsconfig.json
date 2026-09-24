@@ -38,6 +38,12 @@
     },
     {
       "path": "./apps/api-gateway"
+    },
+    {
+      "path": "./apps/auth-service"
+    },
+    {
+      "path": "./packages/shared/errors"
     }
   ]
 }

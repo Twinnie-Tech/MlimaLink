@@ -1,0 +1,99 @@
+{
+  "name": "@org/auth-service",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "auth-service",
+    "targets": {
+      "prune-lockfile": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "executor": "@nx/js:prune-lockfile",
+        "outputs": [
+          "{workspaceRoot}/apps/auth-service/dist/package.json",
+          "{workspaceRoot}/apps/auth-service/dist/package-lock.json"
+        ],
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "copy-workspace-modules": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "outputs": [
+          "{workspaceRoot}/apps/auth-service/dist/workspace_modules"
+        ],
+        "executor": "@nx/js:copy-workspace-modules",
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "prune": {
+        "dependsOn": [
+          "prune-lockfile",
+          "copy-workspace-modules"
+        ],
+        "executor": "nx:noop"
+      },
+      "serve": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "auth-service:build",
+          "runBuildTargetDependencies": false,
+          "watch": false,
+          "inspect": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "auth-service:build:development"
+          },
+          "production": {
+            "buildTarget": "auth-service:build:production"
+          }
+        }
+      }
+    },
+    "tags": [
+      "scope:auth"
+    ]
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.4.7",
+    "@nestjs/throttler": "^6.7.0",
+    "@org/errors": "^0.0.1",
+    "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^18.0.3",
+    "ejs": "^6.0.1",
+    "ioredis": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.12.1",
+    "nodemailer": "^10.0.10",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/nodemailer": "^8.0.2"
+  }
+}

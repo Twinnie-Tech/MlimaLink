@@ -36,6 +36,9 @@
       "path": "../../packages/shared/models/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/shared/errors/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/api/products/tsconfig.lib.json"
     }
   ]

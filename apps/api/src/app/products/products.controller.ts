@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Param,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -19,6 +12,7 @@ import type {
   Product,
   ProductFilter,
 } from '@org/models';
+import { notFound } from '@org/errors';
 import { ProductsApiService } from './products.service';
 
 @ApiTags('products')
@@ -27,7 +21,9 @@ export class ProductsController {
   constructor(private readonly productsApiService: ProductsApiService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List products with optional filters and pagination' })
+  @ApiOperation({
+    summary: 'List products with optional filters and pagination',
+  })
   @ApiQuery({ name: 'category', required: false })
   @ApiQuery({ name: 'minPrice', required: false, type: Number })
   @ApiQuery({ name: 'maxPrice', required: false, type: Number })
@@ -93,14 +89,7 @@ export class ProductsController {
     const product = this.productsApiService.getProductById(id);
 
     if (!product) {
-      throw new HttpException(
-        {
-          data: null,
-          success: false,
-          error: 'Product not found',
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw notFound('Product', { id });
     }
 
     return {

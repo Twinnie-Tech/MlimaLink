@@ -4,21 +4,28 @@
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
-    origin: '*',
-    methods: 'GET,POST,PUT,DELETE,OPTIONS',
-    allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept',
+    origin: process.env.CORS_ORIGIN?.split(',') ?? true,
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization',
+    credentials: true,
   });
+
+  app.use(cookieParser());
+  app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
   const apiTarget =
     process.env.API_URL ??
-    `http://localhost:${process.env.API_PORT ? Number(process.env.API_PORT) : 3333}`;
+    `http://127.0.0.1:${process.env.API_PORT ? Number(process.env.API_PORT) : 3333}`;
   const expressApp = app.getHttpAdapter().getInstance();
 
   expressApp.use(
