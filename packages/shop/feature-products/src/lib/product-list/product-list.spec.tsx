@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 import { ProductList } from './product-list';
 import { useProducts, useCategories } from '@org/shop-data';
 
@@ -54,13 +53,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -79,13 +72,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     expect(screen.getByText('Failed to load products')).toBeInTheDocument();
   });
@@ -104,13 +91,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     expect(screen.getByText('Our Products')).toBeInTheDocument();
     expect(screen.getByText('Wireless Headphones')).toBeInTheDocument();
@@ -134,13 +115,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     const searchInput = screen.getByPlaceholderText('Search products...');
     fireEvent.change(searchInput, { target: { value: 'Wireless' } });
@@ -170,13 +145,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     const categorySelect = screen.getByRole('combobox');
     fireEvent.change(categorySelect, { target: { value: 'Electronics' } });
@@ -206,13 +175,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     const inStockCheckbox = screen.getByRole('checkbox');
     fireEvent.click(inStockCheckbox);
@@ -242,13 +205,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     const nextButton = screen.getByText('Next');
     fireEvent.click(nextButton);
@@ -258,7 +215,7 @@ describe('ProductList', () => {
     });
   });
 
-  it('should navigate to product detail when card is clicked', () => {
+  it('should call onProductSelect when a card is clicked', () => {
     vi.mocked(useProducts).mockReturnValue({
       products: mockProducts,
       loading: false,
@@ -271,16 +228,16 @@ describe('ProductList', () => {
       loading: false,
       error: null,
     });
+    const onProductSelect = vi.fn();
 
     const { container } = render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
+      <ProductList onProductSelect={onProductSelect} />,
     );
 
     const productCard = container.querySelector('[class*="product-card"]');
     expect(productCard).toBeInTheDocument();
+    fireEvent.click(productCard as Element);
+
+    expect(onProductSelect).toHaveBeenCalledWith(mockProducts[0]);
   });
 });

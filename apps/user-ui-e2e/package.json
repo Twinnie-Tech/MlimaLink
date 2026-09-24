@@ -1,10 +1,10 @@
 {
-  "name": "@org/shop-e2e",
+  "name": "@org/user-ui-e2e",
   "version": "0.0.1",
   "private": true,
   "nx": {
     "implicitDependencies": [
-      "@org/shop",
+      "@org/user-ui",
       "@org/api-gateway",
       "api"
     ],
@@ -13,10 +13,10 @@
         "dependsOn": [
           "api:build",
           "@org/api-gateway:build",
-          "@org/shop:build"
+          "@org/user-ui:build"
         ],
         "options": {
-          "command": "node ../../tools/run-shop-e2e.mjs"
+          "command": "node ../../tools/run-user-ui-e2e.mjs"
         }
       }
     }

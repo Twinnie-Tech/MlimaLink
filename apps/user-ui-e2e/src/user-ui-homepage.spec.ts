@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Shop Homepage', () => {
+test.describe('User UI Homepage', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
   test('should display the main header', async ({ page }) => {
     const header = page.locator('h1').first();
-    await expect(header).toContainText('Nx Shop Demo');
+    await expect(header).toContainText('MlimaLink');
   });
 
   test('should redirect to products page by default', async ({ page }) => {

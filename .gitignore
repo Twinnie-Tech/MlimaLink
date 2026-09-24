@@ -56,3 +56,7 @@ test-output
 .nx/self-healing
 .nx/migrate-runs
 /generated/prisma
+
+# Next.js
+.next
+out

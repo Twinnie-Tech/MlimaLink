@@ -30,20 +30,31 @@ test.describe('Product Listing Page', () => {
 
   test('should filter products by category', async ({ page }) => {
     const categoryDropdown = page.locator('select');
-    await categoryDropdown.selectOption('Electronics');
+    await expect(
+      categoryDropdown.locator('option[value="Electronics"]'),
+    ).toBeAttached();
 
-    const productCategories = page.locator(
-      '[class*="product-card"] p:first-of-type',
+    // The unfiltered list can already start with an Electronics product, so
+    // wait for the filtered response instead of the first card's text.
+    const filteredResponse = page.waitForResponse(
+      (res) =>
+        res.url().includes('/api/products?') &&
+        res.url().includes('category=Electronics'),
     );
+    await categoryDropdown.selectOption('Electronics');
+    await filteredResponse;
 
-    // Wait for the filtered list to settle on the first matching card
-    await expect(productCategories.first()).toHaveText('Electronics');
+    const productCards = page.getByRole('button', {
+      name: /^View details for/,
+    });
+    await expect(productCards.first()).toBeVisible();
 
-    const count = await productCategories.count();
-    for (let i = 0; i < count; i++) {
-      const category = productCategories.nth(i);
-      await expect(category).toHaveText('Electronics');
-    }
+    const productCategories = page.locator('[class*="product-category"]');
+    await expect(
+      productCategories.filter({ hasNotText: 'Electronics' }),
+    ).toHaveCount(0);
+    expect(await productCategories.count()).toBeGreaterThan(0);
+    await expect(productCategories).toHaveCount(await productCards.count());
   });
 
   test('should filter products by search term', async ({ page }) => {

@@ -3,6 +3,7 @@
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
 ✨ A repository showcasing key [Nx](https://nx.dev) features for React monorepos ✨
+
 ## Finish your Nx platform setup
 
 🚀 [Finish setting up your workspace](https://cloud.nx.app/connect/0PVQQK5Mct) to get faster builds with remote caching, distributed task execution, and self-healing CI. [Learn more about Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud).
@@ -13,7 +14,7 @@ This repository demonstrates a production-ready React monorepo with:
 
 - **2 Applications**
 
-  - `shop` - React e-commerce application with product listings and detail views
+  - `user-ui` - Next.js e-commerce application with product listings and detail views
   - `api` - Backend API serving product data
 
 - **7 Libraries**
@@ -27,7 +28,7 @@ This repository demonstrates a production-ready React monorepo with:
   - `@org/shared-test-utils` - Shared testing utilities
 
 - **E2E Testing**
-  - `shop-e2e` - Playwright tests for the shop application
+  - `user-ui-e2e` - Playwright tests for the user-ui application
 
 ## 🚀 Quick Start
 
@@ -39,8 +40,12 @@ cd <your-repository-name>
 # Install dependencies
 npm install
 
-# Serve the React shop application (this will simultaneously serve the API backend)
-npx nx run @org/shop:serve
+# Serve the Next.js user-ui application on http://localhost:4200
+# (/api requests are proxied to the API gateway on port 3000)
+npx nx run @org/user-ui:dev
+
+# ...or build the backend and start API, gateway and user-ui together
+npm run dev
 
 # ...or you can serve the API separately
 npx nx run @org/api:serve
@@ -55,7 +60,7 @@ npx nx run-many -t test
 npx nx run-many -t lint
 
 # Run e2e tests
-npx nx run @org/shop-e2e:e2e
+npx nx run @org/user-ui-e2e:e2e
 
 # Run tasks in parallel
 
@@ -87,7 +92,7 @@ Enforces architectural constraints using tags. Each project has specific depende
 npx nx graph
 
 # View a specific project's details
-npx nx show project @org/shop --web
+npx nx show project @org/user-ui --web
 ```
 
 [Learn more about module boundaries →](https://nx.dev/docs/features/enforce-module-boundaries)
@@ -98,10 +103,7 @@ End-to-end testing with Playwright is pre-configured:
 
 ```bash
 # Run e2e tests
-npx nx run @org/shop-e2e:e2e
-
-# Run e2e tests in CI mode
-npx nx run @org/shop-e2e:e2e-ci
+npx nx run @org/user-ui-e2e:e2e
 ```
 
 [Learn more about E2E testing →](https://nx.dev/docs/technologies/test-tools/playwright)
@@ -142,8 +144,8 @@ This feature helps maintain a healthy CI pipeline by automatically detecting and
 
 ```
 ├── apps/
-│   ├── shop/           [scope:shop]    - React e-commerce app
-│   ├── shop-e2e/                       - E2E tests for shop
+│   ├── user-ui/        [scope:shop]    - Next.js e-commerce app
+│   ├── user-ui-e2e/                    - E2E tests for user-ui
 │   └── api/            [scope:api]     - Backend API
 ├── packages/
 │   ├── shop/
@@ -167,7 +169,7 @@ This repository uses tags to enforce module boundaries:
 
 | Project                 | Tags                         | Can Import From              |
 | ----------------------- | ---------------------------- | ---------------------------- |
-| `shop`                  | `scope:shop`                 | `scope:shop`, `scope:shared` |
+| `user-ui`               | `scope:shop`                 | `scope:shop`, `scope:shared` |
 | `api`                   | `scope:api`                  | `scope:api`, `scope:shared`  |
 | `shop-feature-products` | `scope:shop`, `type:feature` | `scope:shop`, `scope:shared` |
 | `shop-data`             | `scope:shop`, `type:data`    | `scope:shared`               |
@@ -179,12 +181,12 @@ This repository uses tags to enforce module boundaries:
 # Project exploration
 npx nx graph                                    # Interactive dependency graph
 npx nx list                                     # List installed plugins
-npx nx show project @org/shop --web                 # View project details
+npx nx show project @org/user-ui --web              # View project details
 
 # Development
-npx nx run @org/shop:serve                              # Serve React app
+npx nx run @org/user-ui:dev                             # Serve Next.js app
 npx nx run @org/api:serve                               # Serve backend API
-npx nx run @org/shop:build                              # Build React app
+npx nx run @org/user-ui:build                           # Build Next.js app
 npx nx run @org/shop-data:test                          # Test a specific library
 npx nx run @org/shop-feature-products:lint              # Lint a specific library
 

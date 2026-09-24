@@ -1,0 +1,53 @@
+{
+  "name": "@org/user-ui",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "sourceRoot": "apps/user-ui/src",
+    "tags": [
+      "scope:shop"
+    ],
+    "targets": {
+      "build": {
+        "options": {
+          "env": {
+            "NODE_ENV": "production"
+          }
+        }
+      },
+      "dev": {
+        "options": {
+          "port": 4200
+        }
+      },
+      "start": {
+        "options": {
+          "port": 4200,
+          "env": {
+            "NODE_ENV": "production"
+          }
+        }
+      },
+      "serve-static": {
+        "options": {
+          "port": 4200,
+          "env": {
+            "NODE_ENV": "production"
+          }
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "next": "~16.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@org/models": "*",
+    "@org/shop-data": "*",
+    "@org/shop-feature-product-detail": "*",
+    "@org/shop-feature-products": "*",
+    "@org/shop-shared-ui": "*"
+  }
+}

@@ -1,15 +1,17 @@
-import { useParams, useNavigate } from 'react-router-dom';
 import { useProduct } from '@org/shop-data';
 import { LoadingSpinner, ErrorMessage } from '@org/shop-shared-ui';
 import styles from './product-detail.module.css';
 
-export function ProductDetail() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { product, loading, error } = useProduct(id);
+export interface ProductDetailProps {
+  productId?: string;
+  onBack?: () => void;
+}
+
+export function ProductDetail({ productId, onBack }: ProductDetailProps = {}) {
+  const { product, loading, error } = useProduct(productId);
 
   const handleBackClick = () => {
-    navigate('/products');
+    onBack?.();
   };
 
   const handleAddToCart = () => {

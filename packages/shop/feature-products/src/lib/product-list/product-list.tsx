@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Product, ProductFilter } from '@org/models';
 import { useProducts, useCategories } from '@org/shop-data';
 import { ProductGrid, LoadingSpinner, ErrorMessage } from '@org/shop-shared-ui';
 import styles from './product-list.module.css';
 
-export function ProductList() {
-  const navigate = useNavigate();
+export interface ProductListProps {
+  onProductSelect?: (product: Product) => void;
+}
 
+export function ProductList({ onProductSelect }: ProductListProps = {}) {
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -42,7 +43,7 @@ export function ProductList() {
   }, [searchTerm, selectedCategory, inStockOnly]);
 
   const handleProductSelect = (product: Product) => {
-    navigate(`/products/${product.id}`);
+    onProductSelect?.(product);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

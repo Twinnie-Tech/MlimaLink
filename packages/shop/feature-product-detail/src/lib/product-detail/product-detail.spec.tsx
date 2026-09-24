@@ -1,23 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 import { ProductDetail } from './product-detail';
 import { useProduct } from '@org/shop-data';
-import { useParams, useNavigate } from 'react-router-dom';
 
 // Mock the hooks
 vi.mock('@org/shop-data', () => ({
   useProduct: vi.fn(),
 }));
-
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useParams: vi.fn(),
-    useNavigate: vi.fn(),
-  };
-});
 
 const mockProduct = {
   id: '1',
@@ -33,12 +22,8 @@ const mockProduct = {
 };
 
 describe('ProductDetail', () => {
-  const mockNavigate = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useParams).mockReturnValue({ id: '1' });
-    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
   });
 
   it('should render loading state initially', () => {
@@ -48,13 +33,7 @@ describe('ProductDetail', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="1" />);
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -66,13 +45,7 @@ describe('ProductDetail', () => {
       error: 'Failed to load product',
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="1" />);
 
     expect(screen.getByText('Failed to load product')).toBeInTheDocument();
   });
@@ -84,13 +57,7 @@ describe('ProductDetail', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="1" />);
 
     expect(screen.getByText('Product not found')).toBeInTheDocument();
   });
@@ -102,13 +69,7 @@ describe('ProductDetail', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="1" />);
 
     expect(
       screen.getByText('Wireless Bluetooth Headphones'),
@@ -132,13 +93,7 @@ describe('ProductDetail', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="1" />);
 
     expect(screen.getAllByText('Out of Stock')[0]).toBeInTheDocument();
     const addToCartButton = screen.getByRole('button', {
@@ -154,13 +109,7 @@ describe('ProductDetail', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="1" />);
 
     expect(screen.getByText('Product Details')).toBeInTheDocument();
     expect(screen.getByText(/Product ID:/)).toBeInTheDocument();
@@ -171,45 +120,33 @@ describe('ProductDetail', () => {
     expect(screen.getByText(/120.*customer reviews/)).toBeInTheDocument();
   });
 
-  it('should handle back button click', () => {
+  it('should call onBack when the back button is clicked', () => {
     vi.mocked(useProduct).mockReturnValue({
       product: mockProduct,
       loading: false,
       error: null,
     });
+    const onBack = vi.fn();
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="1" onBack={onBack} />);
 
     const backButton = screen.getByRole('button', {
       name: /back to products/i,
     });
     backButton.click();
 
-    expect(mockNavigate).toHaveBeenCalledWith('/products');
+    expect(onBack).toHaveBeenCalledTimes(1);
   });
 
-  it('should fetch product with correct id from params', () => {
+  it('should fetch product with the given productId', () => {
     const mockUseProduct = vi.fn().mockReturnValue({
       product: mockProduct,
       loading: false,
       error: null,
     });
     vi.mocked(useProduct).mockImplementation(mockUseProduct);
-    vi.mocked(useParams).mockReturnValue({ id: '42' });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="42" />);
 
     expect(mockUseProduct).toHaveBeenCalledWith('42');
   });
@@ -221,13 +158,7 @@ describe('ProductDetail', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductDetail />
-      </BrowserRouter>,
-    );
+    render(<ProductDetail productId="1" />);
 
     const image = screen.getByAltText('Wireless Bluetooth Headphones');
     expect(image).toBeInTheDocument();

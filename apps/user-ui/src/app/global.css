@@ -1,0 +1,34 @@
+@import 'tailwindcss';
+
+/* Shared shop libraries live outside this app, so scan them for classes too. */
+@source '../../../../packages/shop';
+
+@theme {
+  --color-brand-start: #667eea;
+  --color-brand-end: #764ba2;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-neutral-100 font-sans text-[#333] antialiased;
+  }
+
+  /* Preflight unstyles headings; the shop libraries expect browser-default weight. */
+  h1,
+  h2,
+  h3 {
+    @apply font-bold;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+}

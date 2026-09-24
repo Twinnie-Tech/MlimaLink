@@ -1,0 +1,25 @@
+//@ts-check
+
+const apiGatewayUrl = process.env.API_GATEWAY_URL || 'http://127.0.0.1:3000';
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Workspace libraries export TypeScript source, so Next must compile them.
+  transpilePackages: [
+    '@org/models',
+    '@org/shop-data',
+    '@org/shop-feature-product-detail',
+    '@org/shop-feature-products',
+    '@org/shop-shared-ui',
+  ],
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${apiGatewayUrl}/api/:path*`,
+      },
+    ];
+  },
+};
+
+module.exports = nextConfig;
