@@ -1,3 +1,4 @@
+import '../env';
 import { join } from 'path';
 import { readFile } from 'fs/promises';
 import ejs from 'ejs';
@@ -7,7 +8,10 @@ export type SendEmailData = Record<string, unknown>;
 
 function createGmailTransporter() {
   const user = process.env.SMTP_USER ?? process.env.GMAIL_USER;
-  const pass = process.env.SMTP_PASS ?? process.env.GMAIL_PASS;
+  const pass = (process.env.SMTP_PASS ?? process.env.GMAIL_PASS)?.replace(
+    /\s+/g,
+    '',
+  );
 
   if (!user || !pass) {
     throw new Error(
@@ -16,13 +20,11 @@ function createGmailTransporter() {
   }
 
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    service: process.env.SMTP_SERVICE,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
+    service: process.env.SMTP_SERVICE || 'gmail',
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: Number(process.env.SMTP_PORT) || 465,
+    secure: Number(process.env.SMTP_PORT) === 465,
+    auth: { user, pass },
   });
 }
 

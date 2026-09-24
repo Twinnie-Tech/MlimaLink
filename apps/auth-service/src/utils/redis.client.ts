@@ -1,10 +1,21 @@
+import '../env';
 import Redis from 'ioredis';
 
-const redisUrl = process.env.REDIS_URL ?? 'redis://127.0.0.1:6379';
+function resolveRedisUrl(): string {
+  const raw = process.env.REDIS_URL ?? 'redis://127.0.0.1:6379';
+  // Upstash requires TLS — use rediss://
+  if (raw.includes('upstash.io') && raw.startsWith('redis://')) {
+    return raw.replace(/^redis:\/\//, 'rediss://');
+  }
+  return raw;
+}
+
+const redisUrl = resolveRedisUrl();
 
 export const redisClient = new Redis(redisUrl, {
   maxRetriesPerRequest: 3,
   lazyConnect: true,
+  tls: redisUrl.startsWith('rediss://') ? {} : undefined,
 });
 
 redisClient.on('error', (error) => {
@@ -12,8 +23,16 @@ redisClient.on('error', (error) => {
 });
 
 export async function ensureRedisConnected(): Promise<void> {
-  if (redisClient.status === 'ready' || redisClient.status === 'connecting') {
+  if (redisClient.status === 'ready') {
     return;
   }
-  await redisClient.connect();
+
+  if (redisClient.status === 'end' || redisClient.status === 'close') {
+    await redisClient.connect();
+    return;
+  }
+
+  if (redisClient.status === 'wait') {
+    await redisClient.connect();
+  }
 }

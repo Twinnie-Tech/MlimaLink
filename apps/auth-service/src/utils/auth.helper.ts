@@ -1,15 +1,22 @@
-import { randomBytes, randomInt, scrypt as scryptCallback } from 'crypto';
-import { promisify } from 'util';
-import type { NextFunction } from 'express';
+import { createHash, randomBytes, randomInt } from 'crypto';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+import type { NextFunction, Request, Response } from 'express';
+import type { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import ejs from 'ejs';
 import { validationError } from '@org/errors';
 import { ensureRedisConnected, redisClient } from './redis.client';
 import { sendEmail } from './send-email';
 
-const scrypt = promisify(scryptCallback);
-
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** At least 8 chars, with upper, lower, digit, and special character. */
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+const PASSWORD_RULES_MESSAGE =
+  'Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character!';
 const OTP_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 const OTP_COOLDOWN_SECONDS = 60;
+const RESET_TOKEN_TTL_SECONDS = 15 * 60;
 
 export type RegistrationUserType = 'user' | 'seller';
 
@@ -38,6 +45,10 @@ export function validateRegistrationData(
 
   if (!emailRegex.test(email)) {
     throw validationError('Invalid email format!');
+  }
+
+  if (!passwordRegex.test(password)) {
+    throw validationError(PASSWORD_RULES_MESSAGE);
   }
 }
 
@@ -104,15 +115,258 @@ export async function sendOtp(
   return otp;
 }
 
+/** Welcome email after account is verified and created. */
+export async function sendAccountCreatedEmail(user: {
+  name: string;
+  email: string;
+  role?: string | null;
+}): Promise<void> {
+  await sendEmail(
+    user.email,
+    'Welcome to MlimaLink — your account is ready',
+    'user_account_created',
+    {
+      name: user.name,
+      email: user.email,
+      role: user.role ?? 'user',
+    },
+  );
+}
+
 /** Compare submitted OTP against the value stored in Redis. */
-export async function verifyOtp(email: string, otp: string): Promise<boolean> {
+export async function verifyOtp(
+  email: string,
+  otp: string,
+  _next: NextFunction,
+): Promise<void> {
   await ensureRedisConnected();
+
   const storedOtp = await redisClient.get(`otp:${email}`);
-  return storedOtp !== null && storedOtp === otp;
+  if (!storedOtp) {
+    throw validationError('Invalid or expired OTP!');
+  }
+
+  const failedAttemptsKey = `otp_failed_attempts:${email}`;
+  const failedAttemptsRaw = await redisClient.get(failedAttemptsKey);
+  const failedAttempts = failedAttemptsRaw
+    ? parseInt(failedAttemptsRaw, 10)
+    : 0;
+
+  if (failedAttempts >= 5) {
+    await redisClient.set(`otp_lock:${email}`, 'locked', 'EX', 1800);
+    throw validationError(
+      'Account locked due to multiple failed attempts! Try again after 30 minutes.',
+    );
+  }
+
+  if (storedOtp !== otp) {
+    const attempts = await redisClient.incr(failedAttemptsKey);
+    if (attempts === 1) {
+      await redisClient.expire(failedAttemptsKey, OTP_TTL_SECONDS);
+    }
+
+    if (attempts >= 5) {
+      await redisClient.set(`otp_lock:${email}`, 'locked', 'EX', 1800);
+      throw validationError(
+        'Account locked due to multiple failed attempts! Try again after 30 minutes.',
+      );
+    }
+
+    throw validationError(`Invalid OTP! ${5 - attempts} attempts remaining.`);
+  }
+
+  await redisClient.del(`otp:${email}`, failedAttemptsKey);
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString('hex');
-  const derivedKey = (await scrypt(password, salt, 64)) as Buffer;
-  return `${salt}:${derivedKey.toString('hex')}`;
+  return bcrypt.hash(password, 10);
+}
+
+function hashResetToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
+}
+
+function buildResetLink(token: string): string {
+  const base =
+    process.env.RESET_PASSWORD_URL ??
+    `http://localhost:${process.env.AUTH_PORT ?? 3334}/api/auth/reset-password`;
+  return `${base}?token=${encodeURIComponent(token)}`;
+}
+
+/** Email a one-time reset link. Responds the same whether or not the email exists. */
+export async function handleForgotPassword(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  userType: RegistrationUserType,
+  prisma: PrismaClient,
+): Promise<void> {
+  try {
+    const { email } = req.body as { email?: string };
+
+    if (!email) {
+      throw validationError('Email is required!');
+    }
+
+    if (!emailRegex.test(email)) {
+      throw validationError('Invalid email format!');
+    }
+
+    const user = await prisma.users.findUnique({ where: { email } });
+
+    if (user && user.role === userType) {
+      await checkOtpRegistration(email, next);
+      await trackOtp(email, next);
+
+      const token = randomBytes(32).toString('hex');
+      const tokenHash = hashResetToken(token);
+      const userTokenKey = `password_reset_user:${user.id}`;
+
+      const previousHash = await redisClient.get(userTokenKey);
+      if (previousHash) {
+        await redisClient.del(`password_reset:${previousHash}`);
+      }
+
+      await redisClient.set(
+        `password_reset:${tokenHash}`,
+        user.id,
+        'EX',
+        RESET_TOKEN_TTL_SECONDS,
+      );
+      await redisClient.set(
+        userTokenKey,
+        tokenHash,
+        'EX',
+        RESET_TOKEN_TTL_SECONDS,
+      );
+
+      await sendEmail(
+        email,
+        'Reset your MlimaLink password',
+        'forgot_password',
+        {
+          name: user.name,
+          resetLink: buildResetLink(token),
+          expiresInMinutes: RESET_TOKEN_TTL_SECONDS / 60,
+        },
+      );
+
+      await redisClient.set(
+        `otp_cooldown:${email}`,
+        'true',
+        'EX',
+        OTP_COOLDOWN_SECONDS,
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message:
+        'If an account exists for this email, a password reset link has been sent.',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** Serve the page the reset link opens. */
+export async function renderResetPasswordPage(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const token = typeof req.query.token === 'string' ? req.query.token : '';
+
+    let tokenValid = false;
+    if (token) {
+      await ensureRedisConnected();
+      tokenValid =
+        (await redisClient.exists(
+          `password_reset:${hashResetToken(token)}`,
+        )) === 1;
+    }
+
+    const templatePath = join(
+      __dirname,
+      'assets',
+      'pages',
+      'reset-password.ejs',
+    );
+    const html = ejs.render(await readFile(templatePath, 'utf8'), {
+      token,
+      tokenValid,
+    });
+    res
+      .status(tokenValid ? 200 : 410)
+      .type('html')
+      .send(html);
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** Validate the reset token and store the new password. */
+export async function handleResetPassword(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  prisma: PrismaClient,
+): Promise<void> {
+  try {
+    const { token, password, confirmPassword } = req.body as {
+      token?: string;
+      password?: string;
+      confirmPassword?: string;
+    };
+
+    if (!token || !password || !confirmPassword) {
+      throw validationError(
+        'Token, password, and confirm password are required!',
+      );
+    }
+
+    if (password !== confirmPassword) {
+      throw validationError('Passwords do not match!');
+    }
+
+    if (!passwordRegex.test(password)) {
+      throw validationError(PASSWORD_RULES_MESSAGE);
+    }
+
+    await ensureRedisConnected();
+
+    const tokenKey = `password_reset:${hashResetToken(token)}`;
+    const userId = await redisClient.get(tokenKey);
+
+    if (!userId) {
+      throw validationError('Invalid or expired reset link!');
+    }
+
+    const user = await prisma.users.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw validationError('Invalid or expired reset link!');
+    }
+
+    if (user.password && (await bcrypt.compare(password, user.password))) {
+      throw validationError(
+        'New password must be different from your current password!',
+      );
+    }
+
+    await prisma.users.update({
+      where: { id: userId },
+      data: { password: await hashPassword(password) },
+    });
+
+    await redisClient.del(tokenKey, `password_reset_user:${userId}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully. You can now log in.',
+    });
+  } catch (error) {
+    next(error);
+  }
 }
