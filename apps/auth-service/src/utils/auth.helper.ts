@@ -186,6 +186,14 @@ function hashResetToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
+/** Base URL of the customer storefront (user-ui). */
+export function userUiUrl(): string {
+  return (process.env.USER_UI_URL ?? 'http://localhost:4200').replace(
+    /\/+$/,
+    '',
+  );
+}
+
 function buildResetLink(token: string): string {
   const base =
     process.env.RESET_PASSWORD_URL ??
@@ -296,6 +304,8 @@ export async function renderResetPasswordPage(
     const html = ejs.render(await readFile(templatePath, 'utf8'), {
       token,
       tokenValid,
+      loginUrl: `${userUiUrl()}/login`,
+      forgotPasswordUrl: `${userUiUrl()}/forgot-password`,
     });
     res
       .status(tokenValid ? 200 : 410)
