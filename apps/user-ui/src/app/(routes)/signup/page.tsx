@@ -52,6 +52,9 @@ export default function SignupPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
 
+  // The code step needs the details from step one, so their presence decides the step.
+  const showOtp = userData !== null;
+
   const {
     register,
     handleSubmit,
@@ -59,7 +62,7 @@ export default function SignupPage() {
   } = useForm<FormData>();
 
   useEffect(() => {
-    if (!userData || canResend) return;
+    if (!showOtp || canResend) return;
     const timeout = setTimeout(() => {
       if (timer <= 1) {
         setTimer(0);
@@ -69,7 +72,7 @@ export default function SignupPage() {
       }
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [userData, canResend, timer]);
+  }, [showOtp, canResend, timer]);
 
   const signupMutation = useMutation({
     mutationFn: registerUser,
@@ -154,7 +157,7 @@ export default function SignupPage() {
         </Link>
       </p>
 
-      {!userData ? (
+      {!showOtp ? (
         <>
           <div className="mt-6">
             <GoogleButton
