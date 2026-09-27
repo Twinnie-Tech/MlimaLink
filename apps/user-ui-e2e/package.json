@@ -1,0 +1,24 @@
+{
+  "name": "@org/user-ui-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@org/user-ui",
+      "@org/api-gateway",
+      "api"
+    ],
+    "targets": {
+      "e2e": {
+        "dependsOn": [
+          "api:build",
+          "@org/api-gateway:build",
+          "@org/user-ui:build"
+        ],
+        "options": {
+          "command": "node ../../tools/run-user-ui-e2e.mjs"
+        }
+      }
+    }
+  }
+}

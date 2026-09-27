@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+
+/* Shared shop libraries live outside this app, so scan them for classes too. */
+@source '../../../../packages/shop';
+
+@theme {
+  --color-brand-start: #667eea;
+  --color-brand-end: #764ba2;
+}
+
+/* Font variables come from next/font/google in layout.tsx. */
+@theme inline {
+  --font-sans: var(--font-roboto-next), system-ui, sans-serif;
+  --font-roboto: var(--font-roboto-next), system-ui, sans-serif;
+  --font-poppins: var(--font-poppins-next), system-ui, sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-neutral-100 font-sans text-[#333] antialiased;
+  }
+
+  /* Preflight unstyles headings; the shop libraries expect browser-default weight. */
+  h1,
+  h2,
+  h3 {
+    @apply font-bold;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+}

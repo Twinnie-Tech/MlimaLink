@@ -1,5 +1,5 @@
 /**
- * Starts API, API Gateway, and Shop for local development.
+ * Starts API, API Gateway, and user-ui (Next.js) for local development.
  * Usage: node tools/dev.mjs  (or npm run dev)
  */
 import { spawn } from 'child_process';
@@ -13,10 +13,10 @@ const node = process.execPath;
 
 const apiMain = path.join(root, 'apps/api/dist/main.js');
 const gatewayMain = path.join(root, 'apps/api-gateway/dist/main.js');
-const viteBin = path.join(root, 'node_modules/vite/bin/vite.js');
-const viteConfig = path.join(root, 'apps/shop/vite.config.mts');
+const nextBin = path.join(root, 'node_modules/next/dist/bin/next');
+const userUiDir = path.join(root, 'apps/user-ui');
 
-for (const file of [apiMain, gatewayMain, viteBin]) {
+for (const file of [apiMain, gatewayMain, nextBin]) {
   if (!existsSync(file)) {
     console.error(`Missing ${file}. Run: npm run build:backend`);
     process.exit(1);
@@ -32,8 +32,12 @@ function start(name, args, color) {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const tag = `[${name}]`;
-  child.stdout.on('data', (d) => process.stdout.write(`${color}${tag}\x1b[0m ${d}`));
-  child.stderr.on('data', (d) => process.stderr.write(`${color}${tag}\x1b[0m ${d}`));
+  child.stdout.on('data', (d) =>
+    process.stdout.write(`${color}${tag}\x1b[0m ${d}`),
+  );
+  child.stderr.on('data', (d) =>
+    process.stderr.write(`${color}${tag}\x1b[0m ${d}`),
+  );
   child.on('exit', (code, signal) => {
     console.log(`${tag} exited code=${code} signal=${signal}`);
     shutdown(code ?? 1);
@@ -55,7 +59,7 @@ function shutdown(code = 0) {
 process.on('SIGINT', () => shutdown(0));
 process.on('SIGTERM', () => shutdown(0));
 
-console.log('Starting API, Gateway, and Shop...');
+console.log('Starting API, Gateway, and user-ui...');
 start('api', [apiMain], '\x1b[34m');
 start('gateway', [gatewayMain], '\x1b[35m');
-start('shop', [viteBin, '--config', viteConfig], '\x1b[32m');
+start('user-ui', [nextBin, 'dev', userUiDir, '--port', '4200'], '\x1b[32m');

@@ -1,20 +1,47 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Product } from '@org/models';
 import { useProduct } from '@org/shop-data';
-import { LoadingSpinner, ErrorMessage } from '@org/shop-shared-ui';
+import {
+  LoadingSpinner,
+  ErrorMessage,
+  WishlistButton,
+} from '@org/shop-shared-ui';
 import styles from './product-detail.module.css';
 
-export function ProductDetail() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { product, loading, error } = useProduct(id);
+const ADDED_FEEDBACK_MS = 1500;
+
+export interface ProductDetailProps {
+  productId?: string;
+  onBack?: () => void;
+  onAddToCart?: (product: Product) => void;
+  isWishlisted?: boolean;
+  onToggleWishlist?: (product: Product) => void;
+}
+
+export function ProductDetail({
+  productId,
+  onBack,
+  onAddToCart,
+  isWishlisted = false,
+  onToggleWishlist,
+}: ProductDetailProps = {}) {
+  const { product, loading, error } = useProduct(productId);
+  const [justAdded, setJustAdded] = useState(false);
+
+  useEffect(() => {
+    if (!justAdded) return;
+    const timer = setTimeout(() => setJustAdded(false), ADDED_FEEDBACK_MS);
+    return () => clearTimeout(timer);
+  }, [justAdded]);
 
   const handleBackClick = () => {
-    navigate('/products');
+    onBack?.();
   };
 
   const handleAddToCart = () => {
-    // Placeholder for add to cart functionality
-    alert(`Added ${product?.name} to cart!`);
+    if (!product) return;
+    onAddToCart?.(product);
+    setJustAdded(true);
   };
 
   const handleRetry = () => {
@@ -97,8 +124,20 @@ export function ProductDetail() {
               onClick={handleAddToCart}
               disabled={!product.inStock}
             >
-              {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+              {!product.inStock
+                ? 'Out of Stock'
+                : justAdded
+                  ? 'Added to Cart ✓'
+                  : 'Add to Cart'}
             </button>
+            {onToggleWishlist && (
+              <WishlistButton
+                productName={product.name}
+                active={isWishlisted}
+                onToggle={() => onToggleWishlist(product)}
+                showLabel
+              />
+            )}
           </div>
 
           <div className={styles['product-details']}>

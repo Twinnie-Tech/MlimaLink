@@ -4,10 +4,7 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/shop-e2e"
-    },
-    {
-      "path": "./apps/shop"
+      "path": "./apps/user-ui-e2e"
     },
     {
       "path": "./packages/api/products"
@@ -44,6 +41,9 @@
     },
     {
       "path": "./packages/shared/errors"
+    },
+    {
+      "path": "./apps/user-ui"
     }
   ]
 }

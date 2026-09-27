@@ -26,7 +26,20 @@ async function bootstrap() {
   const apiTarget =
     process.env.API_URL ??
     `http://127.0.0.1:${process.env.API_PORT ? Number(process.env.API_PORT) : 3333}`;
+  const authTarget =
+    process.env.AUTH_SERVICE_URL ??
+    `http://127.0.0.1:${process.env.AUTH_PORT ? Number(process.env.AUTH_PORT) : 3334}`;
   const expressApp = app.getHttpAdapter().getInstance();
+
+  // Must be mounted before the catch-all /api proxy below.
+  expressApp.use(
+    '/api/auth',
+    createProxyMiddleware({
+      target: authTarget,
+      changeOrigin: true,
+      pathRewrite: (path) => `/api/auth${path}`,
+    }),
+  );
 
   expressApp.use(
     '/api',
@@ -47,6 +60,7 @@ async function bootstrap() {
 
   await app.listen(port, host);
   Logger.log(`🚀 API Gateway running on: http://${host}:${port}`);
+  Logger.log(`↪️  Proxying /api/auth → ${authTarget}/api/auth`);
   Logger.log(`↪️  Proxying /api → ${apiTarget}/api`);
 }
 

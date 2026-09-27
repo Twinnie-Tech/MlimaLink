@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 import { ProductList } from './product-list';
 import { useProducts, useCategories } from '@org/shop-data';
 
@@ -54,13 +53,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -79,13 +72,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     expect(screen.getByText('Failed to load products')).toBeInTheDocument();
   });
@@ -104,13 +91,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     expect(screen.getByText('Our Products')).toBeInTheDocument();
     expect(screen.getByText('Wireless Headphones')).toBeInTheDocument();
@@ -118,7 +99,26 @@ describe('ProductList', () => {
     expect(screen.getByText('Showing 2 of 2 products')).toBeInTheDocument();
   });
 
-  it('should handle search input', async () => {
+  it('should not render its own search box', () => {
+    vi.mocked(useProducts).mockReturnValue({
+      products: mockProducts,
+      loading: false,
+      error: null,
+      totalProducts: 2,
+      totalPages: 1,
+    });
+    vi.mocked(useCategories).mockReturnValue({
+      categories: ['Electronics', 'Sports'],
+      loading: false,
+      error: null,
+    });
+
+    render(<ProductList />);
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('should apply the searchTerm prop and follow its changes', async () => {
     const mockUseProducts = vi.fn();
     mockUseProducts.mockReturnValue({
       products: mockProducts,
@@ -134,16 +134,20 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    const { rerender } = render(<ProductList searchTerm="Running" />);
 
-    const searchInput = screen.getByPlaceholderText('Search products...');
-    fireEvent.change(searchInput, { target: { value: 'Wireless' } });
+    await waitFor(() => {
+      expect(mockUseProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ searchTerm: 'Running' }),
+        1,
+        12,
+      );
+    });
+    expect(
+      screen.getByText('Showing 2 of 2 products for “Running”'),
+    ).toBeInTheDocument();
+
+    rerender(<ProductList searchTerm="Wireless" />);
 
     await waitFor(() => {
       expect(mockUseProducts).toHaveBeenCalledWith(
@@ -152,6 +156,86 @@ describe('ProductList', () => {
         12,
       );
     });
+  });
+
+  it('should use a controlled category and report changes', async () => {
+    const mockUseProducts = vi.fn();
+    mockUseProducts.mockReturnValue({
+      products: mockProducts,
+      loading: false,
+      error: null,
+      totalProducts: 2,
+      totalPages: 1,
+    });
+    vi.mocked(useProducts).mockImplementation(mockUseProducts);
+    vi.mocked(useCategories).mockReturnValue({
+      categories: ['Electronics', 'Sports'],
+      loading: false,
+      error: null,
+    });
+    const onCategoryChange = vi.fn();
+
+    const { rerender } = render(
+      <ProductList category="Sports" onCategoryChange={onCategoryChange} />,
+    );
+
+    expect(screen.getByRole('combobox')).toHaveValue('Sports');
+    await waitFor(() => {
+      expect(mockUseProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ category: 'Sports' }),
+        1,
+        12,
+      );
+    });
+
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'Electronics' },
+    });
+    expect(onCategoryChange).toHaveBeenCalledWith('Electronics');
+    // Controlled: the value only changes when the parent passes a new category.
+    expect(screen.getByRole('combobox')).toHaveValue('Sports');
+
+    rerender(
+      <ProductList
+        category="Electronics"
+        onCategoryChange={onCategoryChange}
+      />,
+    );
+    expect(screen.getByRole('combobox')).toHaveValue('Electronics');
+  });
+
+  it('should pass wishlist state and toggles to the cards', () => {
+    vi.mocked(useProducts).mockReturnValue({
+      products: mockProducts,
+      loading: false,
+      error: null,
+      totalProducts: 2,
+      totalPages: 1,
+    });
+    vi.mocked(useCategories).mockReturnValue({
+      categories: ['Electronics', 'Sports'],
+      loading: false,
+      error: null,
+    });
+    const onToggleWishlist = vi.fn();
+
+    render(
+      <ProductList
+        isWishlisted={(id) => id === '1'}
+        onToggleWishlist={onToggleWishlist}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Remove Wireless Headphones from wishlist',
+      }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Add Running Shoes to wishlist' }),
+    );
+
+    expect(onToggleWishlist).toHaveBeenCalledWith(mockProducts[1]);
   });
 
   it('should handle category filter', async () => {
@@ -170,13 +254,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     const categorySelect = screen.getByRole('combobox');
     fireEvent.change(categorySelect, { target: { value: 'Electronics' } });
@@ -206,13 +284,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     const inStockCheckbox = screen.getByRole('checkbox');
     fireEvent.click(inStockCheckbox);
@@ -242,13 +314,7 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
-    );
+    render(<ProductList />);
 
     const nextButton = screen.getByText('Next');
     fireEvent.click(nextButton);
@@ -258,7 +324,7 @@ describe('ProductList', () => {
     });
   });
 
-  it('should navigate to product detail when card is clicked', () => {
+  it('should call onProductSelect when a card is clicked', () => {
     vi.mocked(useProducts).mockReturnValue({
       products: mockProducts,
       loading: false,
@@ -271,16 +337,16 @@ describe('ProductList', () => {
       loading: false,
       error: null,
     });
+    const onProductSelect = vi.fn();
 
     const { container } = render(
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <ProductList />
-      </BrowserRouter>,
+      <ProductList onProductSelect={onProductSelect} />,
     );
 
     const productCard = container.querySelector('[class*="product-card"]');
     expect(productCard).toBeInTheDocument();
+    fireEvent.click(productCard as Element);
+
+    expect(onProductSelect).toHaveBeenCalledWith(mockProducts[0]);
   });
 });
