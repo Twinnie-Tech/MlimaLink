@@ -16,7 +16,9 @@ import type { PrismaService } from './prisma.service';
 
 vi.mock('../utils/send-email', () => ({ sendEmail: vi.fn() }));
 vi.mock('../utils/redis.client', async () => {
-  const { createFakeRedis } = await import('../testing/fake-redis');
+  const { createFakeRedis } = await vi.importActual<
+    typeof import('../testing/fake-redis')
+  >('../testing/fake-redis');
   return {
     ensureRedisConnected: async () => undefined,
     redisClient: createFakeRedis(),
@@ -28,7 +30,7 @@ const redis = redisClient as unknown as FakeRedis;
 function mockRes() {
   const res = {
     status: vi.fn(() => res),
-    json: vi.fn(() => res),
+    json: vi.fn<(body: Record<string, unknown>) => void>(),
     cookie: vi.fn(),
     clearCookie: vi.fn(),
   };
@@ -98,7 +100,7 @@ describe('AuthController sessions', () => {
     );
 
     expect(next).not.toHaveBeenCalled();
-    const body = res.json.mock.calls[0][0] as Record<string, unknown>;
+    const body = res.json.mock.calls[0][0];
     expect(body).not.toHaveProperty('accessToken');
     expect(body).not.toHaveProperty('refreshToken');
 

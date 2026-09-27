@@ -12,7 +12,9 @@ import {
 } from './refresh-sessions';
 
 vi.mock('./redis.client', async () => {
-  const { createFakeRedis } = await import('../testing/fake-redis');
+  const { createFakeRedis } = await vi.importActual<
+    typeof import('../testing/fake-redis')
+  >('../testing/fake-redis');
   return {
     ensureRedisConnected: async () => undefined,
     redisClient: createFakeRedis(),
