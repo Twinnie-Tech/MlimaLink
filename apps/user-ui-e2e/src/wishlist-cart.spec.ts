@@ -128,7 +128,7 @@ test.describe('Wishlist and cart', () => {
 
     await page.waitForURL('**/login');
     await expect(
-      page.getByRole('heading', { name: 'Welcome back' }),
+      page.getByRole('heading', { name: 'Login to MlimaLink' }),
     ).toBeVisible();
     await expect(page.getByLabel('Email')).toBeVisible();
     await expect(page.getByLabel('Password', { exact: true })).toBeVisible();

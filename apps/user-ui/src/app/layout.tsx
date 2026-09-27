@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Poppins, Roboto } from 'next/font/google';
 import { Header } from './shared/widgets/header';
+import { QueryProvider } from './shared/providers/query-provider';
 import { ShopStoreProvider } from './shared/store/shop-store';
 import './global.css';
 
@@ -29,12 +30,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${roboto.variable} ${poppins.variable}`}>
       <body>
-        <ShopStoreProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1 bg-neutral-100">{children}</main>
-          </div>
-        </ShopStoreProvider>
+        <QueryProvider>
+          <ShopStoreProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1 bg-neutral-100">{children}</main>
+            </div>
+          </ShopStoreProvider>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -135,7 +135,7 @@ export class AuthController {
     @Next() next: NextFunction,
   ) {
     try {
-      const { email, password } = body;
+      const { email, password, rememberMe = true } = body;
 
       if (!email || !password) {
         throw validationError('Email and password are required!');
@@ -174,8 +174,11 @@ export class AuthController {
         { expiresIn: '7d' },
       );
 
-      setCookie(res, 'refreshToken', refreshToken, authCookieOptions);
-      setCookie(res, 'accessToken', accessToken, authCookieOptions);
+      const cookieOptions = rememberMe
+        ? authCookieOptions
+        : { ...authCookieOptions, maxAge: undefined };
+      setCookie(res, 'refreshToken', refreshToken, cookieOptions);
+      setCookie(res, 'accessToken', accessToken, cookieOptions);
 
       return res.status(200).json({
         success: true,
