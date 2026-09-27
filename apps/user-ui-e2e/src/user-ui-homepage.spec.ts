@@ -11,6 +11,13 @@ test.describe('User UI Homepage', () => {
     await expect(
       header.getByPlaceholder('Search for products...'),
     ).toBeVisible();
+    await expect(header.getByRole('link', { name: 'Sign in' })).toBeVisible();
+    await expect(
+      header.getByRole('link', { name: /^Wishlist, \d+ items?$/ }),
+    ).toBeVisible();
+    await expect(
+      header.getByRole('link', { name: /^Cart, \d+ items?$/ }),
+    ).toBeVisible();
   });
 
   test('should redirect to products page by default', async ({ page }) => {
@@ -29,12 +36,15 @@ test.describe('User UI Homepage', () => {
     await headerSearch.press('Enter');
 
     await page.waitForURL(/\/products\?search=Wireless$/);
-    await expect(page.locator('main input[placeholder*="Search"]')).toHaveValue(
-      'Wireless',
+    await expect(page.locator('[class*="results-info"]')).toContainText(
+      'for “Wireless”',
     );
     await expect(
       page.locator('[class*="product-card"] h3').first(),
     ).toContainText(/wireless/i);
+
+    // The header search is the only search box on the page.
+    await expect(page.locator('input[placeholder*="Search"]')).toHaveCount(1);
   });
 
   test('should have proper page title', async ({ page }) => {

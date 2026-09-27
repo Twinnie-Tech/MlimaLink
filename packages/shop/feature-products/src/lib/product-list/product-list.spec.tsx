@@ -99,7 +99,26 @@ describe('ProductList', () => {
     expect(screen.getByText('Showing 2 of 2 products')).toBeInTheDocument();
   });
 
-  it('should handle search input', async () => {
+  it('should not render its own search box', () => {
+    vi.mocked(useProducts).mockReturnValue({
+      products: mockProducts,
+      loading: false,
+      error: null,
+      totalProducts: 2,
+      totalPages: 1,
+    });
+    vi.mocked(useCategories).mockReturnValue({
+      categories: ['Electronics', 'Sports'],
+      loading: false,
+      error: null,
+    });
+
+    render(<ProductList />);
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('should apply the searchTerm prop and follow its changes', async () => {
     const mockUseProducts = vi.fn();
     mockUseProducts.mockReturnValue({
       products: mockProducts,
@@ -115,10 +134,20 @@ describe('ProductList', () => {
       error: null,
     });
 
-    render(<ProductList />);
+    const { rerender } = render(<ProductList searchTerm="Running" />);
 
-    const searchInput = screen.getByPlaceholderText('Search products...');
-    fireEvent.change(searchInput, { target: { value: 'Wireless' } });
+    await waitFor(() => {
+      expect(mockUseProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ searchTerm: 'Running' }),
+        1,
+        12,
+      );
+    });
+    expect(
+      screen.getByText('Showing 2 of 2 products for “Running”'),
+    ).toBeInTheDocument();
+
+    rerender(<ProductList searchTerm="Wireless" />);
 
     await waitFor(() => {
       expect(mockUseProducts).toHaveBeenCalledWith(
@@ -129,34 +158,38 @@ describe('ProductList', () => {
     });
   });
 
-  it('should start with the initial search term applied', async () => {
-    const mockUseProducts = vi.fn();
-    mockUseProducts.mockReturnValue({
+  it('should pass wishlist state and toggles to the cards', () => {
+    vi.mocked(useProducts).mockReturnValue({
       products: mockProducts,
       loading: false,
       error: null,
       totalProducts: 2,
       totalPages: 1,
     });
-    vi.mocked(useProducts).mockImplementation(mockUseProducts);
     vi.mocked(useCategories).mockReturnValue({
       categories: ['Electronics', 'Sports'],
       loading: false,
       error: null,
     });
+    const onToggleWishlist = vi.fn();
 
-    render(<ProductList initialSearchTerm="Running" />);
-
-    expect(screen.getByPlaceholderText('Search products...')).toHaveValue(
-      'Running',
+    render(
+      <ProductList
+        isWishlisted={(id) => id === '1'}
+        onToggleWishlist={onToggleWishlist}
+      />,
     );
-    await waitFor(() => {
-      expect(mockUseProducts).toHaveBeenCalledWith(
-        expect.objectContaining({ searchTerm: 'Running' }),
-        1,
-        12,
-      );
-    });
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Remove Wireless Headphones from wishlist',
+      }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Add Running Shoes to wishlist' }),
+    );
+
+    expect(onToggleWishlist).toHaveBeenCalledWith(mockProducts[1]);
   });
 
   it('should handle category filter', async () => {

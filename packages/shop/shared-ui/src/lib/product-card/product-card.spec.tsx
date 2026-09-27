@@ -86,6 +86,47 @@ describe('ProductCard', () => {
     expect(card.className).toMatch(/out-of-stock/);
   });
 
+  it('should not render a wishlist button without onToggleWishlist', () => {
+    render(<ProductCard product={mockProduct} onProductClick={mockOnClick} />);
+
+    expect(
+      screen.queryByRole('button', { name: /wishlist/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should toggle the wishlist without opening the product', () => {
+    const onToggleWishlist = vi.fn();
+    render(
+      <ProductCard
+        product={mockProduct}
+        onProductClick={mockOnClick}
+        onToggleWishlist={onToggleWishlist}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Add Test Product to wishlist' }),
+    );
+
+    expect(onToggleWishlist).toHaveBeenCalledWith(mockProduct);
+    expect(mockOnClick).not.toHaveBeenCalled();
+  });
+
+  it('should show the wishlisted state', () => {
+    render(
+      <ProductCard
+        product={mockProduct}
+        onProductClick={mockOnClick}
+        isWishlisted
+        onToggleWishlist={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Remove Test Product from wishlist' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
   it('should have proper accessibility attributes', () => {
     render(<ProductCard product={mockProduct} onProductClick={mockOnClick} />);
 

@@ -1,12 +1,20 @@
 import { Product } from '@org/models';
+import { WishlistButton } from '../wishlist-button/wishlist-button';
 import styles from './product-card.module.css';
 
-interface ProductCardProps {
+export interface ProductCardProps {
   product: Product;
   onProductClick: (product: Product) => void;
+  isWishlisted?: boolean;
+  onToggleWishlist?: (product: Product) => void;
 }
 
-export function ProductCard({ product, onProductClick }: ProductCardProps) {
+export function ProductCard({
+  product,
+  onProductClick,
+  isWishlisted = false,
+  onToggleWishlist,
+}: ProductCardProps) {
   const getStars = () => {
     const stars = [];
     for (let i = 0; i < 5; i++) {
@@ -35,6 +43,15 @@ export function ProductCard({ product, onProductClick }: ProductCardProps) {
         <img src={product.imageUrl} alt={product.name} />
         {!product.inStock && (
           <div className={styles['out-of-stock-overlay']}>Out of Stock</div>
+        )}
+        {onToggleWishlist && (
+          <div className={styles['wishlist-slot']}>
+            <WishlistButton
+              productName={product.name}
+              active={isWishlisted}
+              onToggle={() => onToggleWishlist(product)}
+            />
+          </div>
         )}
       </div>
       <div className={styles['product-info']}>

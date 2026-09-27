@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ProductDetail } from './product-detail';
 import { useProduct } from '@org/shop-data';
@@ -149,6 +149,60 @@ describe('ProductDetail', () => {
     render(<ProductDetail productId="42" />);
 
     expect(mockUseProduct).toHaveBeenCalledWith('42');
+  });
+
+  it('should add the product to the cart and confirm briefly', () => {
+    vi.useFakeTimers();
+    vi.mocked(useProduct).mockReturnValue({
+      product: mockProduct,
+      loading: false,
+      error: null,
+    });
+    const onAddToCart = vi.fn();
+
+    render(<ProductDetail productId="1" onAddToCart={onAddToCart} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add to Cart' }));
+
+    expect(onAddToCart).toHaveBeenCalledWith(mockProduct);
+    expect(
+      screen.getByRole('button', { name: 'Added to Cart ✓' }),
+    ).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+    expect(
+      screen.getByRole('button', { name: 'Add to Cart' }),
+    ).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('should toggle the wishlist from the detail page', () => {
+    vi.mocked(useProduct).mockReturnValue({
+      product: mockProduct,
+      loading: false,
+      error: null,
+    });
+    const onToggleWishlist = vi.fn();
+
+    const { rerender } = render(
+      <ProductDetail productId="1" onToggleWishlist={onToggleWishlist} />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add to Wishlist' }));
+    expect(onToggleWishlist).toHaveBeenCalledWith(mockProduct);
+
+    rerender(
+      <ProductDetail
+        productId="1"
+        isWishlisted
+        onToggleWishlist={onToggleWishlist}
+      />,
+    );
+    expect(
+      screen.getByRole('button', { name: 'Remove from Wishlist' }),
+    ).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('should render product image with alt text', () => {

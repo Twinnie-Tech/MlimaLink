@@ -3,15 +3,19 @@
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ProductList } from '@org/shop-feature-products';
+import { useShopStore } from '../shared/store/shop-store';
 
 function ProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isWishlisted, toggleWishlist } = useShopStore();
 
   return (
     <ProductList
-      initialSearchTerm={searchParams.get('search') ?? ''}
+      searchTerm={searchParams.get('search') ?? ''}
       onProductSelect={(product) => router.push(`/products/${product.id}`)}
+      isWishlisted={isWishlisted}
+      onToggleWishlist={toggleWishlist}
     />
   );
 }

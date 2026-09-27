@@ -20,7 +20,7 @@
 }
 
 .product-card:focus {
-  outline: 2px solid #3498db;
+  outline: 2px solid #667eea;
   outline-offset: 2px;
 }
 
@@ -56,6 +56,13 @@
   justify-content: center;
   font-weight: bold;
   font-size: 1.1rem;
+}
+
+.wishlist-slot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
 }
 
 .product-info {

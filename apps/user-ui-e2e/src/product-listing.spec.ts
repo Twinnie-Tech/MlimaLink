@@ -58,8 +58,12 @@ test.describe('Product Listing Page', () => {
   });
 
   test('should filter products by search term', async ({ page }) => {
-    const searchInput = page.locator('main input[placeholder*="Search"]');
+    // Typing in the header filters the list live, without pressing Enter.
+    const searchInput = page
+      .locator('header')
+      .getByPlaceholder('Search for products...');
     await searchInput.fill('Wireless');
+    await page.waitForURL(/\/products\?search=Wireless$/);
 
     const productNames = page.locator('[class*="product-card"] h3');
 

@@ -6,15 +6,19 @@ import styles from './product-list.module.css';
 
 export interface ProductListProps {
   onProductSelect?: (product: Product) => void;
-  initialSearchTerm?: string;
+  /** Search is owned by the caller (e.g. the app header); the list only applies it. */
+  searchTerm?: string;
+  isWishlisted?: (productId: string) => boolean;
+  onToggleWishlist?: (product: Product) => void;
 }
 
 export function ProductList({
   onProductSelect,
-  initialSearchTerm = '',
+  searchTerm = '',
+  isWishlisted,
+  onToggleWishlist,
 }: ProductListProps = {}) {
   // Filter state
-  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,11 +31,6 @@ export function ProductList({
     12,
   );
   const { categories } = useCategories();
-
-  // Keep the search box in sync when the caller's search term changes
-  useEffect(() => {
-    setSearchTerm(initialSearchTerm);
-  }, [initialSearchTerm]);
 
   // Update filter when filter inputs change
   useEffect(() => {
@@ -53,10 +52,6 @@ export function ProductList({
 
   const handleProductSelect = (product: Product) => {
     onProductSelect?.(product);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -92,21 +87,12 @@ export function ProductList({
       </header>
 
       <div className={styles['filters-section']}>
-        <div className={styles['search-box']}>
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className={styles['search-input']}
-          />
-        </div>
-
         <div className={styles['filter-controls']}>
           <select
             value={selectedCategory}
             onChange={handleCategoryChange}
             className={styles['filter-select']}
+            aria-label="Filter by category"
           >
             <option value="">All Categories</option>
             {categories.map((category) => (
@@ -135,11 +121,14 @@ export function ProductList({
         <>
           <div className={styles['results-info']}>
             Showing {products.length} of {totalProducts} products
+            {searchTerm && <> for &ldquo;{searchTerm}&rdquo;</>}
           </div>
 
           <ProductGrid
             products={products}
             onProductSelect={handleProductSelect}
+            isWishlisted={isWishlisted}
+            onToggleWishlist={onToggleWishlist}
           />
 
           {totalPages > 1 && (
