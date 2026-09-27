@@ -10,6 +10,7 @@ import LoginPage from '../src/app/(routes)/login/page';
 import SignupPage from '../src/app/(routes)/signup/page';
 import ForgotPasswordPage from '../src/app/(routes)/forgot-password/page';
 import { QueryProvider } from '../src/app/shared/providers/query-provider';
+import { useUser } from '../src/app/shared/hooks/use-user';
 
 const push = vi.fn();
 
@@ -100,6 +101,54 @@ describe('Login page', () => {
         rememberMe: true,
       },
     });
+  });
+
+  it('keeps the new user when an earlier session check finishes late', async () => {
+    let finishSessionCheck: (value: unknown) => void = () => undefined;
+    const unauthorized = {
+      ok: false,
+      status: 401,
+      json: async () => ({ success: false }),
+    };
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url.endsWith('/logged-in-user')) {
+        return new Promise((resolve) => {
+          finishSessionCheck = resolve;
+        });
+      }
+      if (url.endsWith('/refresh-token')) return unauthorized;
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          user: { id: '1', name: 'Jane Doe', email: 'jane@example.com' },
+        }),
+      };
+    });
+
+    function SignedInName() {
+      const { user } = useUser();
+      return <p>signed in as: {user?.name ?? 'nobody'}</p>;
+    }
+
+    renderPage(
+      <>
+        <SignedInName />
+        <LoginPage />
+      </>,
+    );
+
+    fill('Email', 'jane@example.com');
+    fill('Password', 'Secret123!');
+    fireEvent.click(screen.getByRole('button', { name: 'Login' }));
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/'));
+
+    await act(async () => {
+      finishSessionCheck(unauthorized);
+    });
+
+    expect(screen.getByText('signed in as: Jane Doe')).toBeTruthy();
   });
 
   it('shows the error returned by the server', async () => {

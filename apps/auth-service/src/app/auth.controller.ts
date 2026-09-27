@@ -1,8 +1,23 @@
-import { Body, Controller, Get, Next, Post, Req, Res } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Next,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import {
   checkOtpRegistration,
   handleForgotPassword,
@@ -15,14 +30,28 @@ import {
   validateRegistrationData,
   verifyOtp,
 } from '../utils/auth.helper';
-import { authCookieOptions, setCookie } from '../utils/setCookie';
+import {
+  REFRESH_TOKEN_COOKIE,
+  clearAuthCookies,
+  getTokenSecrets,
+  readToken,
+  setAccessTokenCookie,
+  setAuthCookies,
+  signAccessToken,
+  signRefreshToken,
+  verifyToken,
+} from '../utils/auth-tokens';
+import {
+  IsAuthenticatedGuard,
+  type AuthenticatedRequest,
+} from './is-authenticated.guard';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { PrismaService } from './prisma.service';
-import { validationError } from '@org/errors';
+import { unauthorized, validationError } from '@org/errors';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -141,14 +170,7 @@ export class AuthController {
         throw validationError('Email and password are required!');
       }
 
-      const accessSecret = process.env.ACCESS_TOKEN_SECRET;
-      const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
-
-      if (!accessSecret || !refreshSecret) {
-        throw new Error(
-          'ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET must be set in .env',
-        );
-      }
+      getTokenSecrets();
 
       const user = await this.prisma.users.findUnique({
         where: { email },
@@ -163,22 +185,10 @@ export class AuthController {
         throw validationError('Invalid email or password!');
       }
 
-      const accessToken = jwt.sign(
-        { userId: user.id, role: user.role },
-        accessSecret,
-        { expiresIn: '15m' },
-      );
-      const refreshToken = jwt.sign(
-        { userId: user.id, role: user.role },
-        refreshSecret,
-        { expiresIn: '7d' },
-      );
-
-      const cookieOptions = rememberMe
-        ? authCookieOptions
-        : { ...authCookieOptions, maxAge: undefined };
-      setCookie(res, 'refreshToken', refreshToken, cookieOptions);
-      setCookie(res, 'accessToken', accessToken, cookieOptions);
+      const tokenPayload = { userId: user.id, role: user.role, rememberMe };
+      const accessToken = signAccessToken(tokenPayload);
+      const refreshToken = signRefreshToken(tokenPayload);
+      setAuthCookies(res, { accessToken, refreshToken }, rememberMe);
 
       return res.status(200).json({
         success: true,
@@ -188,6 +198,7 @@ export class AuthController {
           name: user.name,
           email: user.email,
           role: user.role,
+          createdAt: user.createdAt,
         },
         accessToken,
         refreshToken,
@@ -195,6 +206,64 @@ export class AuthController {
     } catch (error) {
       return next(error);
     }
+  }
+
+  @Get('logged-in-user')
+  @UseGuards(IsAuthenticatedGuard)
+  @ApiOperation({ summary: 'Get the user for the current access token' })
+  @ApiCookieAuth('accessToken')
+  getLoggedInUser(@Req() req: AuthenticatedRequest) {
+    return { success: true, user: req.user };
+  }
+
+  @Post('refresh-token')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Issue a new access token from the refresh token cookie',
+  })
+  @ApiCookieAuth('refreshToken')
+  async refreshToken(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const payload = verifyToken(
+        readToken(req, REFRESH_TOKEN_COOKIE),
+        'refresh',
+      );
+
+      const user = await this.prisma.users.findUnique({
+        where: { id: payload.userId },
+        select: { id: true, role: true },
+      });
+
+      if (!user) {
+        clearAuthCookies(res);
+        throw unauthorized('Session expired! Please log in again.');
+      }
+
+      const rememberMe = payload.rememberMe ?? true;
+      setAccessTokenCookie(
+        res,
+        signAccessToken({ userId: user.id, role: user.role }),
+        rememberMe,
+      );
+
+      return res
+        .status(200)
+        .json({ success: true, message: 'Token refreshed' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  @Post('logout')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Log out by clearing the auth cookies' })
+  logout(@Res({ passthrough: true }) res: Response) {
+    clearAuthCookies(res);
+    return { success: true, message: 'Logged out successfully' };
   }
 
   @Post('forgot-password/user')

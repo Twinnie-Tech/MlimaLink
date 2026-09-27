@@ -5,6 +5,8 @@ export type AuthUser = {
   name: string;
   email: string;
   role: string | null;
+  /** ISO date string. */
+  createdAt?: string;
 };
 
 type MessageResponse = { success: true; message: string };
@@ -15,18 +17,35 @@ export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const PASSWORD_PATTERN =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
-async function postAuth<T>(path: string, body: unknown): Promise<T> {
+export class AuthRequestError extends Error {
+  /** HTTP status, or 0 when the server could not be reached. */
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = 'AuthRequestError';
+  }
+}
+
+async function requestAuth<T>(
+  method: 'GET' | 'POST',
+  path: string,
+  body?: unknown,
+): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`/api/auth/${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method,
+      headers:
+        body === undefined ? undefined : { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify(body),
+      body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new Error(
+    throw new AuthRequestError(
       'Could not reach the server. Check your connection and try again.',
+      0,
     );
   }
 
@@ -37,16 +56,52 @@ async function postAuth<T>(path: string, body: unknown): Promise<T> {
   } | null;
 
   if (!response.ok || data?.success === false) {
-    throw new Error(
+    throw new AuthRequestError(
       data?.error ??
         data?.message ??
         (response.status >= 500
           ? 'The server is unavailable right now. Please try again later.'
           : 'Something went wrong. Please try again.'),
+      response.status,
     );
   }
 
   return data as T;
+}
+
+function postAuth<T>(path: string, body: unknown): Promise<T> {
+  return requestAuth<T>('POST', path, body);
+}
+
+const isUnauthorized = (error: unknown) =>
+  error instanceof AuthRequestError && error.status === 401;
+
+/**
+ * Returns the signed-in user, or null when nobody is signed in.
+ * An expired access token is renewed once with the refresh token cookie.
+ */
+export async function getLoggedInUser(): Promise<AuthUser | null> {
+  const fetchUser = async () =>
+    (await requestAuth<{ user: AuthUser }>('GET', 'logged-in-user')).user;
+
+  try {
+    return await fetchUser();
+  } catch (error) {
+    if (!isUnauthorized(error)) throw error;
+  }
+
+  try {
+    await requestAuth('POST', 'refresh-token');
+  } catch (error) {
+    if (isUnauthorized(error)) return null;
+    throw error;
+  }
+
+  return fetchUser();
+}
+
+export function logoutUser() {
+  return requestAuth<MessageResponse>('POST', 'logout');
 }
 
 export function loginUser(body: {

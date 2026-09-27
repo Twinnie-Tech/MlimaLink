@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { USER_QUERY_KEY } from '../../shared/hooks/use-user';
 import { EMAIL_PATTERN, loginUser } from '../../shared/utils/auth-api';
 import { GoogleButton } from '../../shared/widgets/google-button';
 import {
@@ -29,6 +30,7 @@ export default function LoginPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -38,8 +40,11 @@ export default function LoginPage() {
 
   const loginMutation = useMutation({
     mutationFn: (data: FormData) => loginUser({ ...data, rememberMe }),
-    onSuccess: () => {
+    onSuccess: async (response) => {
       setServerError(null);
+      // A "who's signed in" check started before login must not overwrite the new user.
+      await queryClient.cancelQueries({ queryKey: USER_QUERY_KEY });
+      queryClient.setQueryData(USER_QUERY_KEY, response.user);
       router.push('/');
     },
     onError: (error: Error) => setServerError(error.message),

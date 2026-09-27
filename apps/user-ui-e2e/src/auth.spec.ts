@@ -60,6 +60,73 @@ test.describe('Login page', () => {
     expect(requests).toEqual([
       { email: 'jane@example.com', password: 'Wrong123!', rememberMe: true },
     ]);
+
+    // The header switches to the signed-in user straight away.
+    await expect(
+      page.getByRole('link', {
+        name: 'Your dashboard, signed in as Jane',
+      }),
+    ).toHaveAttribute('href', '/dashboard');
+  });
+});
+
+test.describe('Dashboard', () => {
+  const jane = {
+    id: '1',
+    name: 'Jane Doe',
+    email: 'jane@example.com',
+    role: 'user',
+    createdAt: '2026-03-15T10:00:00.000Z',
+  };
+
+  test('shows the user in the header, opens the dashboard and logs out', async ({
+    page,
+  }) => {
+    let signedIn = true;
+    await page.route('**/api/auth/logged-in-user', (route) =>
+      signedIn
+        ? route.fulfill({ status: 200, json: { success: true, user: jane } })
+        : route.fulfill({ status: 401, json: { success: false } }),
+    );
+    await page.route('**/api/auth/refresh-token', (route) =>
+      route.fulfill({ status: 401, json: { success: false } }),
+    );
+    await page.route('**/api/auth/logout', (route) => {
+      signedIn = false;
+      return route.fulfill({
+        status: 200,
+        json: { success: true, message: 'Logged out successfully' },
+      });
+    });
+
+    await page.goto('/products');
+    const profile = page.getByRole('link', {
+      name: 'Your dashboard, signed in as Jane Doe',
+    });
+    await expect(profile).toContainText('Jane');
+    await profile.click();
+    await page.waitForURL('**/dashboard');
+
+    await expect(
+      page.getByRole('heading', { name: 'Welcome back, Jane' }),
+    ).toBeVisible();
+    await expect(page.getByText('March 2026')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Log out' }).click();
+    await page.waitForURL('**/login');
+    await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible();
+  });
+
+  test('redirects to login when nobody is signed in', async ({ page }) => {
+    await page.route('**/api/auth/logged-in-user', (route) =>
+      route.fulfill({ status: 401, json: { success: false } }),
+    );
+    await page.route('**/api/auth/refresh-token', (route) =>
+      route.fulfill({ status: 401, json: { success: false } }),
+    );
+
+    await page.goto('/dashboard');
+    await page.waitForURL('**/login');
   });
 });
 

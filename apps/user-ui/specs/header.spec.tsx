@@ -3,6 +3,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Header } from '../src/app/shared/widgets/header';
 import { SEARCH_DEBOUNCE_MS } from '../src/app/shared/widgets/search-box';
 import { navItems } from '../src/configs/constants';
+import { QueryProvider } from '../src/app/shared/providers/query-provider';
 import {
   SHOP_STORAGE_KEY,
   ShopStoreProvider,
@@ -28,11 +29,27 @@ vi.mock('@org/shop-data', () => ({
   useCategories: () => categoriesState,
 }));
 
+const session = { user: null as Record<string, string> | null };
+
+const fetchMock = vi.fn(async (url: string) => {
+  const ok = url.endsWith('/logged-in-user') && session.user !== null;
+  return {
+    ok,
+    status: ok ? 200 : 401,
+    json: async () =>
+      ok
+        ? { success: true, user: session.user }
+        : { success: false, error: 'Unauthorized! Please log in.' },
+  };
+});
+
 function renderHeader() {
   return render(
-    <ShopStoreProvider>
-      <Header />
-    </ShopStoreProvider>,
+    <QueryProvider>
+      <ShopStoreProvider>
+        <Header />
+      </ShopStoreProvider>
+    </QueryProvider>,
   );
 }
 
@@ -52,19 +69,24 @@ describe('Header', () => {
     categoriesState.loading = false;
     categoriesState.error = null;
     localStorage.clear();
+    session.user = null;
+    fetchMock.mockClear();
+    vi.stubGlobal('fetch', fetchMock);
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
-  it('renders the logo, search box and account links', () => {
+  it('renders the logo, search box and account links', async () => {
     renderHeader();
 
     expect(
       screen.getByRole('link', { name: 'MlimaLink' }).getAttribute('href'),
     ).toBe('/');
     expect(screen.getByPlaceholderText('Search for products...')).toBeTruthy();
+    expect(await screen.findByText('Sign In')).toBeTruthy();
     expect(
       screen.getByRole('link', { name: 'Sign in' }).getAttribute('href'),
     ).toBe('/login');
@@ -76,6 +98,24 @@ describe('Header', () => {
     expect(
       screen.getByRole('link', { name: 'Cart, 0 items' }).getAttribute('href'),
     ).toBe('/cart');
+  });
+
+  it('shows the signed-in user and links the profile to the dashboard', async () => {
+    session.user = {
+      id: '1',
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      role: 'user',
+    };
+    renderHeader();
+
+    const profile = await screen.findByRole('link', {
+      name: 'Your dashboard, signed in as Jane Doe',
+    });
+    expect(profile.getAttribute('href')).toBe('/dashboard');
+    expect(profile.textContent).toContain('JD');
+    expect(profile.textContent).toContain('Jane');
+    expect(screen.queryByText('Sign In')).toBeNull();
   });
 
   it('shows saved wishlist and cart counts', async () => {

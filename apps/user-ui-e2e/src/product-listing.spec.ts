@@ -62,16 +62,23 @@ test.describe('Product Listing Page', () => {
     const searchInput = page
       .locator('header')
       .getByPlaceholder('Search for products...');
+    // The unfiltered list can already start with a "Wireless" product, so
+    // wait for the filtered response instead of the first card's text.
+    const filteredResponse = page.waitForResponse(
+      (res) =>
+        res.url().includes('/api/products?') &&
+        res.url().includes('searchTerm=Wireless'),
+    );
     await searchInput.fill('Wireless');
     await page.waitForURL(/\/products\?search=Wireless$/);
+    await filteredResponse;
 
     const productNames = page.locator('[class*="product-card"] h3');
-
-    // Wait for the filtered list to settle on a matching product name
-    await expect(productNames.first()).toContainText(/wireless/i);
-
-    const count = await productNames.count();
-    expect(count).toBeGreaterThan(0);
+    await expect(productNames.first()).toBeVisible();
+    await expect(productNames.filter({ hasNotText: /wireless/i })).toHaveCount(
+      0,
+    );
+    expect(await productNames.count()).toBeGreaterThan(0);
   });
 
   test('should filter by in-stock only', async ({ page }) => {
