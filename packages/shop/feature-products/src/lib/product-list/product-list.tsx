@@ -6,11 +6,15 @@ import styles from './product-list.module.css';
 
 export interface ProductListProps {
   onProductSelect?: (product: Product) => void;
+  initialSearchTerm?: string;
 }
 
-export function ProductList({ onProductSelect }: ProductListProps = {}) {
+export function ProductList({
+  onProductSelect,
+  initialSearchTerm = '',
+}: ProductListProps = {}) {
   // Filter state
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,6 +27,11 @@ export function ProductList({ onProductSelect }: ProductListProps = {}) {
     12,
   );
   const { categories } = useCategories();
+
+  // Keep the search box in sync when the caller's search term changes
+  useEffect(() => {
+    setSearchTerm(initialSearchTerm);
+  }, [initialSearchTerm]);
 
   // Update filter when filter inputs change
   useEffect(() => {

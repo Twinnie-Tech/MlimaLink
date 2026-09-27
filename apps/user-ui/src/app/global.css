@@ -6,9 +6,13 @@
 @theme {
   --color-brand-start: #667eea;
   --color-brand-end: #764ba2;
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Font variables come from next/font/google in layout.tsx. */
+@theme inline {
+  --font-sans: var(--font-roboto-next), system-ui, sans-serif;
+  --font-roboto: var(--font-roboto-next), system-ui, sans-serif;
+  --font-poppins: var(--font-poppins-next), system-ui, sans-serif;
 }
 
 @layer base {

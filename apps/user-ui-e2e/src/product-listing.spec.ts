@@ -58,7 +58,7 @@ test.describe('Product Listing Page', () => {
   });
 
   test('should filter products by search term', async ({ page }) => {
-    const searchInput = page.locator('input[placeholder*="Search"]');
+    const searchInput = page.locator('main input[placeholder*="Search"]');
     await searchInput.fill('Wireless');
 
     const productNames = page.locator('[class*="product-card"] h3');

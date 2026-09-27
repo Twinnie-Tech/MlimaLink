@@ -129,6 +129,36 @@ describe('ProductList', () => {
     });
   });
 
+  it('should start with the initial search term applied', async () => {
+    const mockUseProducts = vi.fn();
+    mockUseProducts.mockReturnValue({
+      products: mockProducts,
+      loading: false,
+      error: null,
+      totalProducts: 2,
+      totalPages: 1,
+    });
+    vi.mocked(useProducts).mockImplementation(mockUseProducts);
+    vi.mocked(useCategories).mockReturnValue({
+      categories: ['Electronics', 'Sports'],
+      loading: false,
+      error: null,
+    });
+
+    render(<ProductList initialSearchTerm="Running" />);
+
+    expect(screen.getByPlaceholderText('Search products...')).toHaveValue(
+      'Running',
+    );
+    await waitFor(() => {
+      expect(mockUseProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ searchTerm: 'Running' }),
+        1,
+        12,
+      );
+    });
+  });
+
   it('should handle category filter', async () => {
     const mockUseProducts = vi.fn();
     mockUseProducts.mockReturnValue({

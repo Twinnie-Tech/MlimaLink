@@ -10,10 +10,11 @@ const push = vi.fn();
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
   useParams: () => ({ id: '42' }),
+  useSearchParams: () => new URLSearchParams('search=shoes'),
 }));
 
 vi.mock('@org/shop-feature-products', () => ({
-  ProductList: ({ onProductSelect }: ProductListProps) => (
+  ProductList: ({ onProductSelect, initialSearchTerm }: ProductListProps) => (
     <button
       onClick={() =>
         onProductSelect?.({
@@ -29,7 +30,7 @@ vi.mock('@org/shop-feature-products', () => ({
         })
       }
     >
-      select product
+      select product (search: {initialSearchTerm})
     </button>
   ),
 }));
@@ -48,9 +49,15 @@ describe('user-ui product pages', () => {
   it('navigates to the product detail page when a product is selected', () => {
     render(<ProductsPage />);
 
-    fireEvent.click(screen.getByText('select product'));
+    fireEvent.click(screen.getByText(/select product/));
 
     expect(push).toHaveBeenCalledWith('/products/7');
+  });
+
+  it('passes the ?search= query to ProductList', () => {
+    render(<ProductsPage />);
+
+    expect(screen.getByText('select product (search: shoes)')).toBeTruthy();
   });
 
   it('passes the route id to ProductDetail and navigates back to the list', () => {
