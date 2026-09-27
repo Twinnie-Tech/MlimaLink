@@ -35,12 +35,14 @@ import {
   clearAuthCookies,
   getTokenSecrets,
   readToken,
-  setAccessTokenCookie,
-  setAuthCookies,
-  signAccessToken,
-  signRefreshToken,
   verifyToken,
 } from '../utils/auth-tokens';
+import {
+  ROTATION_GRACE_SECONDS,
+  endRefreshSession,
+  isRefreshSessionActive,
+  issueAuthCookies,
+} from '../utils/refresh-sessions';
 import {
   IsAuthenticatedGuard,
   type AuthenticatedRequest,
@@ -51,7 +53,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { PrismaService } from './prisma.service';
-import { unauthorized, validationError } from '@org/errors';
+import { AppError, unauthorized, validationError } from '@org/errors';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -185,10 +187,11 @@ export class AuthController {
         throw validationError('Invalid email or password!');
       }
 
-      const tokenPayload = { userId: user.id, role: user.role, rememberMe };
-      const accessToken = signAccessToken(tokenPayload);
-      const refreshToken = signRefreshToken(tokenPayload);
-      setAuthCookies(res, { accessToken, refreshToken }, rememberMe);
+      await issueAuthCookies(res, {
+        userId: user.id,
+        role: user.role,
+        rememberMe,
+      });
 
       return res.status(200).json({
         success: true,
@@ -200,8 +203,6 @@ export class AuthController {
           role: user.role,
           createdAt: user.createdAt,
         },
-        accessToken,
-        refreshToken,
       });
     } catch (error) {
       return next(error);
@@ -219,7 +220,8 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(200)
   @ApiOperation({
-    summary: 'Issue a new access token from the refresh token cookie',
+    summary:
+      'Issue new access and refresh tokens from the refresh token cookie',
   })
   @ApiCookieAuth('refreshToken')
   async refreshToken(
@@ -233,6 +235,14 @@ export class AuthController {
         'refresh',
       );
 
+      if (
+        !payload.jti ||
+        !(await isRefreshSessionActive(payload.userId, payload.jti))
+      ) {
+        clearAuthCookies(res);
+        throw unauthorized('Session expired! Please log in again.');
+      }
+
       const user = await this.prisma.users.findUnique({
         where: { id: payload.userId },
         select: { id: true, role: true },
@@ -243,12 +253,12 @@ export class AuthController {
         throw unauthorized('Session expired! Please log in again.');
       }
 
-      const rememberMe = payload.rememberMe ?? true;
-      setAccessTokenCookie(
-        res,
-        signAccessToken({ userId: user.id, role: user.role }),
-        rememberMe,
-      );
+      await endRefreshSession(user.id, payload.jti, ROTATION_GRACE_SECONDS);
+      await issueAuthCookies(res, {
+        userId: user.id,
+        role: user.role,
+        rememberMe: payload.rememberMe ?? true,
+      });
 
       return res
         .status(200)
@@ -260,8 +270,28 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Log out by clearing the auth cookies' })
-  logout(@Res({ passthrough: true }) res: Response) {
+  @ApiOperation({
+    summary: 'Log out by ending the session and clearing the auth cookies',
+  })
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    try {
+      const payload = verifyToken(
+        readToken(req, REFRESH_TOKEN_COOKIE),
+        'refresh',
+      );
+      if (payload.jti) {
+        await endRefreshSession(payload.userId, payload.jti);
+      }
+    } catch (error) {
+      // An expired or missing refresh token has no session left to end.
+      if (!(error instanceof AppError && error.statusCode === 401)) {
+        console.error(
+          '[auth] Failed to end session on logout:',
+          error instanceof Error ? error.message : error,
+        );
+      }
+    }
+
     clearAuthCookies(res);
     return { success: true, message: 'Logged out successfully' };
   }

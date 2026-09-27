@@ -32,11 +32,10 @@ describe('auth tokens', () => {
 
   it('round-trips access and refresh tokens with their own secrets', () => {
     const access = signAccessToken({ userId: 'u1', role: 'user' });
-    const refresh = signRefreshToken({
-      userId: 'u1',
-      role: 'user',
-      rememberMe: false,
-    });
+    const refresh = signRefreshToken(
+      { userId: 'u1', role: 'user', rememberMe: false },
+      'session-1',
+    );
 
     expect(verifyToken(access, 'access')).toMatchObject({
       userId: 'u1',
@@ -45,6 +44,7 @@ describe('auth tokens', () => {
     expect(verifyToken(refresh, 'refresh')).toMatchObject({
       userId: 'u1',
       rememberMe: false,
+      jti: 'session-1',
     });
     expect(() => verifyToken(access, 'refresh')).toThrow(AppError);
   });
@@ -73,7 +73,12 @@ describe('auth tokens', () => {
     expect(remembered.cookie).toHaveBeenCalledWith(
       'accessToken',
       'a',
-      expect.objectContaining({ httpOnly: true, maxAge: expect.any(Number) }),
+      expect.objectContaining({
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: expect.any(Number),
+      }),
     );
 
     const session = mockResponse();

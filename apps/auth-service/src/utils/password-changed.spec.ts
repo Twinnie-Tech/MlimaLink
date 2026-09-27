@@ -5,9 +5,11 @@ import type { NextFunction, Request, Response } from 'express';
 import type { PrismaClient } from '@prisma/client';
 import ejs from 'ejs';
 import { formatEmailDate, handleResetPassword } from './auth.helper';
+import { endAllRefreshSessions } from './refresh-sessions';
 import { sendEmail } from './send-email';
 
 vi.mock('./send-email', () => ({ sendEmail: vi.fn() }));
+vi.mock('./refresh-sessions', () => ({ endAllRefreshSessions: vi.fn() }));
 vi.mock('./redis.client', () => ({
   ensureRedisConnected: vi.fn(),
   redisClient: {
@@ -56,6 +58,7 @@ const resetBody = {
 describe('password changed notification', () => {
   beforeEach(() => {
     vi.mocked(sendEmail).mockReset();
+    vi.mocked(endAllRefreshSessions).mockReset();
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
@@ -78,6 +81,7 @@ describe('password changed notification', () => {
 
     expect(next).not.toHaveBeenCalled();
     expect(prisma.users.update).toHaveBeenCalled();
+    expect(endAllRefreshSessions).toHaveBeenCalledWith('u1');
     expect(res.status).toHaveBeenCalledWith(200);
     expect(sendEmail).toHaveBeenCalledWith(
       'jane@example.com',

@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import ejs from 'ejs';
 import { validationError } from '@org/errors';
 import { ensureRedisConnected, redisClient } from './redis.client';
+import { endAllRefreshSessions } from './refresh-sessions';
 import { sendEmail } from './send-email';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -401,6 +402,7 @@ export async function handleResetPassword(
     });
 
     await redisClient.del(tokenKey, `password_reset_user:${userId}`);
+    await endAllRefreshSessions(userId);
 
     // Sent in the background so a slow or failing mail server never blocks the reset.
     void sendPasswordChangedEmail(user).catch((emailError: unknown) => {

@@ -11,6 +11,8 @@ export type AuthTokenPayload = {
   role: string;
   /** Carried in the refresh token so refreshed cookies keep the same lifetime. */
   rememberMe?: boolean;
+  /** Refresh token only: id of its session in Redis, removed on logout or password reset. */
+  jti?: string;
 };
 
 /** Public user fields returned to clients (never the password hash). */
@@ -44,7 +46,10 @@ export function signAccessToken(payload: AuthTokenPayload): string {
   );
 }
 
-export function signRefreshToken(payload: AuthTokenPayload): string {
+export function signRefreshToken(
+  payload: AuthTokenPayload,
+  sessionId: string,
+): string {
   const { refreshSecret } = getTokenSecrets();
   return jwt.sign(
     {
@@ -53,7 +58,7 @@ export function signRefreshToken(payload: AuthTokenPayload): string {
       rememberMe: payload.rememberMe ?? true,
     },
     refreshSecret,
-    { expiresIn: '7d' },
+    { expiresIn: '7d', jwtid: sessionId },
   );
 }
 
