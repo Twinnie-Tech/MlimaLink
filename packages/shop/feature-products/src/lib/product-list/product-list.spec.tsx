@@ -158,6 +158,52 @@ describe('ProductList', () => {
     });
   });
 
+  it('should use a controlled category and report changes', async () => {
+    const mockUseProducts = vi.fn();
+    mockUseProducts.mockReturnValue({
+      products: mockProducts,
+      loading: false,
+      error: null,
+      totalProducts: 2,
+      totalPages: 1,
+    });
+    vi.mocked(useProducts).mockImplementation(mockUseProducts);
+    vi.mocked(useCategories).mockReturnValue({
+      categories: ['Electronics', 'Sports'],
+      loading: false,
+      error: null,
+    });
+    const onCategoryChange = vi.fn();
+
+    const { rerender } = render(
+      <ProductList category="Sports" onCategoryChange={onCategoryChange} />,
+    );
+
+    expect(screen.getByRole('combobox')).toHaveValue('Sports');
+    await waitFor(() => {
+      expect(mockUseProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ category: 'Sports' }),
+        1,
+        12,
+      );
+    });
+
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'Electronics' },
+    });
+    expect(onCategoryChange).toHaveBeenCalledWith('Electronics');
+    // Controlled: the value only changes when the parent passes a new category.
+    expect(screen.getByRole('combobox')).toHaveValue('Sports');
+
+    rerender(
+      <ProductList
+        category="Electronics"
+        onCategoryChange={onCategoryChange}
+      />,
+    );
+    expect(screen.getByRole('combobox')).toHaveValue('Electronics');
+  });
+
   it('should pass wishlist state and toggles to the cards', () => {
     vi.mocked(useProducts).mockReturnValue({
       products: mockProducts,

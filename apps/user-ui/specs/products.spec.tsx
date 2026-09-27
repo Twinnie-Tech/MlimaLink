@@ -8,11 +8,13 @@ import ProductDetailPage from '../src/app/products/[id]/page';
 import { ShopStoreProvider } from '../src/app/shared/store/shop-store';
 
 const push = vi.fn();
+const replace = vi.fn();
+const navigation = { search: 'search=shoes' };
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push }),
+  useRouter: () => ({ push, replace }),
   useParams: () => ({ id: '42' }),
-  useSearchParams: () => new URLSearchParams('search=shoes'),
+  useSearchParams: () => new URLSearchParams(navigation.search),
 }));
 
 const testProduct: Product = {
@@ -31,11 +33,18 @@ vi.mock('@org/shop-feature-products', () => ({
   ProductList: ({
     onProductSelect,
     searchTerm,
+    category,
+    onCategoryChange,
     isWishlisted,
     onToggleWishlist,
   }: ProductListProps) => (
     <div>
       <p>search: {searchTerm}</p>
+      <p>category: {category}</p>
+      <button onClick={() => onCategoryChange?.('Home & Garden')}>
+        pick category
+      </button>
+      <button onClick={() => onCategoryChange?.('')}>clear category</button>
       <p>wishlisted: {String(isWishlisted?.('7'))}</p>
       <button onClick={() => onProductSelect?.(testProduct)}>
         select product
@@ -73,6 +82,8 @@ function renderWithStore(ui: React.ReactElement) {
 describe('user-ui product pages', () => {
   beforeEach(() => {
     push.mockClear();
+    replace.mockClear();
+    navigation.search = 'search=shoes';
     localStorage.clear();
   });
 
@@ -88,6 +99,24 @@ describe('user-ui product pages', () => {
     renderWithStore(<ProductsPage />);
 
     expect(screen.getByText('search: shoes')).toBeTruthy();
+  });
+
+  it('passes ?category= to ProductList and keeps it in the URL', () => {
+    navigation.search = 'search=shoes&category=Sports';
+    renderWithStore(<ProductsPage />);
+
+    expect(screen.getByText('category: Sports')).toBeTruthy();
+
+    fireEvent.click(screen.getByText('pick category'));
+    expect(replace).toHaveBeenLastCalledWith(
+      '/products?search=shoes&category=Home%20%26%20Garden',
+      { scroll: false },
+    );
+
+    fireEvent.click(screen.getByText('clear category'));
+    expect(replace).toHaveBeenLastCalledWith('/products?search=shoes', {
+      scroll: false,
+    });
   });
 
   it('wires ProductList wishlist toggles to the store', () => {

@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { HeaderActions } from './header-actions';
+import { HeaderBottom } from './header-bottom';
 import { SearchBox, SearchBoxFallback } from './search-box';
 
 export function Header() {
@@ -23,6 +24,8 @@ export function Header() {
 
         <HeaderActions />
       </div>
+
+      <HeaderBottom />
     </header>
   );
 }

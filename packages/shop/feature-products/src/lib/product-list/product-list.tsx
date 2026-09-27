@@ -8,6 +8,9 @@ export interface ProductListProps {
   onProductSelect?: (product: Product) => void;
   /** Search is owned by the caller (e.g. the app header); the list only applies it. */
   searchTerm?: string;
+  /** Pass to control the category (e.g. from the URL); omit to let the list manage it. */
+  category?: string;
+  onCategoryChange?: (category: string) => void;
   isWishlisted?: (productId: string) => boolean;
   onToggleWishlist?: (product: Product) => void;
 }
@@ -15,11 +18,14 @@ export interface ProductListProps {
 export function ProductList({
   onProductSelect,
   searchTerm = '',
+  category,
+  onCategoryChange,
   isWishlisted,
   onToggleWishlist,
 }: ProductListProps = {}) {
   // Filter state
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [internalCategory, setInternalCategory] = useState('');
+  const selectedCategory = category ?? internalCategory;
   const [inStockOnly, setInStockOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState<ProductFilter>({});
@@ -55,7 +61,10 @@ export function ProductList({
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(e.target.value);
+    if (category === undefined) {
+      setInternalCategory(e.target.value);
+    }
+    onCategoryChange?.(e.target.value);
   };
 
   const handleInStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -11,8 +11,16 @@ const inputClassName =
 const buttonClassName =
   'absolute right-0 top-0 flex h-13.75 w-15 items-center justify-center bg-brand-start';
 
-function productsUrl(term: string) {
-  return term ? `/products?search=${encodeURIComponent(term)}` : '/products';
+/** Builds the /products URL for a search, keeping any other filters (e.g. category). */
+function productsUrl(term: string, currentParams?: URLSearchParams) {
+  const params = new URLSearchParams(currentParams);
+  if (term) {
+    params.set('search', term);
+  } else {
+    params.delete('search');
+  }
+  const query = params.toString().replace(/\+/g, '%20');
+  return query ? `/products?${query}` : '/products';
 }
 
 /** Live product search: typing filters /products as you go, like the old in-page search. */
@@ -38,12 +46,15 @@ export function SearchBox() {
     (term: string) => {
       syncedTermRef.current = term;
       if (onProductsPage) {
-        router.replace(productsUrl(term), { scroll: false });
+        router.replace(
+          productsUrl(term, new URLSearchParams(searchParams.toString())),
+          { scroll: false },
+        );
       } else {
         router.push(productsUrl(term));
       }
     },
-    [onProductsPage, router],
+    [onProductsPage, router, searchParams],
   );
 
   useEffect(() => {
