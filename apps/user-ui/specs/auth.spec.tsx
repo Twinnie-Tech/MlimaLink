@@ -221,6 +221,53 @@ describe('Sign up page', () => {
     expect(document.activeElement).toBe(inputs[2]);
   });
 
+  it('moves the cursor between boxes as you type', async () => {
+    renderPage(<SignupPage />);
+    await submitDetails();
+    const inputs = otpInputs();
+    const values = () => inputs.map((i) => i.value);
+
+    expect(document.activeElement).toBe(inputs[0]);
+    fireEvent.keyDown(inputs[0], { key: '1' });
+    expect(document.activeElement).toBe(inputs[1]);
+    fireEvent.keyDown(inputs[1], { key: 'a' });
+    expect(document.activeElement).toBe(inputs[1]);
+    fireEvent.keyDown(inputs[1], { key: '3' });
+    fireEvent.keyDown(inputs[2], { key: '4' });
+    fireEvent.keyDown(inputs[3], { key: '1' });
+    expect(values()).toEqual(['1', '3', '4', '1']);
+    expect(document.activeElement).toBe(inputs[3]);
+
+    // Typing over a filled box replaces the digit and moves on.
+    fireEvent.keyDown(inputs[1], { key: '9' });
+    expect(values()).toEqual(['1', '9', '4', '1']);
+    expect(document.activeElement).toBe(inputs[2]);
+
+    // Arrow keys move between boxes.
+    fireEvent.keyDown(inputs[2], { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(inputs[1]);
+    fireEvent.keyDown(inputs[1], { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(inputs[2]);
+
+    // Backspace clears the box, then steps back and clears the previous one.
+    fireEvent.keyDown(inputs[3], { key: 'Backspace' });
+    expect(values()).toEqual(['1', '9', '4', '']);
+    fireEvent.keyDown(inputs[3], { key: 'Backspace' });
+    expect(values()).toEqual(['1', '9', '', '']);
+    expect(document.activeElement).toBe(inputs[2]);
+  });
+
+  it('accepts a whole code autofilled into the first box', async () => {
+    renderPage(<SignupPage />);
+    await submitDetails();
+    const inputs = otpInputs();
+
+    fireEvent.change(inputs[0], { target: { value: '5678' } });
+
+    expect(inputs.map((i) => i.value)).toEqual(['5', '6', '7', '8']);
+    expect(document.activeElement).toBe(inputs[3]);
+  });
+
   it('shows OTP errors from the server', async () => {
     renderPage(<SignupPage />);
     await submitDetails();
