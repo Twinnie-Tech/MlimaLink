@@ -133,6 +133,36 @@ export async function sendAccountCreatedEmail(user: {
   );
 }
 
+/** Human-readable timestamp for emails, in the app's timezone (default East Africa Time). */
+export function formatEmailDate(date: Date): string {
+  const timeZone = process.env.APP_TIMEZONE ?? 'Africa/Nairobi';
+  const formatted = new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'full',
+    timeStyle: 'short',
+    timeZone,
+  }).format(date);
+  return `${formatted} (${timeZone})`;
+}
+
+/** Security notice after a password change. */
+export async function sendPasswordChangedEmail(
+  user: { name: string; email: string },
+  changedAt: Date = new Date(),
+): Promise<void> {
+  await sendEmail(
+    user.email,
+    'Your MlimaLink password was changed',
+    'password_changed',
+    {
+      name: user.name,
+      email: user.email,
+      changedAt: formatEmailDate(changedAt),
+      loginUrl: `${userUiUrl()}/login`,
+      forgotPasswordUrl: `${userUiUrl()}/forgot-password`,
+    },
+  );
+}
+
 /** Compare submitted OTP against the value stored in Redis. */
 export async function verifyOtp(
   email: string,
@@ -371,6 +401,14 @@ export async function handleResetPassword(
     });
 
     await redisClient.del(tokenKey, `password_reset_user:${userId}`);
+
+    // Sent in the background so a slow or failing mail server never blocks the reset.
+    void sendPasswordChangedEmail(user).catch((emailError: unknown) => {
+      console.error(
+        '[auth] Failed to send password-changed email:',
+        emailError instanceof Error ? emailError.message : emailError,
+      );
+    });
 
     res.status(200).json({
       success: true,
