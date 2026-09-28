@@ -32,3 +32,36 @@ model users {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+model sellers {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String   @unique
+  phone_number String
+  /// ISO 3166-1 alpha-2 code, e.g. "KE".
+  country      String
+  password     String
+  /// Stripe Connect account id, set once the seller starts bank onboarding.
+  stripeId     String?
+  shop         shops?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+/// One shop per seller. The link lives here (sellerId) because MongoDB unique
+/// indexes treat a missing value as a duplicate, so an optional sellers.shopId
+/// could only ever be empty for one seller.
+model shops {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  bio           String?
+  category      String
+  address       String
+  opening_hours String?
+  website       String?
+  ratings       Float    @default(0)
+  sellerId      String   @unique @db.ObjectId
+  seller        sellers  @relation(fields: [sellerId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

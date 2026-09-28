@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-start: #667eea;
+  --color-brand-end: #764ba2;
+}
+
+/* Font variables come from next/font/google in layout.tsx. */
+@theme inline {
+  --font-sans: var(--font-roboto-next), system-ui, sans-serif;
+  --font-roboto: var(--font-roboto-next), system-ui, sans-serif;
+  --font-poppins: var(--font-poppins-next), system-ui, sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-neutral-100 font-sans text-[#333] antialiased;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+}

@@ -8,7 +8,8 @@
     "serve:api": "npx nx run api:serve",
     "serve:gateway": "npx nx run @org/api-gateway:serve",
     "serve:auth": "npx nx run auth-service:serve",
-    "serve:user-ui": "npx nx run @org/user-ui:dev"
+    "serve:user-ui": "npx nx run @org/user-ui:dev",
+    "serve:seller-ui": "npx nx run @org/seller-ui:dev"
   },
   "private": true,
   "dependencies": {

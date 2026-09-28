@@ -5,6 +5,26 @@ import { authCookieOptions, setCookie } from './setCookie';
 
 export const ACCESS_TOKEN_COOKIE = 'accessToken';
 export const REFRESH_TOKEN_COOKIE = 'refreshToken';
+export const SELLER_ACCESS_TOKEN_COOKIE = 'sellerAccessToken';
+export const SELLER_REFRESH_TOKEN_COOKIE = 'sellerRefreshToken';
+
+/** Shoppers and sellers are separate accounts with separate cookies. */
+export type AuthAccount = 'user' | 'seller';
+
+/**
+ * Cookies are shared by every port on a host, so user-ui and seller-ui on the same
+ * machine need different names to stay signed in side by side.
+ */
+export const AUTH_COOKIE_NAMES: Record<
+  AuthAccount,
+  { access: string; refresh: string }
+> = {
+  user: { access: ACCESS_TOKEN_COOKIE, refresh: REFRESH_TOKEN_COOKIE },
+  seller: {
+    access: SELLER_ACCESS_TOKEN_COOKIE,
+    refresh: SELLER_REFRESH_TOKEN_COOKIE,
+  },
+};
 
 export type AuthTokenPayload = {
   userId: string;
@@ -97,34 +117,28 @@ function cookieOptionsFor(rememberMe: boolean) {
     : { ...authCookieOptions, maxAge: undefined };
 }
 
-export function setAccessTokenCookie(
-  res: Response,
-  token: string,
-  rememberMe: boolean,
-): void {
-  setCookie(res, ACCESS_TOKEN_COOKIE, token, cookieOptionsFor(rememberMe));
-}
-
 export function setAuthCookies(
   res: Response,
   tokens: { accessToken: string; refreshToken: string },
   rememberMe: boolean,
+  account: AuthAccount = 'user',
 ): void {
-  setCookie(
-    res,
-    REFRESH_TOKEN_COOKIE,
-    tokens.refreshToken,
-    cookieOptionsFor(rememberMe),
-  );
-  setAccessTokenCookie(res, tokens.accessToken, rememberMe);
+  const names = AUTH_COOKIE_NAMES[account];
+  const options = cookieOptionsFor(rememberMe);
+  setCookie(res, names.refresh, tokens.refreshToken, options);
+  setCookie(res, names.access, tokens.accessToken, options);
 }
 
-export function clearAuthCookies(res: Response): void {
+export function clearAuthCookies(
+  res: Response,
+  account: AuthAccount = 'user',
+): void {
   // clearCookie only matches when path/secure/sameSite equal the ones used to set it.
   const { httpOnly, secure, sameSite } = authCookieOptions;
   const options = { httpOnly, secure, sameSite };
-  res.clearCookie(ACCESS_TOKEN_COOKIE, options);
-  res.clearCookie(REFRESH_TOKEN_COOKIE, options);
+  const names = AUTH_COOKIE_NAMES[account];
+  res.clearCookie(names.access, options);
+  res.clearCookie(names.refresh, options);
 }
 
 /** Reads a token from its cookie, falling back to an `Authorization: Bearer` header. */

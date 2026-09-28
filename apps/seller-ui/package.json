@@ -1,0 +1,49 @@
+{
+  "name": "@org/seller-ui",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "sourceRoot": "apps/seller-ui/src",
+    "tags": [
+      "scope:seller"
+    ],
+    "targets": {
+      "build": {
+        "options": {
+          "env": {
+            "NODE_ENV": "production"
+          }
+        }
+      },
+      "dev": {
+        "options": {
+          "port": 4300
+        }
+      },
+      "start": {
+        "options": {
+          "port": 4300,
+          "env": {
+            "NODE_ENV": "production"
+          }
+        }
+      },
+      "serve-static": {
+        "options": {
+          "port": 4300,
+          "env": {
+            "NODE_ENV": "production"
+          }
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.104.0",
+    "lucide-react": "^1.48.0",
+    "next": "~16.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.89.0"
+  }
+}

@@ -1,5 +1,5 @@
 /**
- * Starts API, API Gateway, and user-ui (Next.js) for local development.
+ * Starts API, auth-service, API Gateway, user-ui and seller-ui (Next.js) for local development.
  * Usage: node tools/dev.mjs  (or npm run dev)
  */
 import { spawn } from 'child_process';
@@ -12,11 +12,13 @@ const root = path.resolve(__dirname, '..');
 const node = process.execPath;
 
 const apiMain = path.join(root, 'apps/api/dist/main.js');
+const authMain = path.join(root, 'apps/auth-service/dist/main.js');
 const gatewayMain = path.join(root, 'apps/api-gateway/dist/main.js');
 const nextBin = path.join(root, 'node_modules/next/dist/bin/next');
 const userUiDir = path.join(root, 'apps/user-ui');
+const sellerUiDir = path.join(root, 'apps/seller-ui');
 
-for (const file of [apiMain, gatewayMain, nextBin]) {
+for (const file of [apiMain, authMain, gatewayMain, nextBin]) {
   if (!existsSync(file)) {
     console.error(`Missing ${file}. Run: npm run build:backend`);
     process.exit(1);
@@ -59,7 +61,9 @@ function shutdown(code = 0) {
 process.on('SIGINT', () => shutdown(0));
 process.on('SIGTERM', () => shutdown(0));
 
-console.log('Starting API, Gateway, and user-ui...');
+console.log('Starting API, auth-service, Gateway, user-ui and seller-ui...');
 start('api', [apiMain], '\x1b[34m');
+start('auth', [authMain], '\x1b[36m');
 start('gateway', [gatewayMain], '\x1b[35m');
 start('user-ui', [nextBin, 'dev', userUiDir, '--port', '4200'], '\x1b[32m');
+start('seller-ui', [nextBin, 'dev', sellerUiDir, '--port', '4300'], '\x1b[33m');

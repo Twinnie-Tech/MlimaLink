@@ -1,9 +1,15 @@
 import { randomUUID } from 'crypto';
 import type { Response } from 'express';
+import { AppError, unauthorized } from '@org/errors';
 import {
+  AUTH_COOKIE_NAMES,
+  clearAuthCookies,
+  readToken,
   setAuthCookies,
   signAccessToken,
   signRefreshToken,
+  verifyToken,
+  type AuthAccount,
 } from './auth-tokens';
 import { ensureRedisConnected, redisClient } from './redis.client';
 
@@ -67,6 +73,7 @@ export async function endAllRefreshSessions(userId: string): Promise<void> {
 export async function issueAuthCookies(
   res: Response,
   user: { userId: string; role: string; rememberMe: boolean },
+  account: AuthAccount = 'user',
 ): Promise<void> {
   const sessionId = await createRefreshSession(user.userId);
   setAuthCookies(
@@ -76,5 +83,64 @@ export async function issueAuthCookies(
       refreshToken: signRefreshToken(user, sessionId),
     },
     user.rememberMe,
+    account,
   );
+}
+
+type TokenRequest = Parameters<typeof readToken>[0];
+
+/**
+ * Swaps a valid refresh token for new access and refresh cookies.
+ * `findRole` returns the account's current role, or null when it no longer exists.
+ */
+export async function rotateAuthSession(
+  req: TokenRequest,
+  res: Response,
+  account: AuthAccount,
+  findRole: (accountId: string) => Promise<string | null>,
+): Promise<void> {
+  const { userId, jti, rememberMe } = verifyToken(
+    readToken(req, AUTH_COOKIE_NAMES[account].refresh),
+    'refresh',
+  );
+
+  const sessionActive =
+    jti !== undefined && (await isRefreshSessionActive(userId, jti));
+  const role = sessionActive ? await findRole(userId) : null;
+
+  if (!jti || !role) {
+    clearAuthCookies(res, account);
+    throw unauthorized('Session expired! Please log in again.');
+  }
+
+  await endRefreshSession(userId, jti, ROTATION_GRACE_SECONDS);
+  await issueAuthCookies(
+    res,
+    { userId, role, rememberMe: rememberMe ?? true },
+    account,
+  );
+}
+
+/** Ends the session behind the request's refresh cookie, if it still has one. */
+export async function endSessionFromRequest(
+  req: TokenRequest,
+  account: AuthAccount,
+): Promise<void> {
+  try {
+    const { userId, jti } = verifyToken(
+      readToken(req, AUTH_COOKIE_NAMES[account].refresh),
+      'refresh',
+    );
+    if (jti) {
+      await endRefreshSession(userId, jti);
+    }
+  } catch (error) {
+    // An expired or missing refresh token has no session left to end.
+    if (!(error instanceof AppError && error.statusCode === 401)) {
+      console.error(
+        '[auth] Failed to end session on logout:',
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
 }
