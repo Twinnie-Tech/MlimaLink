@@ -1,0 +1,17 @@
+export const shopCategories = [
+  'Fruits & Vegetables',
+  'Grains & Cereals',
+  'Dairy & Eggs',
+  'Meat & Poultry',
+  'Fish & Seafood',
+  'Spices & Herbs',
+  'Beverages',
+  'Farm Inputs',
+  'Farm Equipment',
+  'Crafts & Handmade',
+  'Fashion',
+  'Electronics',
+  'Home & Living',
+  'Health & Beauty',
+  'Other',
+];

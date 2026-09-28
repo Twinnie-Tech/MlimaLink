@@ -21,6 +21,11 @@ export function createFakeRedis() {
       }
       return removed;
     },
+    async incr(key: string) {
+      const next = Number(strings.get(key) ?? 0) + 1;
+      strings.set(key, String(next));
+      return next;
+    },
     async sadd(key: string, ...members: string[]) {
       const set = sets.get(key) ?? new Set<string>();
       members.forEach((member) => set.add(member));

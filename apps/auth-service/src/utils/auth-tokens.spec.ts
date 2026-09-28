@@ -98,6 +98,26 @@ describe('auth tokens', () => {
     ]);
   });
 
+  it('keeps seller cookies separate from shopper cookies', () => {
+    const res = mockResponse();
+    setAuthCookies(
+      res,
+      { accessToken: 'a', refreshToken: 'r' },
+      true,
+      'seller',
+    );
+    clearAuthCookies(res, 'seller');
+
+    expect(res.cookie.mock.calls.map(([name]) => name).sort()).toEqual([
+      'sellerAccessToken',
+      'sellerRefreshToken',
+    ]);
+    expect(res.clearCookie.mock.calls.map(([name]) => name)).toEqual([
+      'sellerAccessToken',
+      'sellerRefreshToken',
+    ]);
+  });
+
   it('reads tokens from cookies or a bearer header', () => {
     expect(
       readToken({ cookies: { accessToken: 'c' }, headers: {} }, 'accessToken'),

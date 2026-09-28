@@ -30,18 +30,11 @@ import {
   validateRegistrationData,
   verifyOtp,
 } from '../utils/auth.helper';
+import { clearAuthCookies, getTokenSecrets } from '../utils/auth-tokens';
 import {
-  REFRESH_TOKEN_COOKIE,
-  clearAuthCookies,
-  getTokenSecrets,
-  readToken,
-  verifyToken,
-} from '../utils/auth-tokens';
-import {
-  ROTATION_GRACE_SECONDS,
-  endRefreshSession,
-  isRefreshSessionActive,
+  endSessionFromRequest,
   issueAuthCookies,
+  rotateAuthSession,
 } from '../utils/refresh-sessions';
 import {
   IsAuthenticatedGuard,
@@ -53,7 +46,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { PrismaService } from './prisma.service';
-import { AppError, unauthorized, validationError } from '@org/errors';
+import { validationError } from '@org/errors';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -230,34 +223,12 @@ export class AuthController {
     @Next() next: NextFunction,
   ) {
     try {
-      const payload = verifyToken(
-        readToken(req, REFRESH_TOKEN_COOKIE),
-        'refresh',
-      );
-
-      if (
-        !payload.jti ||
-        !(await isRefreshSessionActive(payload.userId, payload.jti))
-      ) {
-        clearAuthCookies(res);
-        throw unauthorized('Session expired! Please log in again.');
-      }
-
-      const user = await this.prisma.users.findUnique({
-        where: { id: payload.userId },
-        select: { id: true, role: true },
-      });
-
-      if (!user) {
-        clearAuthCookies(res);
-        throw unauthorized('Session expired! Please log in again.');
-      }
-
-      await endRefreshSession(user.id, payload.jti, ROTATION_GRACE_SECONDS);
-      await issueAuthCookies(res, {
-        userId: user.id,
-        role: user.role,
-        rememberMe: payload.rememberMe ?? true,
+      await rotateAuthSession(req, res, 'user', async (id) => {
+        const user = await this.prisma.users.findUnique({
+          where: { id },
+          select: { role: true },
+        });
+        return user?.role ?? null;
       });
 
       return res
@@ -274,24 +245,7 @@ export class AuthController {
     summary: 'Log out by ending the session and clearing the auth cookies',
   })
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    try {
-      const payload = verifyToken(
-        readToken(req, REFRESH_TOKEN_COOKIE),
-        'refresh',
-      );
-      if (payload.jti) {
-        await endRefreshSession(payload.userId, payload.jti);
-      }
-    } catch (error) {
-      // An expired or missing refresh token has no session left to end.
-      if (!(error instanceof AppError && error.statusCode === 401)) {
-        console.error(
-          '[auth] Failed to end session on logout:',
-          error instanceof Error ? error.message : error,
-        );
-      }
-    }
-
+    await endSessionFromRequest(req, 'user');
     clearAuthCookies(res);
     return { success: true, message: 'Logged out successfully' };
   }
@@ -327,56 +281,5 @@ export class AuthController {
     @Next() next: NextFunction,
   ) {
     await handleResetPassword(req, res, next, this.prisma);
-  }
-
-  @Post('register/seller')
-  @ApiOperation({ summary: 'Register a new seller' })
-  async sellerRegistration(
-    @Body() body: Record<string, string>,
-    @Res() res: Response,
-    @Next() next: NextFunction,
-  ) {
-    try {
-      validateRegistrationData(body, 'seller');
-
-      const { name, email, password, phone_number, country, otp } = body;
-
-      const existingUser = await this.prisma.users.findUnique({
-        where: { email },
-      });
-
-      if (existingUser) {
-        throw validationError('Seller already exists with this email!');
-      }
-
-      if (!otp) {
-        throw validationError('OTP is required!');
-      }
-
-      await verifyOtp(email, otp, next);
-
-      const hashedPassword = await hashPassword(password);
-
-      const seller = await this.prisma.users.create({
-        data: {
-          name,
-          email,
-          password: hashedPassword,
-          phone_number,
-          country,
-          role: 'seller',
-        },
-      });
-
-      const { password: _password, ...safeSeller } = seller;
-
-      return res.status(201).json({
-        success: true,
-        message: 'Seller registered successfully',
-        user: safeSeller,
-      });
-    } catch (error) {
-      return next(error);
-    }
   }
 }
