@@ -23,15 +23,26 @@ export const ROTATION_GRACE_SECONDS = 30;
 
 const sessionKey = (sessionId: string) => `refresh_session:${sessionId}`;
 const userSessionsKey = (userId: string) => `refresh_sessions:${userId}`;
+const familyKey = (familyId: string) => `refresh_family:${familyId}`;
 
-export async function createRefreshSession(userId: string): Promise<string> {
+/**
+ * Starts a session. `familyId` links it to the login it was rotated from;
+ * a new login leaves it out and starts a family named after its first session.
+ */
+export async function createRefreshSession(
+  userId: string,
+  familyId?: string,
+): Promise<string> {
   const sessionId = randomUUID();
+  const family = familyKey(familyId ?? sessionId);
   await ensureRedisConnected();
   await redisClient
     .multi()
     .set(sessionKey(sessionId), userId, 'EX', REFRESH_SESSION_TTL_SECONDS)
     .sadd(userSessionsKey(userId), sessionId)
     .expire(userSessionsKey(userId), REFRESH_SESSION_TTL_SECONDS)
+    .sadd(family, sessionId)
+    .expire(family, REFRESH_SESSION_TTL_SECONDS)
     .exec();
   return sessionId;
 }
@@ -62,6 +73,24 @@ export async function endRefreshSession(
     .exec();
 }
 
+/**
+ * Ends a login's session together with the tokens it rotated out, which would
+ * otherwise stay usable for the rest of their grace period.
+ */
+export async function endRefreshFamily(
+  userId: string,
+  familyId: string,
+): Promise<void> {
+  await ensureRedisConnected();
+  const sessionIds = new Set(await redisClient.smembers(familyKey(familyId)));
+  sessionIds.add(familyId);
+  await redisClient
+    .multi()
+    .del(familyKey(familyId), ...[...sessionIds].map(sessionKey))
+    .srem(userSessionsKey(userId), ...sessionIds)
+    .exec();
+}
+
 /** Signs the user out on every device. */
 export async function endAllRefreshSessions(userId: string): Promise<void> {
   await ensureRedisConnected();
@@ -74,13 +103,17 @@ export async function issueAuthCookies(
   res: Response,
   user: { userId: string; role: string; rememberMe: boolean },
   account: AuthAccount = 'user',
+  familyId?: string,
 ): Promise<void> {
-  const sessionId = await createRefreshSession(user.userId);
+  const sessionId = await createRefreshSession(user.userId, familyId);
   setAuthCookies(
     res,
     {
       accessToken: signAccessToken(user),
-      refreshToken: signRefreshToken(user, sessionId),
+      refreshToken: signRefreshToken(
+        { ...user, fam: familyId ?? sessionId },
+        sessionId,
+      ),
     },
     user.rememberMe,
     account,
@@ -99,7 +132,7 @@ export async function rotateAuthSession(
   account: AuthAccount,
   findRole: (accountId: string) => Promise<string | null>,
 ): Promise<void> {
-  const { userId, jti, rememberMe } = verifyToken(
+  const { userId, jti, fam, rememberMe } = verifyToken(
     readToken(req, AUTH_COOKIE_NAMES[account].refresh),
     'refresh',
   );
@@ -118,6 +151,7 @@ export async function rotateAuthSession(
     res,
     { userId, role, rememberMe: rememberMe ?? true },
     account,
+    fam ?? jti,
   );
 }
 
@@ -127,12 +161,13 @@ export async function endSessionFromRequest(
   account: AuthAccount,
 ): Promise<void> {
   try {
-    const { userId, jti } = verifyToken(
+    const { userId, jti, fam } = verifyToken(
       readToken(req, AUTH_COOKIE_NAMES[account].refresh),
       'refresh',
     );
     if (jti) {
-      await endRefreshSession(userId, jti);
+      // Tokens issued before families existed have no fam; their session is its own family.
+      await endRefreshFamily(userId, fam ?? jti);
     }
   } catch (error) {
     // An expired or missing refresh token has no session left to end.

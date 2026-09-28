@@ -10,12 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// An image belongs to one owner: a user or a shop.
+/// userId and shopId are not @unique because MongoDB unique indexes allow only one
+/// document with a missing value, which would cap shop images at one while user
+/// images leave shopId empty (and the other way round).
 model images {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
   file_Id String
-  url String
-  userId String? @db.ObjectId @unique
-  users users? @relation(fields: [userId], references: [id])
+  url     String
+  userId  String? @db.ObjectId
+  users   users?  @relation(fields: [userId], references: [id])
+  shopId  String? @db.ObjectId
+  shops   shops?  @relation(fields: [shopId], references: [id])
+
+  @@index([userId])
+  @@index([shopId])
 }
 
 // Models will be added here (e.g. User for auth-service)
@@ -28,7 +37,8 @@ model users {
   phone_number String?
   country      String?
   following    String[]
-  avatar       images?
+  /// At most one image; uploading a new avatar replaces the old one.
+  avatar       images[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -60,6 +70,8 @@ model shops {
   opening_hours String?
   website       String?
   ratings       Float    @default(0)
+  /// Optional; at most one image, and uploading a new avatar replaces the old one.
+  avatar        images[]
   sellerId      String   @unique @db.ObjectId
   seller        sellers  @relation(fields: [sellerId], references: [id])
   createdAt     DateTime @default(now())

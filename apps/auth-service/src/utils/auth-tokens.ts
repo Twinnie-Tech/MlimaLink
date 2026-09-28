@@ -33,6 +33,8 @@ export type AuthTokenPayload = {
   rememberMe?: boolean;
   /** Refresh token only: id of its session in Redis, removed on logout or password reset. */
   jti?: string;
+  /** Refresh token only: id shared by a login's session and every session rotated from it. */
+  fam?: string;
 };
 
 /** Public user fields returned to clients (never the password hash). */
@@ -76,6 +78,7 @@ export function signRefreshToken(
       userId: payload.userId,
       role: payload.role,
       rememberMe: payload.rememberMe ?? true,
+      ...(payload.fam && { fam: payload.fam }),
     },
     refreshSecret,
     { expiresIn: '7d', jwtid: sessionId },
