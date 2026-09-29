@@ -1,13 +1,20 @@
 /** Client for the seller endpoints of the auth-service, reached through the API gateway at /api/auth. */
 
+import type { OpeningDay } from '@org/models/opening-hours';
+
 export type Shop = {
   id: string;
   name: string;
   bio: string | null;
   category: string;
   address: string;
-  opening_hours: string | null;
+  /** Open days only; empty when the seller hasn't set hours. */
+  opening_hours: OpeningDay[];
   website: string | null;
+  /** Header image URL for the shop page. */
+  coverBanner: string | null;
+  socialLinks: { platform: string; url: string }[];
+  /** Average review rating, 0 until the first review. */
   ratings: number;
   /** ISO date string. */
   createdAt: string;
@@ -40,7 +47,7 @@ export type ShopData = {
   category: string;
   address: string;
   bio?: string;
-  opening_hours?: string;
+  opening_hours?: OpeningDay[];
   website?: string;
 };
 

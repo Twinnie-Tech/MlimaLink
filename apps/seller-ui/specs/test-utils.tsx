@@ -56,8 +56,14 @@ export const shop: Shop = {
   bio: 'Organic produce from Limuru.',
   category: 'Fruits & Vegetables',
   address: 'Moi Avenue, Nairobi',
-  opening_hours: 'Mon - Sat: 8am - 6pm',
+  opening_hours: [
+    { day: 'mon', open: '08:00', close: '18:00' },
+    { day: 'tue', open: '08:00', close: '18:00' },
+    { day: 'sat', open: '09:00', close: '13:00' },
+  ],
   website: null,
+  coverBanner: null,
+  socialLinks: [],
   ratings: 0,
   createdAt: '2026-09-28T10:00:00.000Z',
 };

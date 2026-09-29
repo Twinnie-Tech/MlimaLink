@@ -1,6 +1,12 @@
 import type { Prisma } from '@prisma/client';
 import { validationError } from '@org/errors';
+import {
+  formatOpeningHours,
+  parseOpeningHours,
+  type OpeningDay,
+} from '@org/models/opening-hours';
 import { validateRegistrationData, type RegistrationData } from './auth.helper';
+import { sendEmail } from './send-email';
 
 /** International format: "+" then country code and number, 8 to 15 digits in total. */
 const phoneRegex = /^\+[1-9]\d{7,14}$/;
@@ -43,17 +49,21 @@ export type ShopData = {
   bio?: string;
   category?: string;
   address?: string;
-  opening_hours?: string;
+  /** Checked against the OpeningDay shape; anything else is rejected. */
+  opening_hours?: unknown;
   website?: string;
 };
 
-/** Validates and trims shop details; optional fields come back undefined when blank. */
+/**
+ * Validates and trims shop details. Optional text fields come back undefined when
+ * blank, and missing opening hours come back as an empty list.
+ */
 export function validateShopData(data: ShopData) {
   const name = data.name?.trim();
   const category = data.category?.trim();
   const address = data.address?.trim();
   const bio = data.bio?.trim() || undefined;
-  const opening_hours = data.opening_hours?.trim() || undefined;
+  const opening_hours = validateOpeningHours(data.opening_hours);
   const website = data.website?.trim() || undefined;
 
   if (!name || !category || !address) {
@@ -81,6 +91,13 @@ export function validateShopData(data: ShopData) {
   return { name, category, address, bio, opening_hours, website };
 }
 
+function validateOpeningHours(value: unknown): OpeningDay[] {
+  if (value === undefined || value === null) return [];
+  const result = parseOpeningHours(value);
+  if ('error' in result) throw validationError(result.error);
+  return result.hours;
+}
+
 function isHttpUrl(value: string): boolean {
   try {
     const { protocol } = new URL(value);
@@ -95,5 +112,32 @@ export function sellerUiUrl(): string {
   return (process.env.SELLER_UI_URL ?? 'http://localhost:4300').replace(
     /\/+$/,
     '',
+  );
+}
+
+/** Tells a seller their business account is ready and how to start selling. */
+export async function sendShopCreatedEmail(
+  seller: { name: string; email: string; stripeId: string | null },
+  shop: {
+    name: string;
+    category: string;
+    address: string;
+    opening_hours: { day: string; open: string; close: string }[];
+  },
+): Promise<void> {
+  await sendEmail(
+    seller.email,
+    `${shop.name} is ready — start selling on MlimaLink`,
+    'seller_shop_created',
+    {
+      name: seller.name,
+      email: seller.email,
+      shopName: shop.name,
+      category: shop.category,
+      address: shop.address,
+      openingHours: formatOpeningHours(shop.opening_hours),
+      bankConnected: Boolean(seller.stripeId),
+      dashboardUrl: sellerUiUrl(),
+    },
   );
 }

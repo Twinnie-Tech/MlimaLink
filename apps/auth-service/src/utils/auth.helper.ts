@@ -99,12 +99,13 @@ export async function sendOtp(
   name: string,
   email: string,
   template: string,
+  subject = 'Verify your email',
 ): Promise<string> {
   await ensureRedisConnected();
 
   const otp = randomInt(1000, 9999).toString();
 
-  await sendEmail(email, 'Verify your email', template, { name, otp });
+  await sendEmail(email, subject, template, { name, otp });
   await redisClient.set(`otp:${email}`, otp, 'EX', OTP_TTL_SECONDS);
   await redisClient.set(
     `otp_cooldown:${email}`,

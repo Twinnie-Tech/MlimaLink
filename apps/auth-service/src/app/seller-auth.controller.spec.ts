@@ -60,8 +60,10 @@ const shop = {
   bio: null,
   category: 'Fruits & Vegetables',
   address: 'Moi Avenue, Nairobi',
-  opening_hours: null,
+  opening_hours: [],
   website: null,
+  coverBanner: null,
+  socialLinks: [],
   ratings: 0,
   sellerId: 's1',
   createdAt: new Date(),
@@ -143,8 +145,8 @@ describe('SellerAuthController', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(sendEmail).toHaveBeenCalledWith(
         sellerDetails.email,
-        'Verify your email',
-        'user_registration',
+        'Verify your MlimaLink seller account',
+        'seller_registration',
         expect.objectContaining({ name: sellerDetails.name }),
       );
       expect(redis.strings.get(`otp:${sellerDetails.email}`)).toMatch(
@@ -220,6 +222,8 @@ describe('SellerAuthController', () => {
       expect(await isRefreshSessionActive('s1', refresh.jti as string)).toBe(
         true,
       );
+      // The seller's welcome email comes with their shop, not the buyer one.
+      expect(sendEmail).not.toHaveBeenCalled();
     });
 
     it('does not create the seller when the OTP is wrong', async () => {
@@ -357,11 +361,101 @@ describe('SellerAuthController', () => {
           category: 'Fruits & Vegetables',
           address: 'Moi Avenue, Nairobi',
           bio: undefined,
-          opening_hours: undefined,
+          opening_hours: [],
           website: 'https://mlimafresh.co.ke',
           sellerId: 's1',
         },
       });
+    });
+
+    it('stores opening hours Monday first and emails the seller business welcome', async () => {
+      shops.create.mockImplementation(async ({ data }) => ({
+        ...shop,
+        ...data,
+      }));
+      const next = vi.fn();
+
+      await controller.createShop(
+        sellerRequest(),
+        {
+          ...shopBody,
+          opening_hours: [
+            { day: 'sat', open: '09:00', close: '13:00' },
+            { day: 'mon', open: '08:00', close: '17:00' },
+            { day: 'tue', open: '08:00', close: '17:00' },
+          ],
+        },
+        mockRes() as unknown as Response,
+        next as NextFunction,
+      );
+
+      expect(next).not.toHaveBeenCalled();
+      expect(shops.create.mock.calls[0][0].data.opening_hours).toEqual([
+        { day: 'mon', open: '08:00', close: '17:00' },
+        { day: 'tue', open: '08:00', close: '17:00' },
+        { day: 'sat', open: '09:00', close: '13:00' },
+      ]);
+      await vi.waitFor(() => expect(sendEmail).toHaveBeenCalled());
+      expect(sendEmail).toHaveBeenCalledWith(
+        sellerDetails.email,
+        'Mlima Fresh is ready — start selling on MlimaLink',
+        'seller_shop_created',
+        expect.objectContaining({
+          shopName: 'Mlima Fresh',
+          openingHours: ['Mon – Tue: 08:00 – 17:00', 'Sat: 09:00 – 13:00'],
+          bankConnected: false,
+          dashboardUrl: 'http://localhost:4300',
+        }),
+      );
+    });
+
+    it('still creates the shop when the welcome email fails', async () => {
+      shops.create.mockResolvedValue(shop);
+      vi.mocked(sendEmail).mockRejectedValue(new Error('SMTP down'));
+      const logged = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => undefined);
+      const res = mockRes();
+
+      await controller.createShop(
+        sellerRequest(),
+        shopBody,
+        res as unknown as Response,
+        vi.fn() as NextFunction,
+      );
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      await vi.waitFor(() => expect(logged).toHaveBeenCalled());
+      logged.mockRestore();
+    });
+
+    it.each([
+      ['free text', 'Mon - Sat 5'],
+      ['an unknown day', [{ day: 'funday', open: '08:00', close: '17:00' }]],
+      ['a made-up time', [{ day: 'mon', open: '8am', close: '17:00' }]],
+      [
+        'closing before opening',
+        [{ day: 'mon', open: '18:00', close: '08:00' }],
+      ],
+      [
+        'a repeated day',
+        [
+          { day: 'mon', open: '08:00', close: '12:00' },
+          { day: 'mon', open: '13:00', close: '17:00' },
+        ],
+      ],
+    ])('rejects opening hours with %s', async (_case, opening_hours) => {
+      const next = vi.fn();
+
+      await controller.createShop(
+        sellerRequest(),
+        { ...shopBody, opening_hours } as unknown as CreateShopDto,
+        mockRes() as unknown as Response,
+        next as NextFunction,
+      );
+
+      expect(errorFrom(next).statusCode).toBe(400);
+      expect(shops.create).not.toHaveBeenCalled();
     });
 
     it('rejects a second shop', async () => {

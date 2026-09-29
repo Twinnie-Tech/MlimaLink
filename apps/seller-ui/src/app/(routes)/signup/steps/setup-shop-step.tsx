@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { shopCategories } from '../../../../configs/shop-categories';
 import { createShop, type Shop } from '../../../shared/utils/seller-api';
@@ -12,12 +12,19 @@ import {
   labelClassName,
   submitButtonClassName,
 } from '../../../shared/widgets/auth-form';
+import {
+  OpeningHoursPicker,
+  emptyOpeningHours,
+  openingHoursError,
+  toOpeningHours,
+  type OpeningHoursRow,
+} from '../../../shared/widgets/opening-hours-picker';
 
 type FormData = {
   name: string;
   category: string;
   address: string;
-  opening_hours: string;
+  opening_hours: OpeningHoursRow[];
   website: string;
   bio: string;
 };
@@ -35,23 +42,28 @@ export function SetupShopStep({
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<FormData>({ defaultValues: { category: '' } });
+  } = useForm<FormData>({
+    defaultValues: { category: '', opening_hours: emptyOpeningHours() },
+  });
 
   const bioLength = watch('bio')?.length ?? 0;
 
   const createShopMutation = useMutation({
-    mutationFn: (data: FormData) =>
-      createShop({
+    mutationFn: (data: FormData) => {
+      const openingHours = toOpeningHours(data.opening_hours);
+      return createShop({
         name: data.name.trim(),
         category: data.category,
         address: data.address.trim(),
-        opening_hours: data.opening_hours.trim() || undefined,
+        opening_hours: openingHours.length > 0 ? openingHours : undefined,
         website: data.website.trim() || undefined,
         bio: data.bio.trim() || undefined,
-      }),
+      });
+    },
     onSuccess: ({ shop }) => {
       setServerError(null);
       onCreated(shop);
@@ -143,39 +155,38 @@ export function SetupShopStep({
         <FieldError id="address-error" message={errors.address?.message} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="opening-hours" className={labelClassName(false)}>
-            Opening hours <span className="text-neutral-400">(optional)</span>
-          </label>
-          <input
-            id="opening-hours"
-            type="text"
-            placeholder="Mon - Sat: 8am - 6pm"
-            className={inputClassName(false)}
-            {...register('opening_hours')}
+      <Controller
+        control={control}
+        name="opening_hours"
+        rules={{ validate: (rows) => openingHoursError(rows) ?? true }}
+        render={({ field, fieldState }) => (
+          <OpeningHoursPicker
+            value={field.value}
+            onChange={field.onChange}
+            error={fieldState.error?.message}
           />
-        </div>
-        <div>
-          <label htmlFor="website" className={labelClassName(!!errors.website)}>
-            Website <span className="text-neutral-400">(optional)</span>
-          </label>
-          <input
-            id="website"
-            type="url"
-            placeholder="https://yourshop.com"
-            aria-invalid={!!errors.website}
-            aria-describedby={errors.website ? 'website-error' : undefined}
-            className={inputClassName(!!errors.website)}
-            {...register('website', {
-              pattern: {
-                value: /^\s*(https?:\/\/\S+)?\s*$/i,
-                message: 'Start the link with http:// or https://',
-              },
-            })}
-          />
-          <FieldError id="website-error" message={errors.website?.message} />
-        </div>
+        )}
+      />
+
+      <div>
+        <label htmlFor="website" className={labelClassName(!!errors.website)}>
+          Website <span className="text-neutral-400">(optional)</span>
+        </label>
+        <input
+          id="website"
+          type="url"
+          placeholder="https://yourshop.com"
+          aria-invalid={!!errors.website}
+          aria-describedby={errors.website ? 'website-error' : undefined}
+          className={inputClassName(!!errors.website)}
+          {...register('website', {
+            pattern: {
+              value: /^\s*(https?:\/\/\S+)?\s*$/i,
+              message: 'Start the link with http:// or https://',
+            },
+          })}
+        />
+        <FieldError id="website-error" message={errors.website?.message} />
       </div>
 
       <div>

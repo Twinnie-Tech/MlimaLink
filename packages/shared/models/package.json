@@ -11,6 +11,11 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./opening-hours": {
+      "types": "./src/lib/opening-hours.model.ts",
+      "import": "./src/lib/opening-hours.model.ts",
+      "default": "./src/lib/opening-hours.model.ts"
+    },
     "./package.json": "./package.json"
   },
   "nx": {
