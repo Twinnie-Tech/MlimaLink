@@ -26,6 +26,55 @@ export const AUTH_COOKIE_NAMES: Record<
   },
 };
 
+const MINUTE = 60;
+const DAY = 24 * 60 * MINUTE;
+
+/** Every token names this issuer; tokens from anywhere else are rejected. */
+export const TOKEN_ISSUER = 'mlimalink-auth';
+
+type TokenPolicy = {
+  /** Env vars holding this account's signing secrets. */
+  secretEnv: { access: string; refresh: string };
+  accessTtlSeconds: number;
+  /**
+   * Idle timeout: each refresh issues a new refresh token with a fresh lifetime,
+   * so an active session continues and an unused one ends after this long.
+   */
+  refreshTtlSeconds: number;
+  /** Roles this account may hold. Anything else is refused even with a valid token. */
+  roles: readonly string[];
+};
+
+/**
+ * Shoppers and sellers are separate accounts: separate secrets, cookies and
+ * audiences, so a token issued for one can never be used as the other.
+ * Sellers control shops and payouts, so their sessions end sooner when idle.
+ */
+export const TOKEN_POLICIES: Record<AuthAccount, TokenPolicy> = {
+  user: {
+    secretEnv: {
+      access: 'ACCESS_TOKEN_SECRET',
+      refresh: 'REFRESH_TOKEN_SECRET',
+    },
+    accessTtlSeconds: 15 * MINUTE,
+    refreshTtlSeconds: 7 * DAY,
+    roles: ['user'],
+  },
+  seller: {
+    secretEnv: {
+      access: 'SELLER_ACCESS_TOKEN_SECRET',
+      refresh: 'SELLER_REFRESH_TOKEN_SECRET',
+    },
+    accessTtlSeconds: 15 * MINUTE,
+    refreshTtlSeconds: 1 * DAY,
+    roles: ['seller'],
+  },
+};
+
+export function isRoleAllowed(account: AuthAccount, role: string): boolean {
+  return TOKEN_POLICIES[account].roles.includes(role);
+}
+
 export type AuthTokenPayload = {
   userId: string;
   role: string;
@@ -46,33 +95,59 @@ export const safeUserSelect = {
   createdAt: true,
 } as const;
 
-export function getTokenSecrets() {
-  const accessSecret = process.env.ACCESS_TOKEN_SECRET;
-  const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
+/** The account's signing secrets. Throws when they are missing or shared with the other account. */
+export function getTokenSecrets(account: AuthAccount) {
+  const { secretEnv } = TOKEN_POLICIES[account];
+  const accessSecret = process.env[secretEnv.access];
+  const refreshSecret = process.env[secretEnv.refresh];
 
   if (!accessSecret || !refreshSecret) {
     throw new Error(
-      'ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET must be set in .env',
+      `${secretEnv.access} and ${secretEnv.refresh} must be set in .env`,
     );
+  }
+
+  if (accessSecret === refreshSecret) {
+    throw new Error(
+      `${secretEnv.access} and ${secretEnv.refresh} must be different`,
+    );
+  }
+
+  const other =
+    TOKEN_POLICIES[account === 'user' ? 'seller' : 'user'].secretEnv;
+  const otherSecrets = [process.env[other.access], process.env[other.refresh]];
+  if (
+    otherSecrets.includes(accessSecret) ||
+    otherSecrets.includes(refreshSecret)
+  ) {
+    throw new Error('Shopper and seller token secrets must all be different');
   }
 
   return { accessSecret, refreshSecret };
 }
 
-export function signAccessToken(payload: AuthTokenPayload): string {
-  const { accessSecret } = getTokenSecrets();
+export function signAccessToken(
+  payload: AuthTokenPayload,
+  account: AuthAccount,
+): string {
+  const { accessSecret } = getTokenSecrets(account);
   return jwt.sign(
     { userId: payload.userId, role: payload.role },
     accessSecret,
-    { expiresIn: '15m' },
+    {
+      expiresIn: TOKEN_POLICIES[account].accessTtlSeconds,
+      audience: account,
+      issuer: TOKEN_ISSUER,
+    },
   );
 }
 
 export function signRefreshToken(
   payload: AuthTokenPayload,
   sessionId: string,
+  account: AuthAccount,
 ): string {
-  const { refreshSecret } = getTokenSecrets();
+  const { refreshSecret } = getTokenSecrets(account);
   return jwt.sign(
     {
       userId: payload.userId,
@@ -81,26 +156,42 @@ export function signRefreshToken(
       ...(payload.fam && { fam: payload.fam }),
     },
     refreshSecret,
-    { expiresIn: '7d', jwtid: sessionId },
+    {
+      expiresIn: TOKEN_POLICIES[account].refreshTtlSeconds,
+      jwtid: sessionId,
+      audience: account,
+      issuer: TOKEN_ISSUER,
+    },
   );
 }
 
-/** Verifies a token and returns its payload, or throws a 401. */
+/**
+ * Verifies a token for one account and returns its payload, or throws a 401.
+ * Tokens signed for the other account, by another issuer, or carrying a role
+ * that account may not hold are all rejected.
+ */
 export function verifyToken(
   token: string | undefined,
   kind: 'access' | 'refresh',
+  account: AuthAccount,
 ): AuthTokenPayload {
   if (!token) {
     throw unauthorized('Unauthorized! Please log in.');
   }
 
-  const { accessSecret, refreshSecret } = getTokenSecrets();
+  const { accessSecret, refreshSecret } = getTokenSecrets(account);
   try {
     const payload = jwt.verify(
       token,
       kind === 'access' ? accessSecret : refreshSecret,
+      { audience: account, issuer: TOKEN_ISSUER },
     );
-    if (typeof payload === 'string' || typeof payload.userId !== 'string') {
+    if (
+      typeof payload === 'string' ||
+      typeof payload.userId !== 'string' ||
+      typeof payload.role !== 'string' ||
+      !isRoleAllowed(account, payload.role)
+    ) {
       throw new Error('Malformed token');
     }
     return payload as AuthTokenPayload;
@@ -113,11 +204,14 @@ export function verifyToken(
   }
 }
 
-function cookieOptionsFor(rememberMe: boolean) {
+function cookieOptionsFor(account: AuthAccount, rememberMe: boolean) {
   // Without maxAge the browser drops the cookie when it closes.
-  return rememberMe
-    ? authCookieOptions
-    : { ...authCookieOptions, maxAge: undefined };
+  return {
+    ...authCookieOptions,
+    maxAge: rememberMe
+      ? TOKEN_POLICIES[account].refreshTtlSeconds * 1000
+      : undefined,
+  };
 }
 
 export function setAuthCookies(
@@ -127,7 +221,7 @@ export function setAuthCookies(
   account: AuthAccount = 'user',
 ): void {
   const names = AUTH_COOKIE_NAMES[account];
-  const options = cookieOptionsFor(rememberMe);
+  const options = cookieOptionsFor(account, rememberMe);
   setCookie(res, names.refresh, tokens.refreshToken, options);
   setCookie(res, names.access, tokens.accessToken, options);
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Poppins, Roboto } from 'next/font/google';
 import { QueryProvider } from './shared/providers/query-provider';
-import { Header } from './shared/widgets/header';
+import { themeInitScript } from './shared/theme/theme-script';
 import './global.css';
 
 const roboto = Roboto({
@@ -27,14 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${roboto.variable} ${poppins.variable}`}>
+    <html
+      lang="en"
+      className={`${roboto.variable} ${poppins.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
-        <QueryProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1 bg-neutral-100">{children}</main>
-          </div>
-        </QueryProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

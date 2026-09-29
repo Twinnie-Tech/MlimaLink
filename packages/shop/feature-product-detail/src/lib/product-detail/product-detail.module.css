@@ -225,3 +225,61 @@
     font-size: 1.5rem;
   }
 }
+
+/* Dark theme: the app puts a `dark` class on <html>. */
+:global(.dark) .back-button {
+  color: #8b9cf4;
+}
+
+:global(.dark) .product-detail {
+  background: #121216;
+  border: 1px solid #26262b;
+  box-shadow: none;
+}
+
+:global(.dark) .product-image {
+  background: #18181c;
+}
+
+:global(.dark) .product-name,
+:global(.dark) .product-description h2,
+:global(.dark) .product-details h3,
+:global(.dark) .product-details strong {
+  color: #f4f4f5;
+}
+
+:global(.dark) .product-category,
+:global(.dark) .review-count,
+:global(.dark) .product-description p,
+:global(.dark) .product-details li {
+  color: #9b9ba4;
+}
+
+:global(.dark) .stars {
+  color: #37373e;
+}
+
+:global(.dark) .product-price {
+  color: #e5e5e9;
+}
+
+:global(.dark) .in-stock {
+  color: #4ade80;
+}
+
+:global(.dark) .out-of-stock {
+  color: #f87171;
+}
+
+:global(.dark) .product-description,
+:global(.dark) .product-details {
+  border-top-color: #26262b;
+}
+
+:global(.dark) .product-details li {
+  border-bottom-color: #26262b;
+}
+
+:global(.dark) .add-to-cart-btn:disabled {
+  background: #37373e;
+}

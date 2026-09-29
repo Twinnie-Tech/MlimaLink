@@ -18,6 +18,9 @@ function contextFor(req: Record<string, unknown>) {
   } as unknown as ExecutionContext;
 }
 
+const shopperToken = (userId = 'u1') =>
+  signAccessToken({ userId, role: 'user' }, 'user');
+
 describe('IsAuthenticatedGuard', () => {
   const findUnique = vi.fn();
   const guard = new IsAuthenticatedGuard({
@@ -27,6 +30,8 @@ describe('IsAuthenticatedGuard', () => {
   beforeEach(() => {
     vi.stubEnv('ACCESS_TOKEN_SECRET', 'access-secret');
     vi.stubEnv('REFRESH_TOKEN_SECRET', 'refresh-secret');
+    vi.stubEnv('SELLER_ACCESS_TOKEN_SECRET', 'seller-access-secret');
+    vi.stubEnv('SELLER_REFRESH_TOKEN_SECRET', 'seller-refresh-secret');
     findUnique.mockReset();
   });
 
@@ -37,7 +42,7 @@ describe('IsAuthenticatedGuard', () => {
   it('attaches the user for a valid access token cookie', async () => {
     findUnique.mockResolvedValue(user);
     const req: Record<string, unknown> = {
-      cookies: { accessToken: signAccessToken({ userId: 'u1', role: 'user' }) },
+      cookies: { accessToken: shopperToken() },
       headers: {},
     };
 
@@ -60,14 +65,42 @@ describe('IsAuthenticatedGuard', () => {
   it('rejects tokens for deleted accounts', async () => {
     findUnique.mockResolvedValue(null);
     const req = {
-      cookies: {
-        accessToken: signAccessToken({ userId: 'gone', role: 'user' }),
-      },
+      cookies: { accessToken: shopperToken('gone') },
       headers: {},
     };
 
     await expect(guard.canActivate(contextFor(req))).rejects.toBeInstanceOf(
       AppError,
     );
+  });
+
+  it.each([
+    ['the shopper cookie', { cookies: { accessToken: 'SELLER' }, headers: {} }],
+    [
+      'a bearer header',
+      { cookies: {}, headers: { authorization: 'Bearer SELLER' } },
+    ],
+  ])('rejects a seller token sent in %s', async (_where, template) => {
+    const sellerToken = signAccessToken(
+      { userId: 's1', role: 'seller' },
+      'seller',
+    );
+    const req = JSON.parse(
+      JSON.stringify(template).replace('SELLER', sellerToken),
+    );
+
+    await expect(guard.canActivate(contextFor(req))).rejects.toMatchObject({
+      statusCode: 401,
+    });
+    expect(findUnique).not.toHaveBeenCalled();
+  });
+
+  it('refuses a user whose stored role is no longer allowed', async () => {
+    findUnique.mockResolvedValue({ ...user, role: 'suspended' });
+    const req = { cookies: { accessToken: shopperToken() }, headers: {} };
+
+    await expect(guard.canActivate(contextFor(req))).rejects.toMatchObject({
+      statusCode: 403,
+    });
   });
 });

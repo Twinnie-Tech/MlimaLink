@@ -24,3 +24,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Dark theme: the app puts a `dark` class on <html>. */
+:global(.dark) .empty-state {
+  color: #9b9ba4;
+}

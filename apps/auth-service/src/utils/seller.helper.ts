@@ -5,7 +5,11 @@ import {
   parseOpeningHours,
   type OpeningDay,
 } from '@org/models/opening-hours';
-import { validateRegistrationData, type RegistrationData } from './auth.helper';
+import {
+  sellerUiUrl,
+  validateRegistrationData,
+  type RegistrationData,
+} from './auth.helper';
 import { sendEmail } from './send-email';
 
 /** International format: "+" then country code and number, 8 to 15 digits in total. */
@@ -105,14 +109,6 @@ function isHttpUrl(value: string): boolean {
   } catch {
     return false;
   }
-}
-
-/** Base URL of the seller dashboard (seller-ui). */
-export function sellerUiUrl(): string {
-  return (process.env.SELLER_UI_URL ?? 'http://localhost:4300').replace(
-    /\/+$/,
-    '',
-  );
 }
 
 /** Tells a seller their business account is ready and how to start selling. */

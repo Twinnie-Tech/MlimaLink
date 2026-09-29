@@ -47,3 +47,24 @@
   transform: none;
   background: #fff1f2;
 }
+
+/* Dark theme: the app puts a `dark` class on <html>. */
+:global(.dark) .wishlist-button {
+  background: rgba(24, 24, 28, 0.9);
+  color: #d1d1d6;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+:global(.dark) .wishlist-button:hover,
+:global(.dark) .wishlist-button.active {
+  color: #fb7185;
+}
+
+:global(.dark) .with-label {
+  background: transparent;
+  box-shadow: none;
+}
+
+:global(.dark) .with-label:hover {
+  background: rgba(244, 63, 94, 0.1);
+}

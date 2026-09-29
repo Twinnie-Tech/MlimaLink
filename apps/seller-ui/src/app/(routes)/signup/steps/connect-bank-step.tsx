@@ -74,7 +74,7 @@ export function ConnectBankStep({
       </button>
 
       <p className="text-center text-sm">
-        <Link href="/" className={textLinkClassName}>
+        <Link href="/dashboard" className={textLinkClassName}>
           Skip for now and go to my dashboard
         </Link>
       </p>

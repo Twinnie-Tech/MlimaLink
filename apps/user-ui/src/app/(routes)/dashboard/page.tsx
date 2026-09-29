@@ -1,217 +1,276 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  ArrowRight,
   Heart,
-  KeyRound,
-  LayoutDashboard,
-  Loader2,
-  LogOut,
+  MapPin,
   Package,
+  ShieldCheck,
+  ShoppingBag,
   ShoppingCart,
+  Store,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react';
+import { firstName } from '../../shared/hooks/use-user';
+import { formatPrice, useShopStore } from '../../shared/store/shop-store';
+import { useDashboardUser } from '../../shared/dashboard/user-context';
 import {
-  USER_QUERY_KEY,
-  firstName,
-  initials,
-  useUser,
-} from '../../shared/hooks/use-user';
-import { useShopStore } from '../../shared/store/shop-store';
-import { logoutUser } from '../../shared/utils/auth-api';
+  DetailList,
+  EmptyState,
+  Panel,
+  StatCard,
+  accountType,
+  formatMonthYear,
+  primaryButtonClassName,
+  textLinkClassName,
+} from '../../shared/dashboard/ui';
 
-function formatMemberSince(createdAt?: string) {
-  if (!createdAt) return '—';
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(createdAt));
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  href,
-  hint,
-}: {
-  icon: LucideIcon;
+const shortcuts: {
   label: string;
-  value: string | number;
-  href?: string;
-  hint?: string;
-}) {
-  const content = (
-    <>
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-start/10 text-brand-start">
-        <Icon size={22} />
-      </span>
-      <span>
-        <span className="block text-sm text-neutral-500">{label}</span>
-        <span className="block font-poppins text-2xl font-semibold text-neutral-900">
-          {value}
-        </span>
-        {hint && <span className="block text-xs text-neutral-400">{hint}</span>}
-      </span>
-    </>
-  );
-  const className =
-    'flex items-center gap-4 rounded-lg border border-neutral-200 bg-white p-5 shadow-sm';
-
-  return href ? (
-    <Link
-      href={href}
-      className={`${className} transition hover:border-brand-start/40 hover:shadow-md`}
-    >
-      {content}
-    </Link>
-  ) : (
-    <div className={className}>{content}</div>
-  );
-}
-
-const sideLinkClassName =
-  'flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-neutral-700 transition hover:bg-neutral-100 hover:text-brand-start';
+  description: string;
+  href: string;
+  icon: LucideIcon;
+}[] = [
+  {
+    label: 'Addresses',
+    description: 'Where we deliver',
+    href: '/dashboard/addresses',
+    icon: MapPin,
+  },
+  {
+    label: 'Security',
+    description: 'Password & sign-in',
+    href: '/dashboard/security',
+    icon: ShieldCheck,
+  },
+  {
+    label: 'Become a seller',
+    description: 'Open your own shop',
+    href: '/become-seller',
+    icon: Store,
+  },
+];
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { user, isLoading } = useUser();
-  const { wishlist, cartCount } = useShopStore();
-
-  useEffect(() => {
-    if (!isLoading && !user) router.replace('/login');
-  }, [isLoading, user, router]);
-
-  const logoutMutation = useMutation({
-    mutationFn: logoutUser,
-    onSuccess: async () => {
-      await queryClient.cancelQueries({ queryKey: USER_QUERY_KEY });
-      queryClient.setQueryData(USER_QUERY_KEY, null);
-      router.push('/login');
-    },
-  });
-
-  if (!user) {
-    return (
-      <div className="flex justify-center py-24 text-neutral-500">
-        <Loader2 className="animate-spin" aria-label="Loading your dashboard" />
-      </div>
-    );
-  }
-
-  const details = [
-    { label: 'Full name', value: user.name },
-    { label: 'Email', value: user.email },
-    {
-      label: 'Account type',
-      value: user.role
-        ? user.role[0].toUpperCase() + user.role.slice(1)
-        : 'User',
-    },
-    { label: 'Member since', value: formatMemberSince(user.createdAt) },
-  ];
+  const user = useDashboardUser();
+  const { wishlist, cart, cartCount, cartSubtotal } = useShopStore();
 
   return (
-    <div className="mx-auto w-[90%] max-w-300 py-10">
-      <h1 className="font-poppins text-3xl font-semibold text-neutral-900">
-        Welcome back, {firstName(user.name)}
-      </h1>
-      <p className="mt-1 text-neutral-500">
-        Manage your account and keep track of your shopping.
-      </p>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-4">
-        <aside className="h-fit rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-3 border-b border-neutral-200 pb-5">
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-start font-poppins text-lg font-semibold text-white">
-              {initials(user.name)}
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate font-poppins font-semibold text-neutral-900">
-                {user.name}
-              </span>
-              <span className="block truncate text-sm text-neutral-500">
-                {user.email}
-              </span>
-            </span>
-          </div>
-
-          <nav aria-label="Dashboard" className="mt-4 space-y-1">
-            <span
-              aria-current="page"
-              className={`${sideLinkClassName} bg-brand-start/10 font-medium text-brand-start`}
-            >
-              <LayoutDashboard size={18} /> Overview
-            </span>
-            <Link href="/wishlist" className={sideLinkClassName}>
-              <Heart size={18} /> My Wishlist
-            </Link>
-            <Link href="/cart" className={sideLinkClassName}>
-              <ShoppingCart size={18} /> My Cart
-            </Link>
-            <Link href="/forgot-password" className={sideLinkClassName}>
-              <KeyRound size={18} /> Reset Password
-            </Link>
-            <button
-              type="button"
-              onClick={() => logoutMutation.mutate()}
-              disabled={logoutMutation.isPending}
-              className={`${sideLinkClassName} text-rose-600 hover:bg-rose-50 hover:text-rose-700 disabled:opacity-60`}
-            >
-              <LogOut size={18} />
-              {logoutMutation.isPending ? 'Logging out…' : 'Log out'}
-            </button>
-          </nav>
-          {logoutMutation.isError && (
-            <p role="alert" className="mt-3 text-sm text-rose-600">
-              {logoutMutation.error.message}
+    <>
+      <div className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-start to-brand-end p-6 text-white shadow-md sm:p-8">
+        <div className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/10" />
+        <div className="pointer-events-none absolute right-40 -bottom-24 h-44 w-44 rounded-full bg-white/10" />
+        <div className="relative flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <h1 className="font-poppins text-2xl font-semibold sm:text-3xl">
+              Welcome back, {firstName(user.name)}
+            </h1>
+            <p className="mt-1 text-white/80">
+              Track your orders, pick up where you left off and manage your
+              account.
             </p>
-          )}
-        </aside>
-
-        <div className="space-y-6 lg:col-span-3">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <StatCard
-              icon={Heart}
-              label="Wishlist"
-              value={wishlist.length}
-              href="/wishlist"
-            />
-            <StatCard
-              icon={ShoppingCart}
-              label="Cart items"
-              value={cartCount}
-              href="/cart"
-            />
-            <StatCard
-              icon={Package}
-              label="Orders"
-              value={0}
-              hint="Order history is coming soon"
-            />
           </div>
-
-          <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-            <h2 className="font-poppins text-xl font-semibold text-neutral-900">
-              Account details
-            </h2>
-            <dl className="mt-4 grid gap-x-8 gap-y-5 sm:grid-cols-2">
-              {details.map((item) => (
-                <div key={item.label}>
-                  <dt className="text-sm text-neutral-500">{item.label}</dt>
-                  <dd className="mt-0.5 font-medium break-words text-neutral-900">
-                    {item.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </section>
+          <Link
+            href="/products"
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-brand-start shadow-sm transition hover:bg-white/90"
+          >
+            <ShoppingBag size={16} /> Continue shopping
+          </Link>
         </div>
       </div>
-    </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={Package}
+          label="Orders"
+          value="0"
+          hint="No orders yet"
+          tone="amber"
+        />
+        <StatCard
+          icon={Heart}
+          label="Wishlist"
+          value={String(wishlist.length)}
+          hint="Saved for later"
+          href="/dashboard/wishlist"
+          tone="rose"
+        />
+        <StatCard
+          icon={ShoppingCart}
+          label="Cart items"
+          value={String(cartCount)}
+          hint="Ready to check out"
+          href="/dashboard/cart"
+        />
+        <StatCard
+          icon={Wallet}
+          label="Cart total"
+          value={formatPrice(cartSubtotal)}
+          hint="Before shipping"
+          tone="emerald"
+        />
+      </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-3">
+        <div className="space-y-6 xl:col-span-2">
+          <Panel
+            title="Recent orders"
+            action={
+              <Link href="/dashboard/orders" className={textLinkClassName}>
+                View all
+              </Link>
+            }
+          >
+            <EmptyState
+              icon={Package}
+              title="No orders yet"
+              description="When you place an order, you'll be able to track it here."
+              action={{ label: 'Start shopping', href: '/products' }}
+            />
+          </Panel>
+
+          <Panel
+            title="From your wishlist"
+            action={
+              wishlist.length > 0 && (
+                <Link href="/dashboard/wishlist" className={textLinkClassName}>
+                  View all <ArrowRight size={14} />
+                </Link>
+              )
+            }
+          >
+            {wishlist.length === 0 ? (
+              <p className="text-sm text-neutral-500">
+                Nothing saved yet. Tap the heart on any product to keep it here.
+              </p>
+            ) : (
+              <ul className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {wishlist.slice(0, 4).map((product) => (
+                  <li key={product.id}>
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="group block"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden rounded-lg bg-neutral-100">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="h-full w-full object-cover transition group-hover:scale-105"
+                        />
+                      </div>
+                      <p className="mt-2 truncate text-sm font-medium text-neutral-900 group-hover:text-brand-start">
+                        {product.name}
+                      </p>
+                      <p className="text-sm text-neutral-500">
+                        {formatPrice(product.price)}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+        </div>
+
+        <div className="space-y-6">
+          <Panel title="Your cart">
+            {cart.length === 0 ? (
+              <p className="text-sm text-neutral-500">Your cart is empty.</p>
+            ) : (
+              <>
+                <ul className="space-y-3">
+                  {cart.slice(0, 3).map(({ product, quantity }) => (
+                    <li
+                      key={product.id}
+                      className="flex items-center gap-3 text-sm"
+                    >
+                      <img
+                        src={product.imageUrl}
+                        alt=""
+                        className="h-10 w-10 shrink-0 rounded-md object-cover"
+                      />
+                      <span className="min-w-0 flex-1 truncate text-neutral-700">
+                        {product.name}
+                        <span className="text-neutral-400"> × {quantity}</span>
+                      </span>
+                      <span className="shrink-0 font-medium text-neutral-900">
+                        {formatPrice(product.price * quantity)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {cart.length > 3 && (
+                  <p className="mt-3 text-xs text-neutral-400">
+                    and {cart.length - 3} more{' '}
+                    {cart.length - 3 === 1 ? 'product' : 'products'}
+                  </p>
+                )}
+                <div className="mt-5 flex items-center justify-between border-t border-neutral-200 pt-4">
+                  <span className="text-sm text-neutral-500">Subtotal</span>
+                  <span className="font-poppins text-lg font-semibold text-neutral-900">
+                    {formatPrice(cartSubtotal)}
+                  </span>
+                </div>
+                <Link
+                  href="/dashboard/cart"
+                  className={`mt-4 w-full ${primaryButtonClassName}`}
+                >
+                  View cart <ArrowRight size={16} />
+                </Link>
+              </>
+            )}
+          </Panel>
+
+          <Panel title="Shortcuts">
+            <ul className="space-y-2">
+              {shortcuts.map(({ label, description, href, icon: Icon }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 transition hover:border-brand-start/40 hover:bg-brand-start/5"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-start/10 text-brand-start">
+                      <Icon size={18} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-medium text-neutral-900">
+                        {label}
+                      </span>
+                      <span className="block text-xs text-neutral-500">
+                        {description}
+                      </span>
+                    </span>
+                    <ArrowRight size={16} className="text-neutral-300" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+
+          <Panel
+            title="Account"
+            action={
+              <Link href="/dashboard/profile" className={textLinkClassName}>
+                Profile
+              </Link>
+            }
+          >
+            <DetailList
+              columns={1}
+              items={[
+                { label: 'Email', value: user.email },
+                { label: 'Account type', value: accountType(user.role) },
+                {
+                  label: 'Member since',
+                  value: formatMonthYear(user.createdAt),
+                },
+              ]}
+            />
+          </Panel>
+        </div>
+      </div>
+    </>
   );
 }

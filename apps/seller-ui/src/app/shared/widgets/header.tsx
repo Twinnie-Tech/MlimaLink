@@ -11,6 +11,7 @@ import {
   useSeller,
 } from '../hooks/use-seller';
 import { logoutSeller } from '../utils/seller-api';
+import { ThemeToggle } from './theme-toggle';
 
 export function Header() {
   const { seller, isLoading } = useSeller();
@@ -37,45 +38,51 @@ export function Header() {
           </span>
         </Link>
 
-        {isLoading ? null : seller ? (
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-start text-sm font-semibold text-white">
-                {initials(seller.name)}
-              </span>
-              <span className="hidden text-sm sm:block">
-                <span className="block text-neutral-500">Hello,</span>
-                <span className="block font-semibold text-neutral-900">
-                  {firstName(seller.name)}
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          {isLoading ? null : seller ? (
+            <div className="flex items-center gap-4">
+              <Link
+                href={seller.shop ? '/dashboard' : '/signup'}
+                className="flex items-center gap-2"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-start text-sm font-semibold text-white">
+                  {initials(seller.name)}
                 </span>
-              </span>
-            </Link>
-            <button
-              type="button"
-              onClick={() => logoutMutation.mutate()}
-              disabled={logoutMutation.isPending}
-              className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-rose-600 disabled:opacity-60"
-            >
-              <LogOut size={16} />
-              {logoutMutation.isPending ? 'Logging out…' : 'Log out'}
-            </button>
-          </div>
-        ) : (
-          <nav className="flex items-center gap-3 text-sm">
-            <Link
-              href="/login"
-              className="rounded-md px-3 py-2 font-medium text-neutral-700 transition hover:text-brand-start"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white transition hover:bg-neutral-800"
-            >
-              Start selling
-            </Link>
-          </nav>
-        )}
+                <span className="hidden text-sm sm:block">
+                  <span className="block text-neutral-500">Hello,</span>
+                  <span className="block font-semibold text-neutral-900">
+                    {firstName(seller.name)}
+                  </span>
+                </span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => logoutMutation.mutate()}
+                disabled={logoutMutation.isPending}
+                className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-rose-600 disabled:opacity-60"
+              >
+                <LogOut size={16} />
+                {logoutMutation.isPending ? 'Logging out…' : 'Log out'}
+              </button>
+            </div>
+          ) : (
+            <nav className="flex items-center gap-3 text-sm">
+              <Link
+                href="/login"
+                className="rounded-md px-3 py-2 font-medium text-neutral-700 transition hover:text-brand-start"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white transition hover:bg-neutral-800 dark:text-neutral-100"
+              >
+                Start selling
+              </Link>
+            </nav>
+          )}
+        </div>
       </div>
     </header>
   );

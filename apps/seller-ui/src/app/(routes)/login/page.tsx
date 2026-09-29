@@ -44,7 +44,7 @@ export default function SellerLoginPage() {
       await queryClient.cancelQueries({ queryKey: SELLER_QUERY_KEY });
       queryClient.setQueryData(SELLER_QUERY_KEY, seller);
       // Sellers who stopped part-way through sign-up carry on where they left off.
-      router.push(seller.shop ? '/' : '/signup');
+      router.push(seller.shop ? '/dashboard' : '/signup');
     },
     onError: (error: Error) => setServerError(error.message),
   });
@@ -118,15 +118,23 @@ export default function SellerLoginPage() {
           <FieldError id="password-error" message={errors.password?.message} />
         </div>
 
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-700">
-          <input
-            type="checkbox"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            className="h-4 w-4 accent-brand-start"
-          />
-          Remember me
-        </label>
+        <div className="flex items-center justify-between gap-4">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-700">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 accent-brand-start"
+            />
+            Remember me
+          </label>
+          <Link
+            href="/forgot-password"
+            className={`text-sm ${textLinkClassName}`}
+          >
+            Forgot password?
+          </Link>
+        </div>
 
         <ServerError message={serverError} />
 

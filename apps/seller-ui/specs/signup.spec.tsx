@@ -297,6 +297,6 @@ describe('Connect bank step', () => {
       screen
         .getByRole('link', { name: 'Skip for now and go to my dashboard' })
         .getAttribute('href'),
-    ).toBe('/');
+    ).toBe('/dashboard');
   });
 });

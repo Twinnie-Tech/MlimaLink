@@ -30,6 +30,8 @@ describe('refresh sessions', () => {
     redis.reset();
     vi.stubEnv('ACCESS_TOKEN_SECRET', 'access-secret');
     vi.stubEnv('REFRESH_TOKEN_SECRET', 'refresh-secret');
+    vi.stubEnv('SELLER_ACCESS_TOKEN_SECRET', 'seller-access-secret');
+    vi.stubEnv('SELLER_REFRESH_TOKEN_SECRET', 'seller-refresh-secret');
   });
 
   afterEach(() => {
@@ -89,14 +91,46 @@ describe('refresh sessions', () => {
         { value, options },
       ]),
     );
-    const refresh = verifyToken(cookies.refreshToken.value, 'refresh');
+    const refresh = verifyToken(cookies.refreshToken.value, 'refresh', 'user');
 
-    expect(verifyToken(cookies.accessToken.value, 'access').userId).toBe('u1');
+    expect(
+      verifyToken(cookies.accessToken.value, 'access', 'user').userId,
+    ).toBe('u1');
     expect(refresh).toMatchObject({ userId: 'u1', rememberMe: false });
     expect(await isRefreshSessionActive('u1', refresh.jti as string)).toBe(
       true,
     );
     expect(cookies.refreshToken.options.maxAge).toBeUndefined();
+  });
+
+  it('gives seller sessions the shorter seller lifetime', async () => {
+    const res = { cookie: vi.fn() };
+
+    await issueAuthCookies(
+      res as unknown as Response,
+      { userId: 's1', role: 'seller', rememberMe: true },
+      'seller',
+    );
+
+    const refreshToken = res.cookie.mock.calls.find(
+      ([name]) => name === 'sellerRefreshToken',
+    )?.[1] as string;
+    const { jti } = verifyToken(refreshToken, 'refresh', 'seller');
+    expect(redis.ttls.get(`refresh_session:${jti}`)).toBe(24 * 60 * 60);
+    expect(() => verifyToken(refreshToken, 'refresh', 'user')).toThrow();
+  });
+
+  it('refuses to sign in an account with a role it may not hold', async () => {
+    const res = { cookie: vi.fn() };
+
+    await expect(
+      issueAuthCookies(
+        res as unknown as Response,
+        { userId: 'u1', role: 'user', rememberMe: true },
+        'seller',
+      ),
+    ).rejects.toMatchObject({ statusCode: 401 });
+    expect(res.cookie).not.toHaveBeenCalled();
   });
 
   describe('logout', () => {
@@ -134,7 +168,23 @@ describe('refresh sessions', () => {
     }
 
     const sessionOf = (token: string) =>
-      verifyToken(token, 'refresh').jti as string;
+      verifyToken(token, 'refresh', 'user').jti as string;
+
+    it('stops refreshing once the stored role is no longer allowed', async () => {
+      const token = await login();
+      const res = { cookie: vi.fn(), clearCookie: vi.fn() };
+
+      await expect(
+        rotateAuthSession(
+          cookieRequest(token),
+          res as unknown as Response,
+          'user',
+          async () => 'suspended',
+        ),
+      ).rejects.toMatchObject({ statusCode: 401 });
+      expect(res.cookie).not.toHaveBeenCalled();
+      expect(res.clearCookie).toHaveBeenCalledTimes(2);
+    });
 
     it('also ends tokens rotated out during the grace period, but not other logins', async () => {
       const first = await login();
@@ -162,6 +212,7 @@ describe('refresh sessions', () => {
       const legacy = signRefreshToken(
         { userId: 'u1', role: 'user' },
         legacySession,
+        'user',
       );
       const current = await rotate(legacy);
 

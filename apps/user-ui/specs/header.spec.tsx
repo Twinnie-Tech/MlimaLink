@@ -8,6 +8,7 @@ import {
   SHOP_STORAGE_KEY,
   ShopStoreProvider,
 } from '../src/app/shared/store/shop-store';
+import { THEME_STORAGE_KEY } from '../src/app/shared/theme/theme-script';
 
 const push = vi.fn();
 const replace = vi.fn();
@@ -210,6 +211,24 @@ describe('Header', () => {
       '/products?category=Electronics&search=tv',
       { scroll: false },
     );
+  });
+
+  it('switches between light and dark mode and remembers the choice', () => {
+    document.documentElement.classList.remove('dark');
+    renderHeader();
+
+    const toggle = screen.getByRole('switch', { name: 'Dark mode' });
+    expect(toggle.getAttribute('aria-checked')).toBe('false');
+
+    fireEvent.click(toggle);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark');
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+
+    fireEvent.click(toggle);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('light');
+    expect(toggle.getAttribute('aria-checked')).toBe('false');
   });
 
   describe('navigation links', () => {

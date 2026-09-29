@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Heart, ShoppingCart, UserRound } from 'lucide-react';
 import { firstName, initials, useUser } from '../hooks/use-user';
 import { useShopStore } from '../store/shop-store';
+import { ThemeToggle } from './theme-toggle';
 
 function CountBadge({
   count,
@@ -63,6 +64,8 @@ export function HeaderActions() {
 
   return (
     <nav aria-label="Account and shopping" className="flex items-center gap-7">
+      <ThemeToggle />
+
       <ProfileLink />
 
       <Link

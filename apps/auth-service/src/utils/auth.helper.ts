@@ -165,6 +165,26 @@ export async function sendPasswordChangedEmail(
   );
 }
 
+/** Security notice after a seller changes their password, naming their shop. */
+export async function sendSellerPasswordChangedEmail(
+  seller: { name: string; email: string; shopName: string | null },
+  changedAt: Date = new Date(),
+): Promise<void> {
+  await sendEmail(
+    seller.email,
+    'Your MlimaLink seller account password was changed',
+    'seller_password_changed',
+    {
+      name: seller.name,
+      email: seller.email,
+      shopName: seller.shopName,
+      changedAt: formatEmailDate(changedAt),
+      loginUrl: `${sellerUiUrl()}/login`,
+      forgotPasswordUrl: `${sellerUiUrl()}/forgot-password`,
+    },
+  );
+}
+
 /** Compare submitted OTP against the value stored in Redis. */
 export async function verifyOtp(
   email: string,
@@ -226,11 +246,110 @@ export function userUiUrl(): string {
   );
 }
 
-function buildResetLink(token: string): string {
+/** Base URL of the seller dashboard (seller-ui). */
+export function sellerUiUrl(): string {
+  return (process.env.SELLER_UI_URL ?? 'http://localhost:4300').replace(
+    /\/+$/,
+    '',
+  );
+}
+
+/** Where a reset link opens; sellers get their own page under `/seller`. */
+function resetPageUrl(account: RegistrationUserType): string {
   const base =
     process.env.RESET_PASSWORD_URL ??
     `http://localhost:${process.env.AUTH_PORT ?? 3334}/api/auth/reset-password`;
-  return `${base}?token=${encodeURIComponent(token)}`;
+  return account === 'seller' ? `${base.replace(/\/+$/, '')}/seller` : base;
+}
+
+function buildResetLink(account: RegistrationUserType, token: string): string {
+  return `${resetPageUrl(account)}?token=${encodeURIComponent(token)}`;
+}
+
+type ResettableAccount = {
+  id: string;
+  name: string;
+  email: string;
+  password: string | null;
+  /** Sellers only: the shop the account runs, once it exists. */
+  shopName: string | null;
+};
+
+/**
+ * Buyers and sellers live in separate collections and use separate Redis keys,
+ * so a buyer's reset link can never change a seller's password or the reverse.
+ */
+function resetSettings(account: RegistrationUserType) {
+  if (account === 'seller') {
+    return {
+      tokenKey: (tokenHash: string) => `seller_password_reset:${tokenHash}`,
+      ownerKey: (id: string) => `seller_password_reset_owner:${id}`,
+      loginUrl: `${sellerUiUrl()}/login`,
+      forgotPasswordUrl: `${sellerUiUrl()}/forgot-password`,
+    };
+  }
+
+  return {
+    tokenKey: (tokenHash: string) => `password_reset:${tokenHash}`,
+    ownerKey: (id: string) => `password_reset_user:${id}`,
+    loginUrl: `${userUiUrl()}/login`,
+    forgotPasswordUrl: `${userUiUrl()}/forgot-password`,
+  };
+}
+
+function resetAccounts(account: RegistrationUserType, prisma: PrismaClient) {
+  if (account === 'seller') {
+    const select = {
+      id: true,
+      name: true,
+      email: true,
+      password: true,
+      shop: { select: { name: true } },
+    } as const;
+    const toAccount = (
+      seller: {
+        id: string;
+        name: string;
+        email: string;
+        password: string;
+        shop: { name: string } | null;
+      } | null,
+    ): ResettableAccount | null =>
+      seller && { ...seller, shopName: seller.shop?.name ?? null };
+
+    return {
+      ...resetSettings(account),
+      findByEmail: async (email: string) =>
+        toAccount(
+          await prisma.sellers.findUnique({ where: { email }, select }),
+        ),
+      findById: async (id: string) =>
+        toAccount(await prisma.sellers.findUnique({ where: { id }, select })),
+      updatePassword: (id: string, password: string) =>
+        prisma.sellers.update({ where: { id }, data: { password } }),
+    };
+  }
+
+  const toAccount = (
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      password: string | null;
+    } | null,
+  ): ResettableAccount | null => user && { ...user, shopName: null };
+
+  return {
+    ...resetSettings(account),
+    findByEmail: async (email: string) => {
+      const user = await prisma.users.findUnique({ where: { email } });
+      return user?.role === 'user' ? toAccount(user) : null;
+    },
+    findById: async (id: string) =>
+      toAccount(await prisma.users.findUnique({ where: { id } })),
+    updatePassword: (id: string, password: string) =>
+      prisma.users.update({ where: { id }, data: { password } }),
+  };
 }
 
 /** Email a one-time reset link. Responds the same whether or not the email exists. */
@@ -252,44 +371,54 @@ export async function handleForgotPassword(
       throw validationError('Invalid email format!');
     }
 
-    const user = await prisma.users.findUnique({ where: { email } });
+    const accounts = resetAccounts(userType, prisma);
+    const account = await accounts.findByEmail(email);
 
-    if (user && user.role === userType) {
+    if (account) {
       await checkOtpRegistration(email, next);
       await trackOtp(email, next);
 
       const token = randomBytes(32).toString('hex');
       const tokenHash = hashResetToken(token);
-      const userTokenKey = `password_reset_user:${user.id}`;
+      const ownerKey = accounts.ownerKey(account.id);
 
-      const previousHash = await redisClient.get(userTokenKey);
+      const previousHash = await redisClient.get(ownerKey);
       if (previousHash) {
-        await redisClient.del(`password_reset:${previousHash}`);
+        await redisClient.del(accounts.tokenKey(previousHash));
       }
 
       await redisClient.set(
-        `password_reset:${tokenHash}`,
-        user.id,
+        accounts.tokenKey(tokenHash),
+        account.id,
         'EX',
         RESET_TOKEN_TTL_SECONDS,
       );
-      await redisClient.set(
-        userTokenKey,
-        tokenHash,
-        'EX',
-        RESET_TOKEN_TTL_SECONDS,
-      );
+      await redisClient.set(ownerKey, tokenHash, 'EX', RESET_TOKEN_TTL_SECONDS);
 
-      await sendEmail(
-        email,
-        'Reset your MlimaLink password',
-        'forgot_password',
-        {
-          name: user.name,
-          resetLink: buildResetLink(token),
-          expiresInMinutes: RESET_TOKEN_TTL_SECONDS / 60,
-        },
-      );
+      const resetLink = buildResetLink(userType, token);
+      const expiresInMinutes = RESET_TOKEN_TTL_SECONDS / 60;
+
+      if (userType === 'seller') {
+        await sendEmail(
+          email,
+          'Reset your MlimaLink seller account password',
+          'seller_forgot_password',
+          {
+            name: account.name,
+            email: account.email,
+            shopName: account.shopName,
+            resetLink,
+            expiresInMinutes,
+          },
+        );
+      } else {
+        await sendEmail(
+          email,
+          'Reset your MlimaLink password',
+          'forgot_password',
+          { name: account.name, resetLink, expiresInMinutes },
+        );
+      }
 
       await redisClient.set(
         `otp_cooldown:${email}`,
@@ -314,17 +443,19 @@ export async function renderResetPasswordPage(
   req: Request,
   res: Response,
   next: NextFunction,
+  account: RegistrationUserType = 'user',
 ): Promise<void> {
   try {
     const token = typeof req.query.token === 'string' ? req.query.token : '';
+    const isSeller = account === 'seller';
+    const settings = resetSettings(account);
 
     let tokenValid = false;
     if (token) {
       await ensureRedisConnected();
       tokenValid =
-        (await redisClient.exists(
-          `password_reset:${hashResetToken(token)}`,
-        )) === 1;
+        (await redisClient.exists(settings.tokenKey(hashResetToken(token)))) ===
+        1;
     }
 
     const templatePath = join(
@@ -336,8 +467,15 @@ export async function renderResetPasswordPage(
     const html = ejs.render(await readFile(templatePath, 'utf8'), {
       token,
       tokenValid,
-      loginUrl: `${userUiUrl()}/login`,
-      forgotPasswordUrl: `${userUiUrl()}/forgot-password`,
+      seller: isSeller,
+      eyebrow: isSeller
+        ? 'MlimaLink Seller Centre · Password reset'
+        : 'MlimaLink · Password reset',
+      resetUrl: isSeller
+        ? '/api/auth/reset-password/seller'
+        : '/api/auth/reset-password',
+      loginUrl: settings.loginUrl,
+      forgotPasswordUrl: settings.forgotPasswordUrl,
     });
     res
       .status(tokenValid ? 200 : 410)
@@ -354,6 +492,7 @@ export async function handleResetPassword(
   res: Response,
   next: NextFunction,
   prisma: PrismaClient,
+  account: RegistrationUserType = 'user',
 ): Promise<void> {
   try {
     const { token, password, confirmPassword } = req.body as {
@@ -378,35 +517,37 @@ export async function handleResetPassword(
 
     await ensureRedisConnected();
 
-    const tokenKey = `password_reset:${hashResetToken(token)}`;
-    const userId = await redisClient.get(tokenKey);
+    const accounts = resetAccounts(account, prisma);
+    const tokenKey = accounts.tokenKey(hashResetToken(token));
+    const ownerId = await redisClient.get(tokenKey);
 
-    if (!userId) {
+    if (!ownerId) {
       throw validationError('Invalid or expired reset link!');
     }
 
-    const user = await prisma.users.findUnique({ where: { id: userId } });
+    const owner = await accounts.findById(ownerId);
 
-    if (!user) {
+    if (!owner) {
       throw validationError('Invalid or expired reset link!');
     }
 
-    if (user.password && (await bcrypt.compare(password, user.password))) {
+    if (owner.password && (await bcrypt.compare(password, owner.password))) {
       throw validationError(
         'New password must be different from your current password!',
       );
     }
 
-    await prisma.users.update({
-      where: { id: userId },
-      data: { password: await hashPassword(password) },
-    });
+    await accounts.updatePassword(ownerId, await hashPassword(password));
 
-    await redisClient.del(tokenKey, `password_reset_user:${userId}`);
-    await endAllRefreshSessions(userId);
+    await redisClient.del(tokenKey, accounts.ownerKey(ownerId));
+    await endAllRefreshSessions(ownerId);
 
     // Sent in the background so a slow or failing mail server never blocks the reset.
-    void sendPasswordChangedEmail(user).catch((emailError: unknown) => {
+    const notify =
+      account === 'seller'
+        ? sendSellerPasswordChangedEmail(owner)
+        : sendPasswordChangedEmail(owner);
+    void notify.catch((emailError: unknown) => {
       console.error(
         '[auth] Failed to send password-changed email:',
         emailError instanceof Error ? emailError.message : emailError,

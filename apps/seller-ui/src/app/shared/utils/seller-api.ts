@@ -161,6 +161,11 @@ export function loginSeller(body: {
   );
 }
 
+/** Emails a reset link for the seller account; the reply is the same whether or not it exists. */
+export function forgotSellerPassword(body: { email: string }) {
+  return requestAuth<MessageResponse>('POST', 'forgot-password/seller', body);
+}
+
 export function logoutSeller() {
   return requestAuth<MessageResponse>('POST', 'logout/seller');
 }

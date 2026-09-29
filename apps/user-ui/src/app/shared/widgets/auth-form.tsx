@@ -15,7 +15,7 @@ export function inputClassName(hasError: boolean) {
 }
 
 export const submitButtonClassName =
-  'w-full rounded-md bg-neutral-900 py-3 font-poppins font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60';
+  'w-full rounded-md bg-neutral-900 py-3 font-poppins font-medium text-white transition hover:bg-neutral-800 dark:text-neutral-100 disabled:cursor-not-allowed disabled:opacity-60';
 
 export const textLinkClassName =
   'font-medium text-brand-start transition hover:text-brand-end hover:underline';
