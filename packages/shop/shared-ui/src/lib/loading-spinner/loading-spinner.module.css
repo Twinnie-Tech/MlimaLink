@@ -48,3 +48,8 @@
     transform: scale(1);
   }
 }
+
+/* Dark theme: the app puts a `dark` class on <html>. */
+:global(.dark) .loading-text {
+  color: #9b9ba4;
+}

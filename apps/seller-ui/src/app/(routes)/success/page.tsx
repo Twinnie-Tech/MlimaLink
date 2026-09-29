@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
 import { CircleCheck } from 'lucide-react';
-import { SELLER_QUERY_KEY } from '../shared/hooks/use-seller';
+import { SELLER_QUERY_KEY } from '../../shared/hooks/use-seller';
 
 /** Stripe sends sellers here after bank onboarding. */
 export default function StripeSuccessPage() {
@@ -30,8 +30,8 @@ export default function StripeSuccessPage() {
           your account, usually within a few minutes.
         </p>
         <Link
-          href="/"
-          className="mt-6 inline-block rounded-md bg-neutral-900 px-6 py-3 font-poppins font-medium text-white transition hover:bg-neutral-800"
+          href="/dashboard"
+          className="mt-6 inline-block rounded-md bg-neutral-900 px-6 py-3 font-poppins font-medium text-white transition hover:bg-neutral-800 dark:text-neutral-100"
         >
           Go to my dashboard
         </Link>

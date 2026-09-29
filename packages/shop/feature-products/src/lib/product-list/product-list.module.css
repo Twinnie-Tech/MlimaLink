@@ -112,3 +112,41 @@
     align-items: stretch;
   }
 }
+
+/* Dark theme: the app puts a `dark` class on <html>. */
+:global(.dark) .page-header h1 {
+  color: #f4f4f5;
+}
+
+:global(.dark) .page-header p,
+:global(.dark) .results-info,
+:global(.dark) .page-info {
+  color: #9b9ba4;
+}
+
+:global(.dark) .filters-section {
+  background: #121216;
+  border: 1px solid #26262b;
+}
+
+:global(.dark) .filter-select {
+  background: #18181c;
+  border-color: #37373e;
+  color: #e5e5e9;
+}
+
+:global(.dark) .checkbox-label {
+  color: #e5e5e9;
+}
+
+:global(.dark) .pagination {
+  border-top-color: #26262b;
+}
+
+:global(.dark) .btn-secondary {
+  background: #37373e;
+}
+
+:global(.dark) .btn-secondary:hover:not(:disabled) {
+  background: #4a4a52;
+}

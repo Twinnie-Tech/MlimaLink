@@ -2,6 +2,12 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./out-tsc/vitest",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
     "types": [
       "vitest/globals",
       "vitest/importMeta",
@@ -12,7 +18,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "jsx": "preserve"
+    "jsx": "react-jsx"
   },
   "include": [
     "vite.config.ts",
@@ -35,11 +41,7 @@
     "specs/**/*.test.js",
     "specs/**/*.spec.js",
     "specs/**/*.test.jsx",
-    "specs/**/*.spec.jsx"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.json"
-    }
+    "specs/**/*.spec.jsx",
+    "specs/**/*.tsx"
   ]
 }

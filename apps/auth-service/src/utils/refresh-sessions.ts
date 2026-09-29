@@ -3,7 +3,9 @@ import type { Response } from 'express';
 import { AppError, unauthorized } from '@org/errors';
 import {
   AUTH_COOKIE_NAMES,
+  TOKEN_POLICIES,
   clearAuthCookies,
+  isRoleAllowed,
   readToken,
   setAuthCookies,
   signAccessToken,
@@ -13,8 +15,6 @@ import {
 } from './auth-tokens';
 import { ensureRedisConnected, redisClient } from './redis.client';
 
-/** Matches the refresh token's 7 day lifetime. */
-const REFRESH_SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 /**
  * A rotated refresh token stays usable this long, so parallel requests (e.g. two tabs)
  * that still carry it don't sign the user out.
@@ -26,23 +26,26 @@ const userSessionsKey = (userId: string) => `refresh_sessions:${userId}`;
 const familyKey = (familyId: string) => `refresh_family:${familyId}`;
 
 /**
- * Starts a session. `familyId` links it to the login it was rotated from;
- * a new login leaves it out and starts a family named after its first session.
+ * Starts a session that lives as long as the account's refresh token.
+ * `familyId` links it to the login it was rotated from; a new login leaves it
+ * out and starts a family named after its first session.
  */
 export async function createRefreshSession(
   userId: string,
   familyId?: string,
+  account: AuthAccount = 'user',
 ): Promise<string> {
   const sessionId = randomUUID();
   const family = familyKey(familyId ?? sessionId);
+  const ttl = TOKEN_POLICIES[account].refreshTtlSeconds;
   await ensureRedisConnected();
   await redisClient
     .multi()
-    .set(sessionKey(sessionId), userId, 'EX', REFRESH_SESSION_TTL_SECONDS)
+    .set(sessionKey(sessionId), userId, 'EX', ttl)
     .sadd(userSessionsKey(userId), sessionId)
-    .expire(userSessionsKey(userId), REFRESH_SESSION_TTL_SECONDS)
+    .expire(userSessionsKey(userId), ttl)
     .sadd(family, sessionId)
-    .expire(family, REFRESH_SESSION_TTL_SECONDS)
+    .expire(family, ttl)
     .exec();
   return sessionId;
 }
@@ -105,14 +108,19 @@ export async function issueAuthCookies(
   account: AuthAccount = 'user',
   familyId?: string,
 ): Promise<void> {
-  const sessionId = await createRefreshSession(user.userId, familyId);
+  if (!isRoleAllowed(account, user.role)) {
+    throw unauthorized('Unauthorized! This account cannot sign in here.');
+  }
+
+  const sessionId = await createRefreshSession(user.userId, familyId, account);
   setAuthCookies(
     res,
     {
-      accessToken: signAccessToken(user),
+      accessToken: signAccessToken(user, account),
       refreshToken: signRefreshToken(
         { ...user, fam: familyId ?? sessionId },
         sessionId,
+        account,
       ),
     },
     user.rememberMe,
@@ -135,13 +143,15 @@ export async function rotateAuthSession(
   const { userId, jti, fam, rememberMe } = verifyToken(
     readToken(req, AUTH_COOKIE_NAMES[account].refresh),
     'refresh',
+    account,
   );
 
   const sessionActive =
     jti !== undefined && (await isRefreshSessionActive(userId, jti));
   const role = sessionActive ? await findRole(userId) : null;
 
-  if (!jti || !role) {
+  // The stored role is re-checked so a role change takes effect at the next refresh.
+  if (!jti || !role || !isRoleAllowed(account, role)) {
     clearAuthCookies(res, account);
     throw unauthorized('Session expired! Please log in again.');
   }
@@ -164,6 +174,7 @@ export async function endSessionFromRequest(
     const { userId, jti, fam } = verifyToken(
       readToken(req, AUTH_COOKIE_NAMES[account].refresh),
       'refresh',
+      account,
     );
     if (jti) {
       // Tokens issued before families existed have no fam; their session is its own family.

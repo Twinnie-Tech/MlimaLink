@@ -165,7 +165,7 @@ export class AuthController {
         throw validationError('Email and password are required!');
       }
 
-      getTokenSecrets();
+      getTokenSecrets('user');
 
       const user = await this.prisma.users.findUnique({
         where: { email },
@@ -180,11 +180,11 @@ export class AuthController {
         throw validationError('Invalid email or password!');
       }
 
-      await issueAuthCookies(res, {
-        userId: user.id,
-        role: user.role,
-        rememberMe,
-      });
+      await issueAuthCookies(
+        res,
+        { userId: user.id, role: user.role, rememberMe },
+        'user',
+      );
 
       return res.status(200).json({
         success: true,

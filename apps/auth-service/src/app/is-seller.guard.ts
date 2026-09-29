@@ -18,14 +18,12 @@ export class IsSellerGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<SellerRequest>();
+    // Only tokens signed for sellers pass; shopper tokens fail the audience and secret checks.
     const payload = verifyToken(
       readToken(req, SELLER_ACCESS_TOKEN_COOKIE),
       'access',
+      'seller',
     );
-
-    if (payload.role !== 'seller') {
-      throw unauthorized('Unauthorized! Please log in as a seller.');
-    }
 
     const seller = await this.prisma.sellers.findUnique({
       where: { id: payload.userId },

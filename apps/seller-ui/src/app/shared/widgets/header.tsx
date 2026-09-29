@@ -11,6 +11,7 @@ import {
   useSeller,
 } from '../hooks/use-seller';
 import { logoutSeller } from '../utils/seller-api';
+import { ThemeToggle } from './theme-toggle';
 
 export function Header() {
   const { seller, isLoading } = useSeller();
@@ -37,9 +38,14 @@ export function Header() {
           </span>
         </Link>
 
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
         {isLoading ? null : seller ? (
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
+            <Link
+              href={seller.shop ? '/dashboard' : '/signup'}
+              className="flex items-center gap-2"
+            >
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-start text-sm font-semibold text-white">
                 {initials(seller.name)}
               </span>
@@ -70,12 +76,13 @@ export function Header() {
             </Link>
             <Link
               href="/signup"
-              className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white transition hover:bg-neutral-800"
+              className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white transition hover:bg-neutral-800 dark:text-neutral-100"
             >
               Start selling
             </Link>
           </nav>
         )}
+        </div>
       </div>
     </header>
   );

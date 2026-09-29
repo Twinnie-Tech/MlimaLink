@@ -124,6 +124,8 @@ describe('SellerAuthController', () => {
     vi.mocked(getStripe).mockReturnValue(null);
     vi.stubEnv('ACCESS_TOKEN_SECRET', 'access-secret');
     vi.stubEnv('REFRESH_TOKEN_SECRET', 'refresh-secret');
+    vi.stubEnv('SELLER_ACCESS_TOKEN_SECRET', 'seller-access-secret');
+    vi.stubEnv('SELLER_REFRESH_TOKEN_SECRET', 'seller-refresh-secret');
   });
 
   afterEach(() => {
@@ -217,6 +219,7 @@ describe('SellerAuthController', () => {
       const refresh = verifyToken(
         cookieValue(res, 'sellerRefreshToken'),
         'refresh',
+        'seller',
       );
       expect(refresh).toMatchObject({ userId: 's1', role: 'seller' });
       expect(await isRefreshSessionActive('s1', refresh.jti as string)).toBe(
@@ -285,7 +288,7 @@ describe('SellerAuthController', () => {
   describe('refresh-token/seller', () => {
     it('rotates the seller refresh cookie', async () => {
       sellers.findUnique.mockResolvedValue({ id: 's1' });
-      const sessionId = await createRefreshSession('s1');
+      const sessionId = await createRefreshSession('s1', undefined, 'seller');
       const res = mockRes();
       const next = vi.fn();
 
@@ -295,6 +298,7 @@ describe('SellerAuthController', () => {
             sellerRefreshToken: signRefreshToken(
               { userId: 's1', role: 'seller' },
               sessionId,
+              'seller',
             ),
           },
           headers: {},
@@ -320,6 +324,7 @@ describe('SellerAuthController', () => {
             refreshToken: signRefreshToken(
               { userId: 'u1', role: 'user' },
               sessionId,
+              'user',
             ),
           },
           headers: {},
@@ -329,6 +334,29 @@ describe('SellerAuthController', () => {
       );
 
       expect(errorFrom(next).statusCode).toBe(401);
+    });
+
+    it("rejects a shopper's refresh token placed in the seller cookie", async () => {
+      const sessionId = await createRefreshSession('u1');
+      const next = vi.fn();
+
+      await controller.refreshSellerToken(
+        {
+          cookies: {
+            sellerRefreshToken: signRefreshToken(
+              { userId: 'u1', role: 'user' },
+              sessionId,
+              'user',
+            ),
+          },
+          headers: {},
+        } as unknown as Request,
+        mockRes() as unknown as Response,
+        next as NextFunction,
+      );
+
+      expect(errorFrom(next).statusCode).toBe(401);
+      expect(sellers.findUnique).not.toHaveBeenCalled();
     });
   });
 

@@ -71,6 +71,8 @@ describe('AuthController sessions', () => {
     findUnique.mockResolvedValue({ id: 'u1', role: 'user' });
     vi.stubEnv('ACCESS_TOKEN_SECRET', 'access-secret');
     vi.stubEnv('REFRESH_TOKEN_SECRET', 'refresh-secret');
+    vi.stubEnv('SELLER_ACCESS_TOKEN_SECRET', 'seller-access-secret');
+    vi.stubEnv('SELLER_REFRESH_TOKEN_SECRET', 'seller-refresh-secret');
   });
 
   afterEach(() => {
@@ -104,7 +106,11 @@ describe('AuthController sessions', () => {
     expect(body).not.toHaveProperty('accessToken');
     expect(body).not.toHaveProperty('refreshToken');
 
-    const refresh = verifyToken(cookieValue(res, 'refreshToken'), 'refresh');
+    const refresh = verifyToken(
+      cookieValue(res, 'refreshToken'),
+      'refresh',
+      'user',
+    );
     expect(await isRefreshSessionActive('u1', refresh.jti as string)).toBe(
       true,
     );
@@ -120,6 +126,7 @@ describe('AuthController sessions', () => {
         signRefreshToken(
           { userId: 'u1', role: 'user', rememberMe: false },
           oldSession,
+          'user',
         ),
       ),
       res as unknown as Response,
@@ -129,7 +136,11 @@ describe('AuthController sessions', () => {
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
 
-    const refresh = verifyToken(cookieValue(res, 'refreshToken'), 'refresh');
+    const refresh = verifyToken(
+      cookieValue(res, 'refreshToken'),
+      'refresh',
+      'user',
+    );
     expect(refresh.jti).not.toBe(oldSession);
     expect(refresh.rememberMe).toBe(false);
     expect(await isRefreshSessionActive('u1', refresh.jti as string)).toBe(
@@ -138,9 +149,9 @@ describe('AuthController sessions', () => {
     expect(redis.ttls.get(`refresh_session:${oldSession}`)).toBe(
       ROTATION_GRACE_SECONDS,
     );
-    expect(verifyToken(cookieValue(res, 'accessToken'), 'access').userId).toBe(
-      'u1',
-    );
+    expect(
+      verifyToken(cookieValue(res, 'accessToken'), 'access', 'user').userId,
+    ).toBe('u1');
   });
 
   it('rejects a refresh token whose session was ended', async () => {
@@ -149,7 +160,11 @@ describe('AuthController sessions', () => {
 
     await controller.refreshToken(
       requestWithRefreshToken(
-        signRefreshToken({ userId: 'u1', role: 'user' }, 'ended-session'),
+        signRefreshToken(
+          { userId: 'u1', role: 'user' },
+          'ended-session',
+          'user',
+        ),
       ),
       res as unknown as Response,
       next as NextFunction,
@@ -158,6 +173,24 @@ describe('AuthController sessions', () => {
     expectUnauthorized(next);
     expect(res.cookie).not.toHaveBeenCalled();
     expect(res.clearCookie).toHaveBeenCalledTimes(2);
+  });
+
+  it("rejects a seller's refresh token, even with a live session", async () => {
+    const sessionId = await createRefreshSession('s1', undefined, 'seller');
+    const res = mockRes();
+    const next = vi.fn();
+
+    await controller.refreshToken(
+      requestWithRefreshToken(
+        signRefreshToken({ userId: 's1', role: 'seller' }, sessionId, 'seller'),
+      ),
+      res as unknown as Response,
+      next as NextFunction,
+    );
+
+    expectUnauthorized(next);
+    expect(res.cookie).not.toHaveBeenCalled();
+    expect(findUnique).not.toHaveBeenCalled();
   });
 
   it('rejects refresh tokens issued before sessions existed', async () => {
@@ -179,7 +212,11 @@ describe('AuthController sessions', () => {
 
   it('ends the session on logout so the refresh token stops working', async () => {
     const sessionId = await createRefreshSession('u1');
-    const token = signRefreshToken({ userId: 'u1', role: 'user' }, sessionId);
+    const token = signRefreshToken(
+      { userId: 'u1', role: 'user' },
+      sessionId,
+      'user',
+    );
     const res = mockRes();
 
     await expect(

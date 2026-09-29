@@ -21,6 +21,9 @@ export function createFakeRedis() {
       }
       return removed;
     },
+    async exists(...keys: string[]) {
+      return keys.filter((key) => strings.has(key) || sets.has(key)).length;
+    },
     async incr(key: string) {
       const next = Number(strings.get(key) ?? 0) + 1;
       strings.set(key, String(next));

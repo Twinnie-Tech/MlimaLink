@@ -117,3 +117,34 @@
   color: #2c3e50;
   margin-top: auto;
 }
+
+/* Dark theme: the app puts a `dark` class on <html>. */
+:global(.dark) .product-card {
+  background: #121216;
+  border-color: #26262b;
+}
+
+:global(.dark) .product-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+:global(.dark) .product-image {
+  background: #18181c;
+}
+
+:global(.dark) .product-name {
+  color: #f4f4f5;
+}
+
+:global(.dark) .product-category,
+:global(.dark) .review-count {
+  color: #9b9ba4;
+}
+
+:global(.dark) .stars {
+  color: #37373e;
+}
+
+:global(.dark) .product-price {
+  color: #e5e5e9;
+}

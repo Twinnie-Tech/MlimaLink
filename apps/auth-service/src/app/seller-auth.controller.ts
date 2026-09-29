@@ -9,13 +9,23 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { appError, validationError } from '@org/errors';
 import {
   checkOtpRegistration,
+  handleForgotPassword,
+  handleResetPassword,
   hashPassword,
+  renderResetPasswordPage,
+  sellerUiUrl,
   sendOtp,
   trackOtp,
   verifyOtp,
@@ -28,15 +38,16 @@ import {
 } from '../utils/refresh-sessions';
 import {
   safeSellerSelect,
-  sellerUiUrl,
   sendShopCreatedEmail,
   validateSellerRegistration,
   validateShopData,
 } from '../utils/seller.helper';
 import { getStripe } from '../utils/stripe';
 import { CreateShopDto } from './dto/create-shop.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterSellerDto, VerifySellerDto } from './dto/register-seller.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { IsSellerGuard, type SellerRequest } from './is-seller.guard';
 import { PrismaService } from './prisma.service';
 
@@ -98,7 +109,7 @@ export class SellerAuthController {
       }
 
       validateSellerRegistration(body);
-      getTokenSecrets();
+      getTokenSecrets('seller');
 
       if (await this.prisma.sellers.findUnique({ where: { email } })) {
         throw validationError('Seller already exists with this email!');
@@ -152,7 +163,7 @@ export class SellerAuthController {
         throw validationError('Email and password are required!');
       }
 
-      getTokenSecrets();
+      getTokenSecrets('seller');
 
       const found = await this.prisma.sellers.findUnique({
         where: { email },
@@ -227,6 +238,41 @@ export class SellerAuthController {
     await endSessionFromRequest(req, 'seller');
     clearAuthCookies(res, 'seller');
     return { success: true, message: 'Logged out successfully' };
+  }
+
+  @Post('forgot-password/seller')
+  @ApiOperation({ summary: 'Email a password reset link to a seller' })
+  @ApiBody({ type: ForgotPasswordDto })
+  async sellerForgotPassword(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    await handleForgotPassword(req, res, next, 'seller', this.prisma);
+  }
+
+  @Get('reset-password/seller')
+  @ApiOperation({
+    summary: 'Seller reset password page opened from the email link',
+  })
+  @ApiQuery({ name: 'token', required: true })
+  async sellerResetPasswordPage(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    await renderResetPasswordPage(req, res, next, 'seller');
+  }
+
+  @Post('reset-password/seller')
+  @ApiOperation({ summary: 'Set a new seller password using the reset token' })
+  @ApiBody({ type: ResetPasswordDto })
+  async sellerResetPassword(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    await handleResetPassword(req, res, next, this.prisma, 'seller');
   }
 
   @Post('create-shop')
