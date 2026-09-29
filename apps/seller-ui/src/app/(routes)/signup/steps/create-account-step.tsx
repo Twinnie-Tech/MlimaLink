@@ -26,6 +26,7 @@ import {
   submitButtonClassName,
   textLinkClassName,
 } from '../../../shared/widgets/auth-form';
+import { CountryFlag } from '../../../shared/widgets/country-flag';
 import { OtpInput } from '../../../shared/widgets/otp-input';
 
 type FormData = {
@@ -67,7 +68,8 @@ export function CreateAccountStep({
     formState: { errors },
   } = useForm<FormData>({ defaultValues: { country: DEFAULT_COUNTRY_CODE } });
 
-  const dialCode = findCountry(watch('country'))?.dialCode ?? '';
+  const countryCode = watch('country');
+  const dialCode = findCountry(countryCode)?.dialCode ?? '';
 
   useEffect(() => {
     if (!showOtp || canResend) return;
@@ -250,11 +252,9 @@ export function CreateAccountStep({
           Phone number
         </label>
         <div className="flex">
-          <span
-            data-testid="dial-code"
-            className="flex items-center rounded-l-md border border-r-0 border-neutral-300 bg-neutral-50 px-3 text-neutral-700"
-          >
-            +{dialCode}
+          <span className="flex items-center gap-2 rounded-l-md border border-r-0 border-neutral-300 bg-neutral-50 px-3 text-neutral-700">
+            <CountryFlag code={countryCode} />
+            <span data-testid="dial-code">+{dialCode}</span>
           </span>
           <input
             id="phone"

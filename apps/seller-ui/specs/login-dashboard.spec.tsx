@@ -118,6 +118,9 @@ describe('Seller dashboard', () => {
 
     expect(await screen.findByText('Welcome back, Amina')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Mlima Fresh' })).toBeTruthy();
+    expect(
+      screen.getByText(/Mon – Tue: 08:00 – 18:00\s+Sat: 09:00 – 13:00/),
+    ).toBeTruthy();
     expect(screen.getByText('Kenya')).toBeTruthy();
     expect(
       screen.getByText('Connect a bank account to receive payouts'),

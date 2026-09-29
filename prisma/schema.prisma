@@ -29,18 +29,19 @@ model images {
 
 // Models will be added here (e.g. User for auth-service)
 model users {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
   name         String
-  email        String   @unique
+  email        String         @unique
   password     String?
-  role         String   @default("user")
+  role         String         @default("user")
   phone_number String?
   country      String?
   following    String[]
   /// At most one image; uploading a new avatar replaces the old one.
   avatar       images[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  shop_reviews shop_reviews[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model sellers {
@@ -58,22 +59,65 @@ model sellers {
   updatedAt    DateTime @updatedAt
 }
 
+/// Hours for one open day. Validated by parseOpeningHours in @org/models.
+type opening_day {
+  /// mon, tue, wed, thu, fri, sat or sun
+  day   String
+  /// 24-hour "HH:mm", e.g. "08:00"
+  open  String
+  /// 24-hour "HH:mm", later than open
+  close String
+}
+
+/// A link to one of the shop's social media profiles.
+type social_link {
+  /// e.g. "facebook", "instagram", "x", "tiktok", "youtube", "whatsapp"
+  platform String
+  /// Full http(s) link to the profile
+  url      String
+}
+
 /// One shop per seller. The link lives here (sellerId) because MongoDB unique
 /// indexes treat a missing value as a duplicate, so an optional sellers.shopId
 /// could only ever be empty for one seller.
 model shops {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   bio           String?
   category      String
   address       String
-  opening_hours String?
+  /// Open days only; an empty list means the seller hasn't set hours.
+  opening_hours opening_day[]
   website       String?
-  ratings       Float    @default(0)
+  /// Wide header image shown at the top of the shop page (URL).
+  coverBanner   String?
+  socialLinks   social_link[]
+  /// Average of the shop's review ratings; 0 until the first review.
+  ratings       Float          @default(0)
   /// Optional; at most one image, and uploading a new avatar replaces the old one.
   avatar        images[]
-  sellerId      String   @unique @db.ObjectId
-  seller        sellers  @relation(fields: [sellerId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  reviews       shop_reviews[]
+  sellerId      String         @unique @db.ObjectId
+  seller        sellers        @relation(fields: [sellerId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+/// A shopper's review of a shop. One review per shopper per shop; posting again
+/// should update the existing review.
+model shop_reviews {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      users    @relation(fields: [userId], references: [id])
+  /// 1 to 5
+  rating    Float
+  /// Optional written review
+  reviews   String?
+  shopId    String   @db.ObjectId
+  shops     shops    @relation(fields: [shopId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, shopId])
+  @@index([shopId])
 }

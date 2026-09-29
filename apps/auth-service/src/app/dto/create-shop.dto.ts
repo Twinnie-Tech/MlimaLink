@@ -1,4 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { WEEK_DAYS, type WeekDay } from '@org/models/opening-hours';
+
+export class OpeningDayDto {
+  @ApiProperty({ enum: WEEK_DAYS.map((day) => day.key), example: 'mon' })
+  day!: WeekDay;
+
+  @ApiProperty({ example: '08:00', description: '24-hour HH:mm' })
+  open!: string;
+
+  @ApiProperty({
+    example: '18:00',
+    description: '24-hour HH:mm, later than open',
+  })
+  close!: string;
+}
 
 export class CreateShopDto {
   @ApiProperty({ example: 'Mlima Fresh Farm', maxLength: 100 })
@@ -16,8 +31,15 @@ export class CreateShopDto {
   })
   bio?: string;
 
-  @ApiPropertyOptional({ example: 'Mon - Sat: 8am - 6pm' })
-  opening_hours?: string;
+  @ApiPropertyOptional({
+    type: [OpeningDayDto],
+    description: 'Open days only; leave out the days the shop is closed.',
+    example: [
+      { day: 'mon', open: '08:00', close: '18:00' },
+      { day: 'sat', open: '09:00', close: '13:00' },
+    ],
+  })
+  opening_hours?: OpeningDayDto[];
 
   @ApiPropertyOptional({ example: 'https://mlimafresh.co.ke' })
   website?: string;

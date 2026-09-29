@@ -2,7 +2,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import SellerSignupPage from '../src/app/(routes)/signup/page';
 import { ConnectBankStep } from '../src/app/(routes)/signup/steps/connect-bank-step';
+import { countries } from '../src/configs/countries';
 import { QueryProvider } from '../src/app/shared/providers/query-provider';
+import { CountryFlag } from '../src/app/shared/widgets/country-flag';
 import {
   fill,
   installFetchMock,
@@ -47,15 +49,32 @@ describe('Seller sign-up', () => {
     expect(screen.getByTestId('dial-code').textContent).toBe('+254');
   });
 
-  it('updates the dialling code with the country', async () => {
+  it('updates the dialling code and flag with the country', async () => {
     renderPage(<SellerSignupPage />);
     await screen.findByRole('button', { name: 'Create Account' });
+    expect(screen.getByTestId('flag-KE')).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText('Country'), {
       target: { value: 'UG' },
     });
 
     expect(screen.getByTestId('dial-code').textContent).toBe('+256');
+    expect(screen.getByTestId('flag-UG')).toBeTruthy();
+    expect(screen.queryByTestId('flag-KE')).toBeNull();
+  });
+
+  it('has a flag for every country on offer', () => {
+    render(
+      <>
+        {countries.map((country) => (
+          <CountryFlag key={country.code} code={country.code} />
+        ))}
+      </>,
+    );
+
+    for (const country of countries) {
+      expect(screen.getByTestId(`flag-${country.code}`)).toBeTruthy();
+    }
   });
 
   it('checks every field before sending a code', async () => {
@@ -151,6 +170,67 @@ describe('Seller sign-up', () => {
 
     expect(await screen.findByLabelText('Shop name')).toBeTruthy();
     expect(currentStep()).toContain('Setup Shop');
+  });
+
+  describe('opening hours', () => {
+    async function openSetupShop() {
+      reply('GET /api/auth/logged-in-seller', 200, { success: true, seller });
+      reply('POST /api/auth/create-shop', 201, { success: true, shop });
+      renderPage(<SellerSignupPage />);
+      await screen.findByLabelText('Shop name');
+      fill('Shop name', 'Mlima Fresh');
+      fireEvent.change(screen.getByLabelText('Category'), {
+        target: { value: 'Fruits & Vegetables' },
+      });
+      fill('Shop address', 'Moi Avenue, Nairobi');
+    }
+
+    it('sends the picked days and times, not free text', async () => {
+      await openSetupShop();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Mon – Fri' }));
+      fireEvent.change(screen.getByLabelText('Monday closing time'), {
+        target: { value: '17:00' },
+      });
+      fireEvent.click(
+        screen.getByRole('button', {
+          name: "Use Monday's hours for all open days",
+        }),
+      );
+      fireEvent.click(screen.getByLabelText('Open on Saturday'));
+      fireEvent.change(screen.getByLabelText('Saturday closing time'), {
+        target: { value: '13:00' },
+      });
+      fireEvent.click(screen.getByLabelText('Open on Wednesday'));
+      fireEvent.click(screen.getByRole('button', { name: 'Create Shop' }));
+
+      await screen.findByRole('button', { name: 'Connect with Stripe' });
+      const weekday = { open: '08:00', close: '17:00' };
+      expect(sentBody('POST /api/auth/create-shop').opening_hours).toEqual([
+        { day: 'mon', ...weekday },
+        { day: 'tue', ...weekday },
+        { day: 'thu', ...weekday },
+        { day: 'fri', ...weekday },
+        { day: 'sat', open: '08:00', close: '13:00' },
+      ]);
+    });
+
+    it('will not save a day that closes before it opens', async () => {
+      await openSetupShop();
+
+      fireEvent.click(screen.getByLabelText('Open on Monday'));
+      fireEvent.change(screen.getByLabelText('Monday closing time'), {
+        target: { value: '07:00' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Create Shop' }));
+
+      expect(
+        await screen.findByText(
+          'Monday: closing time must be after opening time.',
+        ),
+      ).toBeTruthy();
+      expect(() => sentBody('POST /api/auth/create-shop')).toThrow();
+    });
   });
 
   it('asks for a category and a proper website link', async () => {

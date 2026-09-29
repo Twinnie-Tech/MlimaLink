@@ -4,6 +4,8 @@ const apiGatewayUrl = process.env.API_GATEWAY_URL || 'http://127.0.0.1:3000';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Workspace libraries export TypeScript source, so Next must compile them.
+  transpilePackages: ['@org/models'],
   async rewrites() {
     return [
       {

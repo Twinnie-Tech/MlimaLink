@@ -16,7 +16,6 @@ import { appError, validationError } from '@org/errors';
 import {
   checkOtpRegistration,
   hashPassword,
-  sendAccountCreatedEmail,
   sendOtp,
   trackOtp,
   verifyOtp,
@@ -30,6 +29,7 @@ import {
 import {
   safeSellerSelect,
   sellerUiUrl,
+  sendShopCreatedEmail,
   validateSellerRegistration,
   validateShopData,
 } from '../utils/seller.helper';
@@ -64,7 +64,12 @@ export class SellerAuthController {
 
       await checkOtpRegistration(email, next);
       await trackOtp(email, next);
-      await sendOtp(name, email, 'user_registration');
+      await sendOtp(
+        name,
+        email,
+        'seller_registration',
+        'Verify your MlimaLink seller account',
+      );
 
       return res.status(200).json({
         success: true,
@@ -112,14 +117,8 @@ export class SellerAuthController {
         select: safeSellerSelect,
       });
 
-      try {
-        await sendAccountCreatedEmail({ name, email, role: 'seller' });
-      } catch (emailError) {
-        console.error(
-          '[auth] Failed to send account-created email:',
-          emailError instanceof Error ? emailError.message : emailError,
-        );
-      }
+      // No welcome email here: the seller hears from us once their shop exists
+      // (create-shop), when there is something to sell from.
 
       // Signed in straight away so the next sign-up steps can act as this seller.
       await issueAuthCookies(
@@ -251,6 +250,16 @@ export class SellerAuthController {
       const shop = await this.prisma.shops.create({
         data: { ...data, sellerId: req.seller.id },
       });
+
+      // Not awaited: a slow mail server shouldn't hold up the next sign-up step.
+      void sendShopCreatedEmail(req.seller, shop).catch(
+        (emailError: unknown) => {
+          console.error(
+            '[auth] Failed to send shop-created email:',
+            emailError instanceof Error ? emailError.message : emailError,
+          );
+        },
+      );
 
       return res.status(201).json({
         success: true,

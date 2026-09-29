@@ -10,6 +10,7 @@ import {
   Package,
   Store,
 } from 'lucide-react';
+import { formatOpeningHours } from '@org/models/opening-hours';
 import { findCountry } from '../configs/countries';
 import { firstName, useSeller } from './shared/hooks/use-seller';
 import type { Seller, Shop } from './shared/utils/seller-api';
@@ -36,7 +37,7 @@ function Details({ items }: { items: { label: string; value: string }[] }) {
       {items.map((item) => (
         <div key={item.label}>
           <dt className="text-sm text-neutral-500">{item.label}</dt>
-          <dd className="mt-0.5 font-medium break-words text-neutral-900">
+          <dd className="mt-0.5 font-medium break-words whitespace-pre-line text-neutral-900">
             {item.value}
           </dd>
         </div>
@@ -80,7 +81,10 @@ function ShopCard({ shop }: { shop: Shop }) {
         items={[
           { label: 'Category', value: shop.category },
           { label: 'Address', value: shop.address },
-          { label: 'Opening hours', value: shop.opening_hours ?? '—' },
+          {
+            label: 'Opening hours',
+            value: formatOpeningHours(shop.opening_hours).join('\n') || '—',
+          },
           { label: 'Website', value: shop.website ?? '—' },
         ]}
       />
