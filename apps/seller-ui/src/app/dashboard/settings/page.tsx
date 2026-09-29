@@ -26,7 +26,10 @@ export default function SettingsPage() {
       />
 
       <div className="space-y-6">
-        <Panel title="Shop profile" description="What shoppers see on your shop page.">
+        <Panel
+          title="Shop profile"
+          description="What shoppers see on your shop page."
+        >
           <DetailList
             items={[
               { label: 'Shop name', value: shop.name },
@@ -34,7 +37,9 @@ export default function SettingsPage() {
               { label: 'Address', value: shop.address },
               {
                 label: 'Opening hours',
-                value: formatOpeningHours(shop.opening_hours).join('\n') || 'Not set',
+                value:
+                  formatOpeningHours(shop.opening_hours).join('\n') ||
+                  'Not set',
               },
               {
                 label: 'Website',
@@ -45,7 +50,8 @@ export default function SettingsPage() {
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700"
                   >
-                    {shop.website.replace(/^https?:\/\//, '')} <ExternalLink size={12} />
+                    {shop.website.replace(/^https?:\/\//, '')}{' '}
+                    <ExternalLink size={12} />
                   </a>
                 ) : (
                   'Not set'
@@ -74,7 +80,8 @@ export default function SettingsPage() {
             <div>
               <p className="text-sm font-medium text-neutral-900">Password</p>
               <p className="mt-1 text-sm text-neutral-500">
-                We&apos;ll email a secure link to {seller.email} to set a new password.
+                We&apos;ll email a secure link to {seller.email} to set a new
+                password.
               </p>
             </div>
             <Link href="/forgot-password" className={secondaryButtonClassName}>

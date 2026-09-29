@@ -46,7 +46,11 @@ export default function DashboardLayout({
 
         <div className="sticky top-0 z-20 flex items-center justify-between border-b border-neutral-200 bg-[#fff]/95 dark:bg-[#0b0b0f]/95 px-4 py-3 backdrop-blur lg:hidden">
           <span className="flex min-w-0 items-center gap-2">
-            <Store size={20} className="shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+            <Store
+              size={20}
+              className="shrink-0 text-blue-600 dark:text-blue-400"
+              aria-hidden="true"
+            />
             <span className="truncate font-poppins font-semibold text-neutral-900">
               {dashboardSeller.shop.name}
             </span>
@@ -66,7 +70,11 @@ export default function DashboardLayout({
         </div>
 
         {menuOpen && (
-          <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true">
+          <div
+            className="fixed inset-0 z-40 lg:hidden"
+            role="dialog"
+            aria-modal="true"
+          >
             <button
               type="button"
               aria-label="Close menu"

@@ -30,7 +30,11 @@ export default function SellerLandingPage() {
 
   return (
     <div className="mx-auto w-[90%] max-w-300 py-20 text-center">
-      <Store size={48} className="mx-auto text-brand-start" aria-hidden="true" />
+      <Store
+        size={48}
+        className="mx-auto text-brand-start"
+        aria-hidden="true"
+      />
       <h1 className="mt-4 font-poppins text-4xl font-semibold text-neutral-900">
         Sell to shoppers across MlimaLink
       </h1>

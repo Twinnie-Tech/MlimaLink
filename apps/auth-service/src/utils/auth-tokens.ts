@@ -52,7 +52,10 @@ type TokenPolicy = {
  */
 export const TOKEN_POLICIES: Record<AuthAccount, TokenPolicy> = {
   user: {
-    secretEnv: { access: 'ACCESS_TOKEN_SECRET', refresh: 'REFRESH_TOKEN_SECRET' },
+    secretEnv: {
+      access: 'ACCESS_TOKEN_SECRET',
+      refresh: 'REFRESH_TOKEN_SECRET',
+    },
     accessTtlSeconds: 15 * MINUTE,
     refreshTtlSeconds: 7 * DAY,
     roles: ['user'],
@@ -110,7 +113,8 @@ export function getTokenSecrets(account: AuthAccount) {
     );
   }
 
-  const other = TOKEN_POLICIES[account === 'user' ? 'seller' : 'user'].secretEnv;
+  const other =
+    TOKEN_POLICIES[account === 'user' ? 'seller' : 'user'].secretEnv;
   const otherSecrets = [process.env[other.access], process.env[other.refresh]];
   if (
     otherSecrets.includes(accessSecret) ||

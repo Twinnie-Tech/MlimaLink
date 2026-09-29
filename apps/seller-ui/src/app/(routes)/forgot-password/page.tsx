@@ -90,8 +90,8 @@ export default function SellerForgotPasswordPage() {
             Reset your seller password
           </h2>
           <p className="mt-2 text-center text-neutral-600">
-            Enter the email you use for your shop and we&apos;ll send you a
-            link to set a new password.
+            Enter the email you use for your shop and we&apos;ll send you a link
+            to set a new password.
           </p>
           <p className="mt-3 rounded-lg bg-neutral-50 px-4 py-3 text-center text-sm text-neutral-500">
             This resets your seller account only. If you also shop on MlimaLink

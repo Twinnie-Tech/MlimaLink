@@ -7,7 +7,8 @@ import { Info, type LucideIcon } from 'lucide-react';
 export const inputClassName =
   'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 aria-[invalid=true]:border-rose-500/70';
 
-export const labelClassName = 'mb-1.5 block text-sm font-medium text-neutral-700';
+export const labelClassName =
+  'mb-1.5 block text-sm font-medium text-neutral-700';
 
 export const primaryButtonClassName =
   'inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60';
@@ -129,7 +130,9 @@ export function EmptyState({
       <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
         <Icon size={26} />
       </span>
-      <h3 className="font-poppins text-lg font-semibold text-neutral-900">{title}</h3>
+      <h3 className="font-poppins text-lg font-semibold text-neutral-900">
+        {title}
+      </h3>
       <p className="mt-1.5 max-w-sm text-sm text-neutral-500">{description}</p>
       {action && (
         <Link href={action.href} className={`mt-6 ${primaryButtonClassName}`}>
@@ -144,7 +147,10 @@ export function EmptyState({
 export function NotLiveNotice({ children }: { children: ReactNode }) {
   return (
     <p className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
-      <Info size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+      <Info
+        size={18}
+        className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400"
+      />
       <span>{children}</span>
     </p>
   );

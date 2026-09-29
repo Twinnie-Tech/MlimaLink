@@ -50,7 +50,9 @@ function NavLink({
         <span
           aria-label={`${count} ${count === 1 ? 'item' : 'items'}`}
           className={`min-w-6 rounded-full px-2 py-0.5 text-center text-xs font-semibold ${
-            active ? 'bg-brand-start text-white' : 'bg-neutral-100 text-neutral-600'
+            active
+              ? 'bg-brand-start text-white'
+              : 'bg-neutral-100 text-neutral-600'
           }`}
         >
           {count}
@@ -99,7 +101,9 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           <span className="block truncate font-poppins text-base font-semibold text-neutral-900">
             {user.name}
           </span>
-          <span className="block truncate text-xs text-neutral-500">{user.email}</span>
+          <span className="block truncate text-xs text-neutral-500">
+            {user.email}
+          </span>
         </span>
       </Link>
 

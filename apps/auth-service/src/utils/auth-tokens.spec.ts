@@ -81,7 +81,10 @@ describe('auth tokens', () => {
 
   describe('keeping shopper and seller tokens apart', () => {
     it('signs seller tokens with the seller secrets and audience', () => {
-      const access = signAccessToken({ userId: 's1', role: 'seller' }, 'seller');
+      const access = signAccessToken(
+        { userId: 's1', role: 'seller' },
+        'seller',
+      );
 
       expect(verifyToken(access, 'access', 'seller')).toMatchObject({
         userId: 's1',
@@ -92,7 +95,10 @@ describe('auth tokens', () => {
     });
 
     it('refuses a seller token where a shopper token is expected, and the reverse', () => {
-      const seller = signAccessToken({ userId: 's1', role: 'seller' }, 'seller');
+      const seller = signAccessToken(
+        { userId: 's1', role: 'seller' },
+        'seller',
+      );
       const shopper = signAccessToken({ userId: 'u1', role: 'user' }, 'user');
 
       expectUnauthorized(() => verifyToken(seller, 'access', 'user'));
@@ -116,11 +122,15 @@ describe('auth tokens', () => {
     });
 
     it('refuses a token from another issuer', () => {
-      const foreign = jwt.sign({ userId: 'u1', role: 'user' }, 'access-secret', {
-        audience: 'user',
-        issuer: 'someone-else',
-        expiresIn: 60,
-      });
+      const foreign = jwt.sign(
+        { userId: 'u1', role: 'user' },
+        'access-secret',
+        {
+          audience: 'user',
+          issuer: 'someone-else',
+          expiresIn: 60,
+        },
+      );
 
       expectUnauthorized(() => verifyToken(foreign, 'access', 'user'));
     });

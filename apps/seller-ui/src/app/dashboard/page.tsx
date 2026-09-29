@@ -67,13 +67,18 @@ function Checklist({ items }: { items: ChecklistItem[] }) {
           >
             <span className="flex items-center gap-3 text-sm">
               {item.done ? (
-                <CircleCheck size={20} className="text-emerald-600 dark:text-emerald-400" />
+                <CircleCheck
+                  size={20}
+                  className="text-emerald-600 dark:text-emerald-400"
+                />
               ) : (
                 <Circle size={20} className="text-neutral-400" />
               )}
               <span
                 className={
-                  item.done ? 'text-neutral-500 line-through' : 'text-neutral-900'
+                  item.done
+                    ? 'text-neutral-500 line-through'
+                    : 'text-neutral-900'
                 }
               >
                 {item.label}
@@ -95,8 +100,16 @@ function Checklist({ items }: { items: ChecklistItem[] }) {
 }
 
 const quickActions: { label: string; href: string; icon: LucideIcon }[] = [
-  { label: 'Create product', href: '/dashboard/create-product', icon: SquarePlus },
-  { label: 'Create event', href: '/dashboard/create-event', icon: CalendarPlus },
+  {
+    label: 'Create product',
+    href: '/dashboard/create-product',
+    icon: SquarePlus,
+  },
+  {
+    label: 'Create event',
+    href: '/dashboard/create-event',
+    icon: CalendarPlus,
+  },
   {
     label: 'Discount code',
     href: '/dashboard/discount-codes',
@@ -116,7 +129,10 @@ export default function SellerDashboardPage() {
         title={`Welcome back, ${firstName(seller.name)}`}
         description={`Here's how ${shop.name} is doing today.`}
         actions={
-          <Link href="/dashboard/create-product" className={primaryButtonClassName}>
+          <Link
+            href="/dashboard/create-product"
+            className={primaryButtonClassName}
+          >
             <SquarePlus size={16} /> Create product
           </Link>
         }
@@ -207,7 +223,10 @@ export default function SellerDashboardPage() {
                   href={href}
                   className="flex flex-col items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm font-medium text-neutral-800 transition hover:border-blue-500/40 hover:bg-blue-500/5"
                 >
-                  <Icon size={20} className="text-blue-600 dark:text-blue-400" />
+                  <Icon
+                    size={20}
+                    className="text-blue-600 dark:text-blue-400"
+                  />
                   {label}
                 </Link>
               ))}
@@ -225,7 +244,10 @@ export default function SellerDashboardPage() {
                   <CircleAlert size={18} /> Connect a bank account to receive
                   payouts
                 </p>
-                <Link href="/dashboard/payments" className={primaryButtonClassName}>
+                <Link
+                  href="/dashboard/payments"
+                  className={primaryButtonClassName}
+                >
                   Connect bank
                 </Link>
               </div>
@@ -258,7 +280,8 @@ export default function SellerDashboardPage() {
                   { label: 'Address', value: shop.address },
                   {
                     label: 'Opening hours',
-                    value: formatOpeningHours(shop.opening_hours).join('\n') || '—',
+                    value:
+                      formatOpeningHours(shop.opening_hours).join('\n') || '—',
                   },
                 ]}
               />

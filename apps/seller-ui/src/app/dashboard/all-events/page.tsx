@@ -2,7 +2,12 @@
 
 import Link from 'next/link';
 import { CalendarPlus, CalendarRange } from 'lucide-react';
-import { EmptyState, PageHeader, Panel, primaryButtonClassName } from '../../shared/dashboard/ui';
+import {
+  EmptyState,
+  PageHeader,
+  Panel,
+  primaryButtonClassName,
+} from '../../shared/dashboard/ui';
 
 export default function AllEventsPage() {
   return (
@@ -11,7 +16,10 @@ export default function AllEventsPage() {
         title="All Events"
         description="Your upcoming, running and finished sales events."
         actions={
-          <Link href="/dashboard/create-event" className={primaryButtonClassName}>
+          <Link
+            href="/dashboard/create-event"
+            className={primaryButtonClassName}
+          >
             <CalendarPlus size={16} /> Create event
           </Link>
         }

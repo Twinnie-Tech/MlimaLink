@@ -58,7 +58,8 @@ export default function CreateProductPage() {
   }, [images]);
 
   useEffect(
-    () => () => imagesRef.current.forEach((image) => URL.revokeObjectURL(image.url)),
+    () => () =>
+      imagesRef.current.forEach((image) => URL.revokeObjectURL(image.url)),
     [],
   );
 
@@ -75,7 +76,9 @@ export default function CreateProductPage() {
     }
     setImages((current) => [
       ...current,
-      ...files.slice(0, room).map((file) => ({ file, url: URL.createObjectURL(file) })),
+      ...files
+        .slice(0, room)
+        .map((file) => ({ file, url: URL.createObjectURL(file) })),
     ]);
   };
 
@@ -116,8 +119,8 @@ export default function CreateProductPage() {
       />
 
       <NotLiveNotice>
-        Product listings aren&apos;t connected to the store yet. You can fill in and
-        check this form, but nothing will be saved or shown to shoppers.
+        Product listings aren&apos;t connected to the store yet. You can fill in
+        and check this form, but nothing will be saved or shown to shoppers.
       </NotLiveNotice>
 
       {checked && (
@@ -126,10 +129,14 @@ export default function CreateProductPage() {
           className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800"
         >
           <span>
-            Everything looks good. This product wasn&apos;t saved because listings
-            aren&apos;t live yet.
+            Everything looks good. This product wasn&apos;t saved because
+            listings aren&apos;t live yet.
           </span>
-          <button type="button" onClick={startOver} className={secondaryButtonClassName}>
+          <button
+            type="button"
+            onClick={startOver}
+            className={secondaryButtonClassName}
+          >
             Start over
           </button>
         </div>
@@ -137,7 +144,8 @@ export default function CreateProductPage() {
 
       <form
         onSubmit={handleSubmit(onSubmit, () => {
-          if (images.length === 0) setImageError('Add at least one product image.');
+          if (images.length === 0)
+            setImageError('Add at least one product image.');
         })}
         noValidate
         className="grid gap-6 xl:grid-cols-3"
@@ -195,7 +203,10 @@ export default function CreateProductPage() {
               tabIndex={-1}
             />
             {imageError && (
-              <p role="alert" className="mt-3 text-xs text-rose-600 dark:text-rose-400">
+              <p
+                role="alert"
+                className="mt-3 text-xs text-rose-600 dark:text-rose-400"
+              >
                 {imageError}
               </p>
             )}
@@ -203,15 +214,25 @@ export default function CreateProductPage() {
 
           <Panel title="Details">
             <div className="space-y-5">
-              <Field id="title" label="Product title" error={errors.title?.message}>
+              <Field
+                id="title"
+                label="Product title"
+                error={errors.title?.message}
+              >
                 <input
                   {...describedBy('title', errors.title?.message)}
                   placeholder="e.g. Fresh Hass avocados (1 kg)"
                   className={inputClassName}
                   {...register('title', {
                     required: 'Product title is required',
-                    minLength: { value: 3, message: 'Use at least 3 characters' },
-                    maxLength: { value: 120, message: 'Keep it under 120 characters' },
+                    minLength: {
+                      value: 3,
+                      message: 'Use at least 3 characters',
+                    },
+                    maxLength: {
+                      value: 120,
+                      message: 'Keep it under 120 characters',
+                    },
                   })}
                 />
               </Field>
@@ -223,7 +244,10 @@ export default function CreateProductPage() {
                 error={errors.shortDescription?.message}
               >
                 <input
-                  {...describedBy('shortDescription', errors.shortDescription?.message)}
+                  {...describedBy(
+                    'shortDescription',
+                    errors.shortDescription?.message,
+                  )}
                   placeholder="One line shoppers see in search results"
                   maxLength={SHORT_DESCRIPTION_MAX}
                   className={inputClassName}
@@ -233,7 +257,11 @@ export default function CreateProductPage() {
                 />
               </Field>
 
-              <Field id="description" label="Description" error={errors.description?.message}>
+              <Field
+                id="description"
+                label="Description"
+                error={errors.description?.message}
+              >
                 <textarea
                   {...describedBy('description', errors.description?.message)}
                   rows={6}
@@ -241,21 +269,26 @@ export default function CreateProductPage() {
                   className={inputClassName}
                   {...register('description', {
                     required: 'Description is required',
-                    minLength: { value: 20, message: 'Use at least 20 characters' },
+                    minLength: {
+                      value: 20,
+                      message: 'Use at least 20 characters',
+                    },
                   })}
                 />
               </Field>
 
               <div className="grid gap-5 sm:grid-cols-2">
-                <Field id="category" label="Category" error={errors.category?.message}>
+                <Field
+                  id="category"
+                  label="Category"
+                  error={errors.category?.message}
+                >
                   <select
                     {...describedBy('category', errors.category?.message)}
                     className={inputClassName}
                     {...register('category', { required: 'Choose a category' })}
                   >
-                    <option value="">
-                      Select a category
-                    </option>
+                    <option value="">Select a category</option>
                     {shopCategories.map((option) => (
                       <option key={option} value={option}>
                         {option}
@@ -278,7 +311,11 @@ export default function CreateProductPage() {
 
           <Panel title="Pricing & inventory">
             <div className="grid gap-5 sm:grid-cols-3">
-              <Field id="price" label="Price (USD)" error={errors.price?.message}>
+              <Field
+                id="price"
+                label="Price (USD)"
+                error={errors.price?.message}
+              >
                 <input
                   {...describedBy('price', errors.price?.message)}
                   type="number"
@@ -289,7 +326,8 @@ export default function CreateProductPage() {
                   className={inputClassName}
                   {...register('price', {
                     required: 'Price is required',
-                    validate: (value) => Number(value) > 0 || 'Price must be more than 0',
+                    validate: (value) =>
+                      Number(value) > 0 || 'Price must be more than 0',
                   })}
                 />
               </Field>
@@ -311,7 +349,8 @@ export default function CreateProductPage() {
                   {...register('salePrice', {
                     validate: (value, form) =>
                       !value ||
-                      (Number(value) > 0 && Number(value) < Number(form.price)) ||
+                      (Number(value) > 0 &&
+                        Number(value) < Number(form.price)) ||
                       'Sale price must be lower than the price',
                   })}
                 />
@@ -339,18 +378,29 @@ export default function CreateProductPage() {
         </div>
 
         <div className="space-y-6">
-          <Panel title="Preview" description="How shoppers will see this product.">
+          <Panel
+            title="Preview"
+            description="How shoppers will see this product."
+          >
             <div className="overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
               <div className="flex aspect-[4/3] items-center justify-center bg-neutral-50">
                 {images[0] ? (
-                  <img src={images[0].url} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={images[0].url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <Package size={40} className="text-neutral-400" />
                 )}
               </div>
               <div className="space-y-1.5 p-4">
-                <p className="text-xs text-neutral-500">{category || 'Category'}</p>
-                <p className="font-medium text-neutral-900">{title || 'Product title'}</p>
+                <p className="text-xs text-neutral-500">
+                  {category || 'Category'}
+                </p>
+                <p className="font-medium text-neutral-900">
+                  {title || 'Product title'}
+                </p>
                 {shortDescription && (
                   <p className="text-sm text-neutral-500">{shortDescription}</p>
                 )}
@@ -373,7 +423,11 @@ export default function CreateProductPage() {
             <button type="submit" className={primaryButtonClassName}>
               Check product
             </button>
-            <button type="button" onClick={startOver} className={secondaryButtonClassName}>
+            <button
+              type="button"
+              onClick={startOver}
+              className={secondaryButtonClassName}
+            >
               Clear form
             </button>
           </div>

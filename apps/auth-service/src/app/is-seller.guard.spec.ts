@@ -65,7 +65,10 @@ describe('IsSellerGuard', () => {
   });
 
   it("rejects a shopper's token sent as a bearer header", async () => {
-    const shopperToken = signAccessToken({ userId: 'u1', role: 'user' }, 'user');
+    const shopperToken = signAccessToken(
+      { userId: 'u1', role: 'user' },
+      'user',
+    );
     const req = {
       cookies: {},
       headers: { authorization: `Bearer ${shopperToken}` },
@@ -94,7 +97,10 @@ describe('IsSellerGuard', () => {
   it('ignores the shopper access cookie', async () => {
     const req = {
       cookies: {
-        accessToken: signAccessToken({ userId: 's1', role: 'seller' }, 'seller'),
+        accessToken: signAccessToken(
+          { userId: 's1', role: 'seller' },
+          'seller',
+        ),
       },
       headers: {},
     };

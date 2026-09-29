@@ -39,7 +39,9 @@ function NavLink({
     >
       <Icon
         size={18}
-        className={active ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-500'}
+        className={
+          active ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-500'
+        }
         aria-hidden="true"
       />
       {item.label}
@@ -125,7 +127,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           {logoutMutation.isPending ? 'Logging out…' : 'Logout'}
         </button>
         {logoutMutation.isError && (
-          <p role="alert" className="mt-2 px-3 text-xs text-rose-600 dark:text-rose-400">
+          <p
+            role="alert"
+            className="mt-2 px-3 text-xs text-rose-600 dark:text-rose-400"
+          >
             {logoutMutation.error.message}
           </p>
         )}

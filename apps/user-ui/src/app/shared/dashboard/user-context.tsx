@@ -11,7 +11,9 @@ export const DashboardUserProvider = DashboardUserContext.Provider;
 export function useDashboardUser() {
   const user = useContext(DashboardUserContext);
   if (!user) {
-    throw new Error('useDashboardUser must be used inside the dashboard layout');
+    throw new Error(
+      'useDashboardUser must be used inside the dashboard layout',
+    );
   }
   return user;
 }

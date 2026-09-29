@@ -167,7 +167,9 @@ describe('Seller dashboard', () => {
     signedIn();
     renderDashboard(<CreateProductPage />);
 
-    const nav = await screen.findByRole('navigation', { name: 'Seller dashboard' });
+    const nav = await screen.findByRole('navigation', {
+      name: 'Seller dashboard',
+    });
     const links = within(nav).getAllByRole('link');
     expect(links.map((link) => link.textContent)).toEqual([
       'Dashboard',
@@ -183,10 +185,14 @@ describe('Seller dashboard', () => {
       'Discount Codes',
     ]);
     expect(
-      within(nav).getByRole('link', { name: 'Create Product' }).getAttribute('aria-current'),
+      within(nav)
+        .getByRole('link', { name: 'Create Product' })
+        .getAttribute('aria-current'),
     ).toBe('page');
     expect(
-      within(nav).getByRole('link', { name: 'Dashboard' }).getAttribute('aria-current'),
+      within(nav)
+        .getByRole('link', { name: 'Dashboard' })
+        .getAttribute('aria-current'),
     ).toBeNull();
   });
 
@@ -198,12 +204,16 @@ describe('Seller dashboard', () => {
 
     await screen.findByText('Welcome back, Amina');
     const toggles = screen.getAllByRole('switch', { name: 'Dark mode' });
-    expect(toggles.map((toggle) => toggle.getAttribute('aria-checked'))).toEqual(['false', 'false']);
+    expect(
+      toggles.map((toggle) => toggle.getAttribute('aria-checked')),
+    ).toEqual(['false', 'false']);
 
     fireEvent.click(toggles[0]);
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark');
-    expect(toggles.map((toggle) => toggle.getAttribute('aria-checked'))).toEqual(['true', 'true']);
+    expect(
+      toggles.map((toggle) => toggle.getAttribute('aria-checked')),
+    ).toEqual(['true', 'true']);
 
     fireEvent.click(toggles[1]);
     expect(document.documentElement.classList.contains('dark')).toBe(false);
@@ -212,7 +222,10 @@ describe('Seller dashboard', () => {
 
   it('logs the seller out from the sidebar', async () => {
     signedIn();
-    reply('POST /api/auth/logout/seller', 200, { success: true, message: 'ok' });
+    reply('POST /api/auth/logout/seller', 200, {
+      success: true,
+      message: 'ok',
+    });
     renderDashboard(<SellerDashboardPage />);
 
     fireEvent.click(await screen.findByRole('button', { name: 'Logout' }));
@@ -264,13 +277,15 @@ describe('Create product', () => {
     signedIn();
     renderDashboard(<CreateProductPage />);
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Check product' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Check product' }),
+    );
 
     expect(await screen.findByText('Product title is required')).toBeTruthy();
     expect(screen.getByText('Add at least one product image.')).toBeTruthy();
-    expect(
-      (screen.getByLabelText('Category') as HTMLSelectElement).value,
-    ).toBe('Fruits & Vegetables');
+    expect((screen.getByLabelText('Category') as HTMLSelectElement).value).toBe(
+      'Fruits & Vegetables',
+    );
 
     fill('Price (USD)', '10');
     fill('Sale price', '12');

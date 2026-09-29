@@ -320,7 +320,9 @@ function resetAccounts(account: RegistrationUserType, prisma: PrismaClient) {
     return {
       ...resetSettings(account),
       findByEmail: async (email: string) =>
-        toAccount(await prisma.sellers.findUnique({ where: { email }, select })),
+        toAccount(
+          await prisma.sellers.findUnique({ where: { email }, select }),
+        ),
       findById: async (id: string) =>
         toAccount(await prisma.sellers.findUnique({ where: { id }, select })),
       updatePassword: (id: string, password: string) =>
@@ -329,7 +331,12 @@ function resetAccounts(account: RegistrationUserType, prisma: PrismaClient) {
   }
 
   const toAccount = (
-    user: { id: string; name: string; email: string; password: string | null } | null,
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      password: string | null;
+    } | null,
   ): ResettableAccount | null => user && { ...user, shopName: null };
 
   return {
@@ -386,12 +393,7 @@ export async function handleForgotPassword(
         'EX',
         RESET_TOKEN_TTL_SECONDS,
       );
-      await redisClient.set(
-        ownerKey,
-        tokenHash,
-        'EX',
-        RESET_TOKEN_TTL_SECONDS,
-      );
+      await redisClient.set(ownerKey, tokenHash, 'EX', RESET_TOKEN_TTL_SECONDS);
 
       const resetLink = buildResetLink(userType, token);
       const expiresInMinutes = RESET_TOKEN_TTL_SECONDS / 60;

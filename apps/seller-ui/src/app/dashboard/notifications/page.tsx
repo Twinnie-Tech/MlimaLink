@@ -55,36 +55,41 @@ export default function NotificationsPage() {
 
   return (
     <>
-      <PageHeader title="Notifications" description="Updates about your shop and account." />
+      <PageHeader
+        title="Notifications"
+        description="Updates about your shop and account."
+      />
 
       <Panel>
         <ul className="divide-y divide-neutral-200">
-          {notifications.map(({ id, icon: Icon, tone, title, body, date, action }) => (
-            <li key={id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
-              <span
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${tone}`}
-              >
-                <Icon size={18} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="font-medium text-neutral-900">{title}</p>
-                  <time dateTime={date} className="text-xs text-neutral-500">
-                    {formatDate(date)}
-                  </time>
+          {notifications.map(
+            ({ id, icon: Icon, tone, title, body, date, action }) => (
+              <li key={id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${tone}`}
+                >
+                  <Icon size={18} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-medium text-neutral-900">{title}</p>
+                    <time dateTime={date} className="text-xs text-neutral-500">
+                      {formatDate(date)}
+                    </time>
+                  </div>
+                  <p className="mt-0.5 text-sm text-neutral-500">{body}</p>
+                  {action && (
+                    <Link
+                      href={action.href}
+                      className="mt-2 inline-block text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700"
+                    >
+                      {action.label}
+                    </Link>
+                  )}
                 </div>
-                <p className="mt-0.5 text-sm text-neutral-500">{body}</p>
-                {action && (
-                  <Link
-                    href={action.href}
-                    className="mt-2 inline-block text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700"
-                  >
-                    {action.label}
-                  </Link>
-                )}
-              </div>
-            </li>
-          ))}
+              </li>
+            ),
+          )}
         </ul>
       </Panel>
     </>

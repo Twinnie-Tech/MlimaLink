@@ -4,17 +4,30 @@ import { useState } from 'react';
 import { Package } from 'lucide-react';
 import { EmptyState, PageHeader, Panel } from '../../../shared/dashboard/ui';
 
-const STATUSES = ['All', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as const;
+const STATUSES = [
+  'All',
+  'Processing',
+  'Shipped',
+  'Delivered',
+  'Cancelled',
+] as const;
 
 export default function OrdersPage() {
   const [status, setStatus] = useState<(typeof STATUSES)[number]>('All');
 
   return (
     <>
-      <PageHeader title="My Orders" description="Track deliveries and look back at past purchases." />
+      <PageHeader
+        title="My Orders"
+        description="Track deliveries and look back at past purchases."
+      />
 
       <Panel>
-        <div role="group" aria-label="Order status" className="mb-5 flex flex-wrap gap-2">
+        <div
+          role="group"
+          aria-label="Order status"
+          className="mb-5 flex flex-wrap gap-2"
+        >
           {STATUSES.map((option) => (
             <button
               key={option}
@@ -34,7 +47,11 @@ export default function OrdersPage() {
 
         <EmptyState
           icon={Package}
-          title={status === 'All' ? 'No orders yet' : `No ${status.toLowerCase()} orders`}
+          title={
+            status === 'All'
+              ? 'No orders yet'
+              : `No ${status.toLowerCase()} orders`
+          }
           description="Orders you place will appear here with their delivery status."
           action={{ label: 'Start shopping', href: '/products' }}
         />

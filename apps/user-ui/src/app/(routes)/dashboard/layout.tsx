@@ -39,7 +39,10 @@ export default function DashboardLayout({
         </aside>
 
         <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-neutral-200 bg-white px-4 py-3 lg:hidden">
-          <Link href="/" className="font-poppins text-xl font-semibold text-neutral-900">
+          <Link
+            href="/"
+            className="font-poppins text-xl font-semibold text-neutral-900"
+          >
             MlimaLink
           </Link>
           <div className="flex items-center gap-2">
@@ -57,7 +60,11 @@ export default function DashboardLayout({
         </div>
 
         {menuOpen && (
-          <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true">
+          <div
+            className="fixed inset-0 z-40 lg:hidden"
+            role="dialog"
+            aria-modal="true"
+          >
             <button
               type="button"
               aria-label="Close account menu"

@@ -50,8 +50,8 @@ export default function DiscountCodesPage() {
       />
 
       <NotLiveNotice>
-        Discount codes aren&apos;t connected to checkout yet. You can fill in and check
-        this form, but nothing will be saved.
+        Discount codes aren&apos;t connected to checkout yet. You can fill in
+        and check this form, but nothing will be saved.
       </NotLiveNotice>
 
       {checked && (
@@ -60,10 +60,14 @@ export default function DiscountCodesPage() {
           className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800"
         >
           <span>
-            Everything looks good. This code wasn&apos;t saved because discount codes
-            aren&apos;t live yet.
+            Everything looks good. This code wasn&apos;t saved because discount
+            codes aren&apos;t live yet.
           </span>
-          <button type="button" onClick={startOver} className={secondaryButtonClassName}>
+          <button
+            type="button"
+            onClick={startOver}
+            className={secondaryButtonClassName}
+          >
             Start over
           </button>
         </div>
@@ -132,7 +136,9 @@ export default function DiscountCodesPage() {
 
               <Field
                 id="value"
-                label={type === 'percentage' ? 'Discount (%)' : 'Amount off (USD)'}
+                label={
+                  type === 'percentage' ? 'Discount (%)' : 'Amount off (USD)'
+                }
                 error={errors.value?.message}
               >
                 <input
@@ -149,7 +155,9 @@ export default function DiscountCodesPage() {
                       const amount = Number(value);
                       if (form.type === 'percentage') {
                         return (
-                          (Number.isInteger(amount) && amount >= 1 && amount <= 90) ||
+                          (Number.isInteger(amount) &&
+                            amount >= 1 &&
+                            amount <= 90) ||
                           'Enter a whole number from 1 to 90'
                         );
                       }
@@ -176,7 +184,8 @@ export default function DiscountCodesPage() {
                     {...register('usageLimit', {
                       validate: (value) =>
                         !value ||
-                        (Number.isInteger(Number(value)) && Number(value) >= 1) ||
+                        (Number.isInteger(Number(value)) &&
+                          Number(value) >= 1) ||
                         'Enter a whole number, 1 or more',
                     })}
                   />
@@ -195,7 +204,9 @@ export default function DiscountCodesPage() {
                     className={`${inputClassName} `}
                     {...register('expiresAt', {
                       validate: (value) =>
-                        !value || value >= today() || 'Expiry can’t be in the past',
+                        !value ||
+                        value >= today() ||
+                        'Expiry can’t be in the past',
                     })}
                   />
                 </Field>
@@ -206,7 +217,11 @@ export default function DiscountCodesPage() {
               <button type="submit" className={primaryButtonClassName}>
                 Check code
               </button>
-              <button type="button" onClick={startOver} className={secondaryButtonClassName}>
+              <button
+                type="button"
+                onClick={startOver}
+                className={secondaryButtonClassName}
+              >
                 Clear form
               </button>
             </div>

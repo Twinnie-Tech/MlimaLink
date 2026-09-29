@@ -1,5 +1,11 @@
 ﻿import type { ReactElement } from 'react';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import DashboardLayout from '../src/app/(routes)/dashboard/layout';
 import DashboardPage from '../src/app/(routes)/dashboard/page';
@@ -161,7 +167,11 @@ describe('Dashboard layout', () => {
     renderDashboard();
 
     const nav = await screen.findByRole('navigation', { name: 'My account' });
-    expect(within(nav).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
+    expect(
+      within(nav)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual([
       '/dashboard',
       '/dashboard/orders',
       '/dashboard/wishlist',
@@ -173,10 +183,16 @@ describe('Dashboard layout', () => {
       '/products',
       '/become-seller',
     ]);
-    expect(within(nav).getByRole('link', { name: 'Wishlist 2 items' })).toBeTruthy();
-    expect(within(nav).getByRole('link', { name: 'Cart 3 items' })).toBeTruthy();
     expect(
-      within(nav).getByRole('link', { name: 'Overview' }).getAttribute('aria-current'),
+      within(nav).getByRole('link', { name: 'Wishlist 2 items' }),
+    ).toBeTruthy();
+    expect(
+      within(nav).getByRole('link', { name: 'Cart 3 items' }),
+    ).toBeTruthy();
+    expect(
+      within(nav)
+        .getByRole('link', { name: 'Overview' })
+        .getAttribute('aria-current'),
     ).toBe('page');
   });
 
@@ -186,10 +202,16 @@ describe('Dashboard layout', () => {
     renderDashboard(<SecurityPage />);
 
     const nav = await screen.findByRole('navigation', { name: 'My account' });
-    expect(within(nav).getByRole('link', { name: 'Security' }).getAttribute('aria-current')).toBe(
-      'page',
-    );
-    expect(within(nav).getByRole('link', { name: 'Overview' }).getAttribute('aria-current')).toBeNull();
+    expect(
+      within(nav)
+        .getByRole('link', { name: 'Security' })
+        .getAttribute('aria-current'),
+    ).toBe('page');
+    expect(
+      within(nav)
+        .getByRole('link', { name: 'Overview' })
+        .getAttribute('aria-current'),
+    ).toBeNull();
     expect(
       screen.getByRole('link', { name: 'Reset password' }).getAttribute('href'),
     ).toBe('/forgot-password');
@@ -226,10 +248,14 @@ describe('Dashboard overview', () => {
     expect(screen.getByText('March 2026')).toBeTruthy();
     expect(screen.getByText('User')).toBeTruthy();
     expect(
-      screen.getByRole('link', { name: /^Wishlist\s*2\s*Saved for later/ }).getAttribute('href'),
+      screen
+        .getByRole('link', { name: /^Wishlist\s*2\s*Saved for later/ })
+        .getAttribute('href'),
     ).toBe('/dashboard/wishlist');
     expect(
-      screen.getByRole('link', { name: /^Cart items\s*3/ }).getAttribute('href'),
+      screen
+        .getByRole('link', { name: /^Cart items\s*3/ })
+        .getAttribute('href'),
     ).toBe('/dashboard/cart');
     expect(replace).not.toHaveBeenCalled();
   });
@@ -251,7 +277,9 @@ describe('Dashboard overview', () => {
     routeAuth({ 'logged-in-user': [signedIn] });
     renderDashboard();
 
-    expect(await screen.findByRole('heading', { name: 'No orders yet' })).toBeTruthy();
+    expect(
+      await screen.findByRole('heading', { name: 'No orders yet' }),
+    ).toBeTruthy();
     expect(screen.getByText('Your cart is empty.')).toBeTruthy();
     expect(screen.getByText(/Nothing saved yet/)).toBeTruthy();
   });
@@ -267,7 +295,9 @@ describe('Dashboard sections', () => {
     expect(await screen.findByTestId('cart-subtotal')).toBeTruthy();
     expect(screen.getByTestId('cart-subtotal').textContent).toBe('$12.00');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Increase quantity of Avocados' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Increase quantity of Avocados' }),
+    );
 
     expect(screen.getByTestId('cart-subtotal').textContent).toBe('$16.00');
     expect(screen.getByText('4 items in your cart')).toBeTruthy();
@@ -278,7 +308,9 @@ describe('Dashboard sections', () => {
     routeAuth({ 'logged-in-user': [signedIn] });
     renderDashboard(<ProfilePage />);
 
-    expect(await screen.findByRole('heading', { name: 'Jane Doe' })).toBeTruthy();
+    expect(
+      await screen.findByRole('heading', { name: 'Jane Doe' }),
+    ).toBeTruthy();
     expect(screen.getByText('User account')).toBeTruthy();
     expect(screen.getByText('March 2026')).toBeTruthy();
   });
@@ -288,10 +320,14 @@ describe('Dashboard sections', () => {
     routeAuth({ 'logged-in-user': [signedIn] });
     renderDashboard(<AddressesPage />);
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Check address' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Check address' }),
+    );
 
     expect(await screen.findByText('Street address is required')).toBeTruthy();
-    expect((screen.getByLabelText('Full name') as HTMLInputElement).value).toBe('Jane Doe');
+    expect((screen.getByLabelText('Full name') as HTMLInputElement).value).toBe(
+      'Jane Doe',
+    );
     expect(screen.queryByRole('status')).toBeNull();
 
     fireEvent.change(screen.getByLabelText('Phone number'), {
@@ -300,8 +336,12 @@ describe('Dashboard sections', () => {
     fireEvent.change(screen.getByLabelText('Street address'), {
       target: { value: '12 Moi Avenue' },
     });
-    fireEvent.change(screen.getByLabelText('Town / city'), { target: { value: 'Nairobi' } });
-    fireEvent.change(screen.getByLabelText('County / region'), { target: { value: 'Nairobi' } });
+    fireEvent.change(screen.getByLabelText('Town / city'), {
+      target: { value: 'Nairobi' },
+    });
+    fireEvent.change(screen.getByLabelText('County / region'), {
+      target: { value: 'Nairobi' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Check address' }));
 
     expect((await screen.findByRole('status')).textContent).toContain(
@@ -309,4 +349,3 @@ describe('Dashboard sections', () => {
     );
   });
 });
-

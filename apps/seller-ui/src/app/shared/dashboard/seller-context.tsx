@@ -13,7 +13,9 @@ export const DashboardSellerProvider = DashboardSellerContext.Provider;
 export function useDashboardSeller(): DashboardSeller {
   const seller = useContext(DashboardSellerContext);
   if (!seller) {
-    throw new Error('useDashboardSeller must be used inside the dashboard layout');
+    throw new Error(
+      'useDashboardSeller must be used inside the dashboard layout',
+    );
   }
   return seller;
 }

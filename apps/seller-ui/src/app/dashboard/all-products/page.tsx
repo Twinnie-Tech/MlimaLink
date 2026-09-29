@@ -18,7 +18,10 @@ export default function AllProductsPage() {
         title="All Products"
         description="Manage prices, stock and visibility for everything you sell."
         actions={
-          <Link href="/dashboard/create-product" className={primaryButtonClassName}>
+          <Link
+            href="/dashboard/create-product"
+            className={primaryButtonClassName}
+          >
             <SquarePlus size={16} /> Create product
           </Link>
         }
@@ -41,9 +44,7 @@ export default function AllProductsPage() {
           <label>
             <span className="sr-only">Filter by category</span>
             <select className={inputClassName} defaultValue="">
-              <option value="">
-                All categories
-              </option>
+              <option value="">All categories</option>
               {shopCategories.map((category) => (
                 <option key={category} value={category}>
                   {category}
@@ -54,18 +55,10 @@ export default function AllProductsPage() {
           <label>
             <span className="sr-only">Filter by stock</span>
             <select className={inputClassName} defaultValue="all">
-              <option value="all">
-                Any stock
-              </option>
-              <option value="in">
-                In stock
-              </option>
-              <option value="low">
-                Low stock
-              </option>
-              <option value="out">
-                Out of stock
-              </option>
+              <option value="all">Any stock</option>
+              <option value="in">In stock</option>
+              <option value="low">Low stock</option>
+              <option value="out">Out of stock</option>
             </select>
           </label>
         </div>
@@ -74,7 +67,10 @@ export default function AllProductsPage() {
           icon={PackageSearch}
           title="No products yet"
           description="Products you create will be listed here, with their price, stock and sales at a glance."
-          action={{ label: 'Create your first product', href: '/dashboard/create-product' }}
+          action={{
+            label: 'Create your first product',
+            href: '/dashboard/create-product',
+          }}
         />
       </Panel>
     </>

@@ -27,7 +27,12 @@ import {
   textLinkClassName,
 } from '../../shared/dashboard/ui';
 
-const shortcuts: { label: string; description: string; href: string; icon: LucideIcon }[] = [
+const shortcuts: {
+  label: string;
+  description: string;
+  href: string;
+  icon: LucideIcon;
+}[] = [
   {
     label: 'Addresses',
     description: 'Where we deliver',
@@ -63,7 +68,8 @@ export default function DashboardPage() {
               Welcome back, {firstName(user.name)}
             </h1>
             <p className="mt-1 text-white/80">
-              Track your orders, pick up where you left off and manage your account.
+              Track your orders, pick up where you left off and manage your
+              account.
             </p>
           </div>
           <Link
@@ -76,7 +82,13 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={Package} label="Orders" value="0" hint="No orders yet" tone="amber" />
+        <StatCard
+          icon={Package}
+          label="Orders"
+          value="0"
+          hint="No orders yet"
+          tone="amber"
+        />
         <StatCard
           icon={Heart}
           label="Wishlist"
@@ -137,7 +149,10 @@ export default function DashboardPage() {
               <ul className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {wishlist.slice(0, 4).map((product) => (
                   <li key={product.id}>
-                    <Link href={`/products/${product.id}`} className="group block">
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="group block"
+                    >
                       <div className="aspect-[4/3] overflow-hidden rounded-lg bg-neutral-100">
                         <img
                           src={product.imageUrl}
@@ -148,7 +163,9 @@ export default function DashboardPage() {
                       <p className="mt-2 truncate text-sm font-medium text-neutral-900 group-hover:text-brand-start">
                         {product.name}
                       </p>
-                      <p className="text-sm text-neutral-500">{formatPrice(product.price)}</p>
+                      <p className="text-sm text-neutral-500">
+                        {formatPrice(product.price)}
+                      </p>
                     </Link>
                   </li>
                 ))}
@@ -165,7 +182,10 @@ export default function DashboardPage() {
               <>
                 <ul className="space-y-3">
                   {cart.slice(0, 3).map(({ product, quantity }) => (
-                    <li key={product.id} className="flex items-center gap-3 text-sm">
+                    <li
+                      key={product.id}
+                      className="flex items-center gap-3 text-sm"
+                    >
                       <img
                         src={product.imageUrl}
                         alt=""
@@ -183,7 +203,8 @@ export default function DashboardPage() {
                 </ul>
                 {cart.length > 3 && (
                   <p className="mt-3 text-xs text-neutral-400">
-                    and {cart.length - 3} more {cart.length - 3 === 1 ? 'product' : 'products'}
+                    and {cart.length - 3} more{' '}
+                    {cart.length - 3 === 1 ? 'product' : 'products'}
                   </p>
                 )}
                 <div className="mt-5 flex items-center justify-between border-t border-neutral-200 pt-4">
@@ -192,7 +213,10 @@ export default function DashboardPage() {
                     {formatPrice(cartSubtotal)}
                   </span>
                 </div>
-                <Link href="/dashboard/cart" className={`mt-4 w-full ${primaryButtonClassName}`}>
+                <Link
+                  href="/dashboard/cart"
+                  className={`mt-4 w-full ${primaryButtonClassName}`}
+                >
                   View cart <ArrowRight size={16} />
                 </Link>
               </>
@@ -211,8 +235,12 @@ export default function DashboardPage() {
                       <Icon size={18} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium text-neutral-900">{label}</span>
-                      <span className="block text-xs text-neutral-500">{description}</span>
+                      <span className="block text-sm font-medium text-neutral-900">
+                        {label}
+                      </span>
+                      <span className="block text-xs text-neutral-500">
+                        {description}
+                      </span>
                     </span>
                     <ArrowRight size={16} className="text-neutral-300" />
                   </Link>
@@ -234,7 +262,10 @@ export default function DashboardPage() {
               items={[
                 { label: 'Email', value: user.email },
                 { label: 'Account type', value: accountType(user.role) },
-                { label: 'Member since', value: formatMonthYear(user.createdAt) },
+                {
+                  label: 'Member since',
+                  value: formatMonthYear(user.createdAt),
+                },
               ]}
             />
           </Panel>

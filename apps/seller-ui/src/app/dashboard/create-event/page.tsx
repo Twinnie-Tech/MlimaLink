@@ -47,9 +47,9 @@ export default function CreateEventPage() {
       />
 
       <NotLiveNotice>
-        Events aren&apos;t connected to the store yet, and you&apos;ll need at least one
-        product to run one. You can fill in and check this form, but nothing will be
-        saved.
+        Events aren&apos;t connected to the store yet, and you&apos;ll need at
+        least one product to run one. You can fill in and check this form, but
+        nothing will be saved.
       </NotLiveNotice>
 
       {checked && (
@@ -61,13 +61,21 @@ export default function CreateEventPage() {
             Everything looks good. This event wasn&apos;t saved because events
             aren&apos;t live yet.
           </span>
-          <button type="button" onClick={startOver} className={secondaryButtonClassName}>
+          <button
+            type="button"
+            onClick={startOver}
+            className={secondaryButtonClassName}
+          >
             Start over
           </button>
         </div>
       )}
 
-      <form onSubmit={handleSubmit(() => setChecked(true))} noValidate className="max-w-3xl">
+      <form
+        onSubmit={handleSubmit(() => setChecked(true))}
+        noValidate
+        className="max-w-3xl"
+      >
         <Panel>
           <div className="space-y-5">
             <Field id="title" label="Event title" error={errors.title?.message}>
@@ -86,20 +94,30 @@ export default function CreateEventPage() {
               id="product"
               label="Product"
               hint={
-                <Link href="/dashboard/create-product" className="text-blue-600 dark:text-blue-400 hover:text-blue-700">
+                <Link
+                  href="/dashboard/create-product"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700"
+                >
                   Add a product
                 </Link>
               }
             >
-              <select id="product" disabled className={inputClassName} {...register('product')}>
-                <option value="">
-                  You don&apos;t have any products yet
-                </option>
+              <select
+                id="product"
+                disabled
+                className={inputClassName}
+                {...register('product')}
+              >
+                <option value="">You don&apos;t have any products yet</option>
               </select>
             </Field>
 
             <div className="grid gap-5 sm:grid-cols-3">
-              <Field id="startDate" label="Starts" error={errors.startDate?.message}>
+              <Field
+                id="startDate"
+                label="Starts"
+                error={errors.startDate?.message}
+              >
                 <input
                   {...describedBy('startDate', errors.startDate?.message)}
                   type="date"
@@ -107,7 +125,8 @@ export default function CreateEventPage() {
                   className={`${inputClassName} `}
                   {...register('startDate', {
                     required: 'Choose a start date',
-                    validate: (value) => value >= today() || 'Start date can’t be in the past',
+                    validate: (value) =>
+                      value >= today() || 'Start date can’t be in the past',
                   })}
                 />
               </Field>
@@ -121,12 +140,18 @@ export default function CreateEventPage() {
                   {...register('endDate', {
                     required: 'Choose an end date',
                     validate: (value, form) =>
-                      !form.startDate || value > form.startDate || 'End date must be after the start date',
+                      !form.startDate ||
+                      value > form.startDate ||
+                      'End date must be after the start date',
                   })}
                 />
               </Field>
 
-              <Field id="discount" label="Discount (%)" error={errors.discount?.message}>
+              <Field
+                id="discount"
+                label="Discount (%)"
+                error={errors.discount?.message}
+              >
                 <input
                   {...describedBy('discount', errors.discount?.message)}
                   type="number"
@@ -140,7 +165,9 @@ export default function CreateEventPage() {
                     validate: (value) => {
                       const percent = Number(value);
                       return (
-                        (Number.isInteger(percent) && percent >= 1 && percent <= 90) ||
+                        (Number.isInteger(percent) &&
+                          percent >= 1 &&
+                          percent <= 90) ||
                         'Enter a whole number from 1 to 90'
                       );
                     },
@@ -149,11 +176,7 @@ export default function CreateEventPage() {
               </Field>
             </div>
 
-            <Field
-              id="description"
-              label="Description"
-              hint="Optional"
-            >
+            <Field id="description" label="Description" hint="Optional">
               <textarea
                 id="description"
                 rows={4}
@@ -168,7 +191,11 @@ export default function CreateEventPage() {
             <button type="submit" className={primaryButtonClassName}>
               Check event
             </button>
-            <button type="button" onClick={startOver} className={secondaryButtonClassName}>
+            <button
+              type="button"
+              onClick={startOver}
+              className={secondaryButtonClassName}
+            >
               Clear form
             </button>
           </div>

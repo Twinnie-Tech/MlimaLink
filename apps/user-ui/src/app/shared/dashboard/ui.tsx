@@ -7,7 +7,8 @@ import { Info, type LucideIcon } from 'lucide-react';
 export const inputClassName =
   'w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition focus:border-brand-start focus:ring-2 focus:ring-brand-start/20 aria-[invalid=true]:border-rose-400';
 
-export const labelClassName = 'mb-1.5 block text-sm font-medium text-neutral-700';
+export const labelClassName =
+  'mb-1.5 block text-sm font-medium text-neutral-700';
 
 export const primaryButtonClassName =
   'inline-flex items-center justify-center gap-2 rounded-lg bg-brand-start px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-end disabled:cursor-not-allowed disabled:opacity-60';
@@ -33,7 +34,9 @@ export function PageHeader({
         <h1 className="font-poppins text-2xl font-semibold text-neutral-900 sm:text-3xl">
           {title}
         </h1>
-        {description && <p className="mt-1.5 text-sm text-neutral-500">{description}</p>}
+        {description && (
+          <p className="mt-1.5 text-sm text-neutral-500">{description}</p>
+        )}
       </div>
       {actions && <div className="flex flex-wrap gap-3">{actions}</div>}
     </div>
@@ -61,9 +64,13 @@ export function Panel({
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             {title && (
-              <h2 className="font-poppins text-lg font-semibold text-neutral-900">{title}</h2>
+              <h2 className="font-poppins text-lg font-semibold text-neutral-900">
+                {title}
+              </h2>
             )}
-            {description && <p className="mt-0.5 text-sm text-neutral-500">{description}</p>}
+            {description && (
+              <p className="mt-0.5 text-sm text-neutral-500">{description}</p>
+            )}
           </div>
           {action}
         </div>
@@ -99,15 +106,20 @@ export function StatCard({
     <>
       <div className="flex items-center justify-between">
         <span className="text-sm text-neutral-500">{label}</span>
-        <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${tones[tone]}`}>
+        <span
+          className={`flex h-9 w-9 items-center justify-center rounded-lg ${tones[tone]}`}
+        >
           <Icon size={18} />
         </span>
       </div>
-      <p className="mt-3 font-poppins text-2xl font-semibold text-neutral-900">{value}</p>
+      <p className="mt-3 font-poppins text-2xl font-semibold text-neutral-900">
+        {value}
+      </p>
       {hint && <p className="mt-1 text-xs text-neutral-400">{hint}</p>}
     </>
   );
-  const className = 'block rounded-xl border border-neutral-200 bg-white p-5 shadow-sm';
+  const className =
+    'block rounded-xl border border-neutral-200 bg-white p-5 shadow-sm';
 
   return href ? (
     <Link
@@ -137,7 +149,9 @@ export function EmptyState({
       <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-start/10 text-brand-start">
         <Icon size={26} />
       </span>
-      <h3 className="font-poppins text-lg font-semibold text-neutral-900">{title}</h3>
+      <h3 className="font-poppins text-lg font-semibold text-neutral-900">
+        {title}
+      </h3>
       <p className="mt-1.5 max-w-sm text-sm text-neutral-500">{description}</p>
       {action && (
         <Link href={action.href} className={`mt-6 ${primaryButtonClassName}`}>
@@ -208,11 +222,17 @@ export function DetailList({
   columns?: 1 | 2;
 }) {
   return (
-    <dl className={`grid gap-x-8 gap-y-5 ${columns === 2 ? 'sm:grid-cols-2' : ''}`}>
+    <dl
+      className={`grid gap-x-8 gap-y-5 ${columns === 2 ? 'sm:grid-cols-2' : ''}`}
+    >
       {items.map((item) => (
         <div key={item.label}>
-          <dt className="text-xs uppercase tracking-wide text-neutral-400">{item.label}</dt>
-          <dd className="mt-1 break-words text-sm font-medium text-neutral-900">{item.value}</dd>
+          <dt className="text-xs uppercase tracking-wide text-neutral-400">
+            {item.label}
+          </dt>
+          <dd className="mt-1 break-words text-sm font-medium text-neutral-900">
+            {item.value}
+          </dd>
         </div>
       ))}
     </dl>
@@ -221,9 +241,10 @@ export function DetailList({
 
 export function formatMonthYear(iso?: string) {
   if (!iso) return '—';
-  return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(
-    new Date(iso),
-  );
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(iso));
 }
 
 export function formatDate(iso: string) {

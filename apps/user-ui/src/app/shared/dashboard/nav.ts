@@ -31,8 +31,18 @@ export const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
     title: 'Shopping',
     items: [
       { label: 'My Orders', href: '/dashboard/orders', icon: Package },
-      { label: 'Wishlist', href: '/dashboard/wishlist', icon: Heart, badge: 'wishlist' },
-      { label: 'Cart', href: '/dashboard/cart', icon: ShoppingCart, badge: 'cart' },
+      {
+        label: 'Wishlist',
+        href: '/dashboard/wishlist',
+        icon: Heart,
+        badge: 'wishlist',
+      },
+      {
+        label: 'Cart',
+        href: '/dashboard/cart',
+        icon: ShoppingCart,
+        badge: 'cart',
+      },
     ],
   },
   {

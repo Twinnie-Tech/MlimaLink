@@ -57,11 +57,14 @@ export default function AddressesPage() {
 
   return (
     <>
-      <PageHeader title="Addresses" description="Where you'd like your orders delivered." />
+      <PageHeader
+        title="Addresses"
+        description="Where you'd like your orders delivered."
+      />
 
       <NotLiveNotice>
-        Saved addresses aren&apos;t connected to your account yet. You can fill in and
-        check this form, but nothing will be saved.
+        Saved addresses aren&apos;t connected to your account yet. You can fill
+        in and check this form, but nothing will be saved.
       </NotLiveNotice>
 
       {checked && (
@@ -70,21 +73,31 @@ export default function AddressesPage() {
           className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
         >
           <span>
-            Everything looks good. This address wasn&apos;t saved because addresses
-            aren&apos;t live yet.
+            Everything looks good. This address wasn&apos;t saved because
+            addresses aren&apos;t live yet.
           </span>
-          <button type="button" onClick={startOver} className={secondaryButtonClassName}>
+          <button
+            type="button"
+            onClick={startOver}
+            className={secondaryButtonClassName}
+          >
             Start over
           </button>
         </div>
       )}
 
       <div className="grid gap-6 xl:grid-cols-5">
-        <form onSubmit={handleSubmit(() => setChecked(true))} noValidate className="xl:col-span-3">
+        <form
+          onSubmit={handleSubmit(() => setChecked(true))}
+          noValidate
+          className="xl:col-span-3"
+        >
           <Panel title="Add an address">
             <div className="space-y-5">
               <fieldset>
-                <legend className="mb-1.5 block text-sm font-medium text-neutral-700">Label</legend>
+                <legend className="mb-1.5 block text-sm font-medium text-neutral-700">
+                  Label
+                </legend>
                 <div className="grid grid-cols-3 gap-3">
                   {LABELS.map(({ value, text, icon: Icon }) => (
                     <label
@@ -95,7 +108,12 @@ export default function AddressesPage() {
                           : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'
                       }`}
                     >
-                      <input type="radio" value={value} className="sr-only" {...register('label')} />
+                      <input
+                        type="radio"
+                        value={value}
+                        className="sr-only"
+                        {...register('label')}
+                      />
                       <Icon size={16} /> {text}
                     </label>
                   ))}
@@ -103,15 +121,25 @@ export default function AddressesPage() {
               </fieldset>
 
               <div className="grid gap-5 sm:grid-cols-2">
-                <Field id="fullName" label="Full name" error={errors.fullName?.message}>
+                <Field
+                  id="fullName"
+                  label="Full name"
+                  error={errors.fullName?.message}
+                >
                   <input
                     {...describedBy('fullName', errors.fullName?.message)}
                     autoComplete="name"
                     className={inputClassName}
-                    {...register('fullName', { required: 'Full name is required' })}
+                    {...register('fullName', {
+                      required: 'Full name is required',
+                    })}
                   />
                 </Field>
-                <Field id="phone" label="Phone number" error={errors.phone?.message}>
+                <Field
+                  id="phone"
+                  label="Phone number"
+                  error={errors.phone?.message}
+                >
                   <input
                     {...describedBy('phone', errors.phone?.message)}
                     type="tel"
@@ -120,13 +148,20 @@ export default function AddressesPage() {
                     className={inputClassName}
                     {...register('phone', {
                       required: 'Phone number is required',
-                      pattern: { value: PHONE_PATTERN, message: 'Enter a valid phone number' },
+                      pattern: {
+                        value: PHONE_PATTERN,
+                        message: 'Enter a valid phone number',
+                      },
                     })}
                   />
                 </Field>
               </div>
 
-              <Field id="street" label="Street address" error={errors.street?.message}>
+              <Field
+                id="street"
+                label="Street address"
+                error={errors.street?.message}
+              >
                 <input
                   {...describedBy('street', errors.street?.message)}
                   autoComplete="street-address"
@@ -134,26 +169,41 @@ export default function AddressesPage() {
                   className={inputClassName}
                   {...register('street', {
                     required: 'Street address is required',
-                    minLength: { value: 5, message: 'Use at least 5 characters' },
+                    minLength: {
+                      value: 5,
+                      message: 'Use at least 5 characters',
+                    },
                   })}
                 />
               </Field>
 
               <div className="grid gap-5 sm:grid-cols-3">
-                <Field id="city" label="Town / city" error={errors.city?.message}>
+                <Field
+                  id="city"
+                  label="Town / city"
+                  error={errors.city?.message}
+                >
                   <input
                     {...describedBy('city', errors.city?.message)}
                     autoComplete="address-level2"
                     className={inputClassName}
-                    {...register('city', { required: 'Town or city is required' })}
+                    {...register('city', {
+                      required: 'Town or city is required',
+                    })}
                   />
                 </Field>
-                <Field id="region" label="County / region" error={errors.region?.message}>
+                <Field
+                  id="region"
+                  label="County / region"
+                  error={errors.region?.message}
+                >
                   <input
                     {...describedBy('region', errors.region?.message)}
                     autoComplete="address-level1"
                     className={inputClassName}
-                    {...register('region', { required: 'County or region is required' })}
+                    {...register('region', {
+                      required: 'County or region is required',
+                    })}
                   />
                 </Field>
                 <Field id="postalCode" label="Postal code" hint="Optional">
@@ -167,7 +217,11 @@ export default function AddressesPage() {
               </div>
 
               <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-700">
-                <input type="checkbox" className="h-4 w-4 accent-brand-start" {...register('isDefault')} />
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-brand-start"
+                  {...register('isDefault')}
+                />
                 Use as my default delivery address
               </label>
             </div>
@@ -176,7 +230,11 @@ export default function AddressesPage() {
               <button type="submit" className={primaryButtonClassName}>
                 Check address
               </button>
-              <button type="button" onClick={startOver} className={secondaryButtonClassName}>
+              <button
+                type="button"
+                onClick={startOver}
+                className={secondaryButtonClassName}
+              >
                 Clear form
               </button>
             </div>

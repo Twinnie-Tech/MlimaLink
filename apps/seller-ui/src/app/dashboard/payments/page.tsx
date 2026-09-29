@@ -1,7 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CircleAlert, CircleCheck, Clock, Landmark, Receipt, Wallet } from 'lucide-react';
+import {
+  CircleAlert,
+  CircleCheck,
+  Clock,
+  Landmark,
+  Receipt,
+  Wallet,
+} from 'lucide-react';
 import { createStripeLink } from '../../shared/utils/seller-api';
 import { useDashboardSeller } from '../../shared/dashboard/seller-context';
 import {
@@ -26,7 +33,11 @@ export default function PaymentsPage() {
       const { url } = await createStripeLink();
       window.location.assign(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not start Stripe onboarding.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Could not start Stripe onboarding.',
+      );
       setConnecting(false);
     }
   };
@@ -39,9 +50,23 @@ export default function PaymentsPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard icon={Wallet} label="Available balance" value={formatMoney(0)} tone="emerald" />
-        <StatCard icon={Clock} label="Pending payouts" value={formatMoney(0)} tone="amber" />
-        <StatCard icon={Landmark} label="Paid out to date" value={formatMoney(0)} />
+        <StatCard
+          icon={Wallet}
+          label="Available balance"
+          value={formatMoney(0)}
+          tone="emerald"
+        />
+        <StatCard
+          icon={Clock}
+          label="Pending payouts"
+          value={formatMoney(0)}
+          tone="amber"
+        />
+        <StatCard
+          icon={Landmark}
+          label="Paid out to date"
+          value={formatMoney(0)}
+        />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -52,16 +77,19 @@ export default function PaymentsPage() {
                 <CircleCheck size={18} /> Bank account connected through Stripe
               </p>
               <p className="text-sm text-neutral-500">
-                Payouts are sent automatically to the account you set up with Stripe.
+                Payouts are sent automatically to the account you set up with
+                Stripe.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               <p className="flex items-center gap-2 text-sm font-medium text-amber-700">
-                <CircleAlert size={18} /> Connect a bank account to receive payouts
+                <CircleAlert size={18} /> Connect a bank account to receive
+                payouts
               </p>
               <p className="text-sm text-neutral-500">
-                We use Stripe to verify your details and send your earnings securely.
+                We use Stripe to verify your details and send your earnings
+                securely.
               </p>
               <button
                 type="button"
@@ -73,7 +101,10 @@ export default function PaymentsPage() {
                 {connecting ? 'Opening Stripe…' : 'Connect bank account'}
               </button>
               {error && (
-                <p role="alert" className="text-sm text-rose-600 dark:text-rose-400">
+                <p
+                  role="alert"
+                  className="text-sm text-rose-600 dark:text-rose-400"
+                >
                   {error}
                 </p>
               )}

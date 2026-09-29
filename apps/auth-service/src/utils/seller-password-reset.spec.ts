@@ -24,7 +24,8 @@ vi.mock('./redis.client', async () => {
 });
 
 const redis = redisClient as unknown as FakeRedis;
-const hash = (token: string) => createHash('sha256').update(token).digest('hex');
+const hash = (token: string) =>
+  createHash('sha256').update(token).digest('hex');
 
 const seller = {
   id: 's1',
@@ -185,9 +186,9 @@ describe('seller forgot password', () => {
 
     await forgot(prisma);
 
-    expect(
-      redis.strings.has(`seller_password_reset:${hash(firstToken)}`),
-    ).toBe(false);
+    expect(redis.strings.has(`seller_password_reset:${hash(firstToken)}`)).toBe(
+      false,
+    );
     expect(
       redis.strings.has(`seller_password_reset:${hash(tokenFromEmail())}`),
     ).toBe(true);
@@ -316,7 +317,8 @@ describe('seller reset templates', () => {
       name: 'Amina <Otieno>',
       email: 'amina@example.com',
       shopName: 'Mlima Fresh',
-      resetLink: 'http://localhost:3334/api/auth/reset-password/seller?token=abc',
+      resetLink:
+        'http://localhost:3334/api/auth/reset-password/seller?token=abc',
       expiresInMinutes: 15,
     });
 

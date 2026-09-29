@@ -62,9 +62,7 @@ describe('Seller forgot password', () => {
 
     requestLink('not-an-email');
 
-    expect(
-      await screen.findByText('Enter a valid email address'),
-    ).toBeTruthy();
+    expect(await screen.findByText('Enter a valid email address')).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 

@@ -14,7 +14,9 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       aria-checked={dark}
       aria-label="Dark mode"
       title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-      onClick={() => setDarkMode(!document.documentElement.classList.contains('dark'))}
+      onClick={() =>
+        setDarkMode(!document.documentElement.classList.contains('dark'))
+      }
       className={`relative inline-flex h-8 w-[60px] shrink-0 items-center justify-between rounded-full border border-neutral-200 bg-neutral-100 px-1.5 transition-colors hover:border-neutral-300 dark:border-white/10 dark:bg-white/5 ${className}`}
     >
       <span
