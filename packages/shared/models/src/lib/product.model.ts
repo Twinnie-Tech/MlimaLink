@@ -70,6 +70,12 @@ export interface Product {
   paymentOptions?: PaymentOption[];
 }
 
+/** A product photo stored on ImageKit. `fileId` is needed to delete it. */
+export interface UploadedImage {
+  fileId: string;
+  url: string;
+}
+
 export interface ApiResponse<T> {
   data: T;
   success: boolean;

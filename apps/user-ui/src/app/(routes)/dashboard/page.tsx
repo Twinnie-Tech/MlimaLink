@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {
   ArrowRight,
+  Bike,
   Heart,
   MapPin,
   Package,
@@ -13,7 +14,12 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react';
-import { choiceImage, variantLabel } from '@org/models/catalog';
+import {
+  choiceImage,
+  imageSrcSet,
+  sizedImage,
+  variantLabel,
+} from '@org/models/catalog';
 import { firstName } from '../../shared/hooks/use-user';
 import {
   cartItemPrice,
@@ -23,9 +29,10 @@ import {
   useShopStore,
 } from '../../shared/store/shop-store';
 import { useDashboardUser } from '../../shared/dashboard/user-context';
+import { MyOrders, useMyOrders } from '../../shared/widgets/my-orders';
+import { MyServiceRequests } from '../../shared/widgets/my-service-requests';
 import {
   DetailList,
-  EmptyState,
   Panel,
   StatCard,
   accountType,
@@ -58,11 +65,21 @@ const shortcuts: {
     href: '/become-seller',
     icon: Store,
   },
+  {
+    label: 'Deliver with MlimaLink',
+    description: 'Earn as a delivery rider',
+    href: '/rider',
+    icon: Bike,
+  },
 ];
 
 export default function DashboardPage() {
   const user = useDashboardUser();
   const { wishlist, cart, cartCount, cartSubtotal } = useShopStore();
+  const orders = useMyOrders().data ?? [];
+  const onTheWay = orders.filter(
+    (order) => order.status === 'out_for_delivery',
+  ).length;
 
   return (
     <>
@@ -92,8 +109,15 @@ export default function DashboardPage() {
         <StatCard
           icon={Package}
           label="Orders"
-          value="0"
-          hint="No orders yet"
+          value={String(orders.length)}
+          hint={
+            onTheWay > 0
+              ? `${onTheWay} on the way`
+              : orders.length > 0
+                ? 'Track your deliveries'
+                : 'No orders yet'
+          }
+          href="/dashboard/orders"
           tone="amber"
         />
         <StatCard
@@ -115,7 +139,7 @@ export default function DashboardPage() {
           icon={Wallet}
           label="Cart total"
           value={formatPrice(cartSubtotal)}
-          hint="Before shipping"
+          hint="Before delivery"
           tone="emerald"
         />
       </div>
@@ -130,12 +154,14 @@ export default function DashboardPage() {
               </Link>
             }
           >
-            <EmptyState
-              icon={Package}
-              title="No orders yet"
-              description="When you place an order, you'll be able to track it here."
-              action={{ label: 'Start shopping', href: '/products' }}
-            />
+            <MyOrders limit={3} compact />
+          </Panel>
+
+          <Panel
+            title="Service requests"
+            description="Services you've asked for and what each provider said."
+          >
+            <MyServiceRequests />
           </Panel>
 
           <Panel
@@ -162,8 +188,11 @@ export default function DashboardPage() {
                     >
                       <div className="aspect-[4/3] overflow-hidden rounded-lg bg-neutral-100">
                         <img
-                          src={product.imageUrl}
+                          src={sizedImage(product.imageUrl, 400)}
+                          srcSet={imageSrcSet(product.imageUrl, [400, 800])}
+                          sizes="(min-width: 1024px) 200px, 50vw"
                           alt={product.name}
+                          loading="lazy"
                           className="h-full w-full object-cover transition group-hover:scale-105"
                         />
                       </div>
@@ -194,9 +223,12 @@ export default function DashboardPage() {
                       className="flex items-center gap-3 text-sm"
                     >
                       <img
-                        src={choiceImage(
-                          item.product,
-                          item.variant?.choices ?? {},
+                        src={sizedImage(
+                          choiceImage(
+                            item.product,
+                            item.variant?.choices ?? {},
+                          ),
+                          80,
                         )}
                         alt=""
                         className="h-10 w-10 shrink-0 rounded-md object-cover"

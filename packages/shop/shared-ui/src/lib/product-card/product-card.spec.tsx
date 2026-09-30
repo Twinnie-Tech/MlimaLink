@@ -28,6 +28,26 @@ describe('ProductCard', () => {
     expect(image).toHaveAttribute('src', 'https://example.com/image.jpg');
   });
 
+  it('should load a right-sized copy of ImageKit photos', () => {
+    const photo = 'https://ik.imagekit.io/mlima/products/shop1/shoe_a1.jpg';
+    render(
+      <ProductCard
+        product={{ ...mockProduct, imageUrl: photo }}
+        onProductClick={mockOnClick}
+      />,
+    );
+
+    const image = screen.getByAltText('Test Product');
+    expect(image).toHaveAttribute(
+      'src',
+      `${photo}?tr=w-480,c-at_max,f-auto,q-80`,
+    );
+    expect(image.getAttribute('srcset')).toContain(
+      `${photo}?tr=w-960,c-at_max,f-auto,q-80 960w`,
+    );
+    expect(image).toHaveAttribute('loading', 'lazy');
+  });
+
   it('should show rating stars', () => {
     render(<ProductCard product={mockProduct} onProductClick={mockOnClick} />);
 

@@ -98,6 +98,12 @@ export interface SubCategoryTemplate {
   pricePeriod?: string;
   /** Shoppers call, WhatsApp or email the seller instead of using the cart, e.g. houses and cars. */
   contactSeller?: boolean;
+  /**
+   * A service someone offers, e.g. web development or car detailing. Shoppers send a
+   * request or contact the provider; the price is a starting price, and stock above 0
+   * means the provider is taking new requests.
+   */
+  service?: boolean;
 }
 
 export interface CategoryTemplate {
@@ -154,6 +160,37 @@ const bottle = size('Size', '30 ml', '50 ml', '100 ml', '200 ml', '500 ml');
 const smallMediumLarge = size('Size', 'Small', 'Medium', 'Large');
 
 const LOCATION = spec('Location', 'e.g. Kilimani, Nairobi');
+const TURNAROUND = spec('Typical turnaround', 'e.g. 2–4 weeks');
+
+/** The category that holds service listings. */
+export const SERVICES_CATEGORY = 'Services';
+
+const service = (
+  name: string,
+  offered: string,
+  extraSpecs: SpecTemplate[] = [],
+): SubCategoryTemplate => ({
+  name,
+  options: [],
+  specs: [
+    spec('Services offered', offered),
+    spec('Price basis', undefined, [
+      'Per project',
+      'Per hour',
+      'Per session',
+      'Per day',
+      'Fixed fee',
+    ]),
+    spec('Where', undefined, [
+      'Online / remote',
+      'At my premises',
+      'I come to you',
+    ]),
+    ...extraSpecs,
+  ],
+  contactSeller: true,
+  service: true,
+});
 const CAR_MAKE = spec('Make', 'e.g. Toyota', [
   'Toyota',
   'Nissan',
@@ -747,6 +784,40 @@ export const CATEGORY_TEMPLATES: CategoryTemplate[] = [
     ],
   },
   {
+    name: SERVICES_CATEGORY,
+    subCategories: [
+      service('Software & IT', 'e.g. Web apps, mobile apps, APIs', [
+        spec('Tech stack', 'e.g. React, Node.js, Flutter'),
+        TURNAROUND,
+      ]),
+      service('Design & Creative', 'e.g. Logos, branding, social media posts', [
+        spec('Tools', 'e.g. Figma, Photoshop'),
+        TURNAROUND,
+      ]),
+      service('Beauty & Wellness', 'e.g. Braids, manicure, bridal makeup', [
+        spec('Session length', 'e.g. 2 hours'),
+      ]),
+      service(
+        'Car Care & Detailing',
+        'e.g. Interior detailing, ceramic coating',
+        [spec('Vehicles', 'e.g. Saloons, SUVs, trucks')],
+      ),
+      service('Legal Services', 'e.g. Conveyancing, family law, contracts', [
+        spec('Admitted as', 'e.g. Advocate of the High Court of Kenya'),
+      ]),
+      service('Accounting & Tax', 'e.g. Bookkeeping, KRA returns, audits'),
+      service('Home Repairs & Trades', 'e.g. Plumbing, electrical, painting'),
+      service('Cleaning', 'e.g. Homes, offices, carpets, fumigation'),
+      service('Events & Photography', 'e.g. Weddings, catering, photo & video'),
+      service('Tutoring & Training', 'e.g. KCSE maths, coding, driving', [
+        spec('Level', 'e.g. Primary, high school, adults'),
+      ]),
+      service('Health & Fitness', 'e.g. Personal training, nutrition'),
+      service('Business & Consulting', 'e.g. Business plans, marketing, HR'),
+      service('Other Services', 'Describe what you offer'),
+    ],
+  },
+  {
     name: 'Other',
     subCategories: [{ name: 'General', options: [], specs: [BRAND] }],
   },
@@ -768,8 +839,29 @@ export const DESCRIPTION_MIN = 20;
 export const DESCRIPTION_MAX = 5000;
 /** The description with its formatting, so heavy styling can't bloat a product. */
 export const DESCRIPTION_HTML_MAX = 50_000;
-/** Photos are sent as data URLs until image hosting exists; this keeps each under ~500 KB. */
+/** Older listings kept photos inline as data URLs; this keeps each under ~500 KB. */
 export const MAX_IMAGE_DATA_URL_LENGTH = 700_000;
+/** A photo sent to the upload API as a data URL: about 3 MB. ImageKit resizes it for display. */
+export const MAX_UPLOAD_DATA_URL_LENGTH = 4_000_000;
+
+const IMAGEKIT_URL = /^https:\/\/ik\.imagekit\.io\/[^?#]+/;
+
+/**
+ * An ImageKit photo scaled down to `width` px (never enlarged) in the best format the
+ * browser accepts, e.g. WebP or AVIF. Other URLs are returned as they are.
+ */
+export function sizedImage(src: string, width: number): string {
+  const base = IMAGEKIT_URL.exec(src)?.[0];
+  return base ? `${base}?tr=w-${width},c-at_max,f-auto,q-80` : src;
+}
+
+/** A `srcSet` offering an ImageKit photo at each width, or undefined for other URLs. */
+export function imageSrcSet(src: string, widths: number[]): string | undefined {
+  if (!IMAGEKIT_URL.test(src)) return undefined;
+  return widths
+    .map((width) => `${sizedImage(src, width)} ${width}w`)
+    .join(', ');
+}
 
 export function getSubCategories(category: string): SubCategoryTemplate[] {
   return (
@@ -828,16 +920,20 @@ export function countWords(value: string): number {
   return words ? words.split(' ').length : 0;
 }
 
-/** How a product is sold, from its sub-category: the price period and whether shoppers contact the seller. */
+/**
+ * How a product is sold, from its sub-category: the price period, whether shoppers
+ * contact the seller, and whether it's a service they can send a request for.
+ */
 export function listingTerms(
   product: Pick<Product, 'category' | 'subCategory'>,
-): { pricePeriod?: string; contactSeller: boolean } {
+): { pricePeriod?: string; contactSeller: boolean; service: boolean } {
   const template = product.subCategory
     ? getSubCategoryTemplate(product.category, product.subCategory)
     : undefined;
   return {
     ...(template?.pricePeriod && { pricePeriod: template.pricePeriod }),
     contactSeller: template?.contactSeller ?? false,
+    service: template?.service ?? false,
   };
 }
 
@@ -948,6 +1044,8 @@ export interface ProductInput {
   price: number;
   salePrice?: number;
   images: string[];
+  /** ImageKit file id of each photo, in the same order. Missing when photos are data URLs. */
+  imageFileIds?: string[];
   specs: ProductSpec[];
   options: ProductOption[];
   variants: ProductVariant[];
@@ -960,6 +1058,7 @@ export interface ProductInput {
 type ParseResult = { product: ProductInput } | { error: string };
 
 const HEX_COLOUR = /^#[0-9a-f]{6}$/i;
+const IMAGE_FILE_ID = /^[A-Za-z0-9_-]{1,64}$/;
 const IMAGE_SOURCE =
   /^(https:\/\/\S+|data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+)$/;
 const MAX_PRICE = 10_000_000;
@@ -1082,6 +1181,21 @@ export function parseProductInput(value: unknown): ParseResult {
       error: 'Photos must be JPEG, PNG or WebP images under 500 KB each.',
     };
   }
+  const rawFileIds = input.imageFileIds;
+  let imageFileIds: string[] | undefined;
+  if (rawFileIds !== undefined && rawFileIds !== null) {
+    if (
+      !Array.isArray(rawFileIds) ||
+      rawFileIds.length !== images.length ||
+      rawFileIds.some((id) => typeof id !== 'string' || !IMAGE_FILE_ID.test(id))
+    ) {
+      return {
+        error:
+          'Some photos didn’t upload properly. Remove them and add them again.',
+      };
+    }
+    imageFileIds = rawFileIds as string[];
+  }
 
   const rawSpecs = input.specs ?? [];
   if (!Array.isArray(rawSpecs) || rawSpecs.length > MAX_SPECS) {
@@ -1108,6 +1222,16 @@ export function parseProductInput(value: unknown): ParseResult {
   const rawOptions = input.options ?? [];
   if (!Array.isArray(rawOptions) || rawOptions.length > MAX_OPTIONS) {
     return { error: `A product can have up to ${MAX_OPTIONS} options.` };
+  }
+  if (
+    getSubCategoryTemplate(category, subCategory)?.service &&
+    (rawOptions.length > 0 ||
+      (Array.isArray(input.variants) && input.variants.length > 0))
+  ) {
+    return {
+      error:
+        'Services don’t have options. Describe your packages in the description instead.',
+    };
   }
   const options: ProductOption[] = [];
   for (const entry of rawOptions) {
@@ -1191,6 +1315,7 @@ export function parseProductInput(value: unknown): ParseResult {
         price,
         salePrice,
         images: images as string[],
+        ...(imageFileIds && { imageFileIds }),
         specs,
         options,
         variants: [],
@@ -1280,6 +1405,7 @@ export function parseProductInput(value: unknown): ParseResult {
       price,
       salePrice,
       images: images as string[],
+      ...(imageFileIds && { imageFileIds }),
       specs,
       options,
       variants,

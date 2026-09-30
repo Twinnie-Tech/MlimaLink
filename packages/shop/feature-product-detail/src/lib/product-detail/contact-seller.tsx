@@ -1,5 +1,5 @@
 import type { Product } from '@org/models';
-import { describeChoices } from '@org/models/catalog';
+import { describeChoices, listingTerms } from '@org/models/catalog';
 import styles from './product-detail.module.css';
 
 export interface ContactSellerProps {
@@ -9,19 +9,22 @@ export interface ContactSellerProps {
   available: boolean;
 }
 
-/** Call, WhatsApp and email links for listings such as houses, land and cars. */
+/** Call, WhatsApp and email links for listings such as houses, land, cars and services. */
 export function ContactSeller({
   product,
   choices,
   available,
 }: ContactSellerProps) {
   const { phone, email } = product.contact ?? {};
-  const seller = product.shopName ?? 'the seller';
+  const { service } = listingTerms(product);
+  const seller = product.shopName ?? (service ? 'the provider' : 'the seller');
 
   if (!available) {
     return (
       <p className={styles['contact-note']}>
-        This listing is no longer available.
+        {service
+          ? `${seller} isn’t taking new requests right now. Check back soon.`
+          : 'This listing is no longer available.'}
       </p>
     );
   }
@@ -35,11 +38,17 @@ export function ContactSeller({
   }
 
   const picked = describeChoices(choices);
-  const message = `Hi, I'm interested in "${product.name}"${picked ? ` (${picked})` : ''} that I saw on MlimaLink. Is it still available?`;
+  const message = service
+    ? `Hi, I saw your "${product.name}" service on MlimaLink and would like to hire you.`
+    : `Hi, I'm interested in "${product.name}"${picked ? ` (${picked})` : ''} that I saw on MlimaLink. Is it still available?`;
 
   return (
     <div className={styles['contact']}>
-      <p className={styles['contact-title']}>Interested? Contact {seller}</p>
+      <p className={styles['contact-title']}>
+        {service
+          ? `Prefer to talk? Contact ${seller}`
+          : `Interested? Contact ${seller}`}
+      </p>
       <div className={styles['contact-buttons']}>
         {phone && (
           <a className={styles['contact-btn']} href={`tel:${phone}`}>

@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth.controller';
 import { PrismaService } from './prisma.service';
+import { RiderAuthController } from './rider-auth.controller';
 import { SellerAuthController } from './seller-auth.controller';
 
 @Module({
@@ -18,7 +19,12 @@ import { SellerAuthController } from './seller-auth.controller';
       },
     ]),
   ],
-  controllers: [AppController, AuthController, SellerAuthController],
+  controllers: [
+    AppController,
+    AuthController,
+    SellerAuthController,
+    RiderAuthController,
+  ],
   providers: [
     AppService,
     PrismaService,

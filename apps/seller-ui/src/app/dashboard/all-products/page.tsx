@@ -11,7 +11,11 @@ import {
   Trash2,
 } from 'lucide-react';
 import type { Product } from '@org/models';
-import { PRODUCT_CATEGORIES, priceRange } from '@org/models/catalog';
+import {
+  PRODUCT_CATEGORIES,
+  priceRange,
+  sizedImage,
+} from '@org/models/catalog';
 import {
   EmptyState,
   PageHeader,
@@ -215,8 +219,9 @@ export default function AllProductsPage() {
                   className="flex flex-wrap items-center gap-4 py-4 first:pt-0 last:pb-0"
                 >
                   <img
-                    src={product.imageUrl}
+                    src={sizedImage(product.imageUrl, 128)}
                     alt=""
+                    loading="lazy"
                     className="h-16 w-16 shrink-0 rounded-lg border border-neutral-200 object-cover"
                   />
                   <div className="min-w-0 flex-1">

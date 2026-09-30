@@ -17,6 +17,10 @@ import {
 import { validationError } from '@org/errors';
 import type { ApiResponse, Product } from '@org/models';
 import { parseProductInput } from '@org/models/catalog';
+import {
+  NOT_UPLOADED,
+  ProductImagesService,
+} from '../product-images/product-images.service';
 import { SellerGuard, type SellerRequest } from '../seller.guard';
 import { ProductsApiService } from './products.service';
 import { sanitizeDescription } from './rich-text';
@@ -26,7 +30,10 @@ import { sanitizeDescription } from './rich-text';
 @UseGuards(SellerGuard)
 @Controller('seller/products')
 export class SellerProductsController {
-  constructor(private readonly productsApiService: ProductsApiService) {}
+  constructor(
+    private readonly productsApiService: ProductsApiService,
+    private readonly productImages: ProductImagesService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: "List the signed-in seller's products" })
@@ -50,6 +57,16 @@ export class SellerProductsController {
     if ('error' in parsed) {
       throw validationError(parsed.error);
     }
+    const { images, imageFileIds } = parsed.product;
+    if (imageFileIds) {
+      await this.productImages.verifyShopPhotos(
+        req.shop.id,
+        images,
+        imageFileIds,
+      );
+    } else if (images.some((image) => !image.startsWith('data:'))) {
+      throw validationError(NOT_UPLOADED);
+    }
 
     const product = await this.productsApiService.createProduct(req.shop.id, {
       ...parsed.product,
@@ -63,12 +80,20 @@ export class SellerProductsController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Remove one of the seller’s products' })
+  @ApiOperation({
+    summary: 'Remove one of the seller’s products and its ImageKit photos',
+  })
   async remove(
     @Req() req: SellerRequest,
     @Param('id') id: string,
   ): Promise<ApiResponse<null>> {
-    await this.productsApiService.deleteProduct(req.shop.id, id);
+    const { images, imageFileIds } =
+      await this.productsApiService.deleteProduct(req.shop.id, id);
+    await this.productImages.removeProductPhotos(
+      req.shop.id,
+      images,
+      imageFileIds,
+    );
     return { success: true, message: 'Product removed.', data: null };
   }
 }

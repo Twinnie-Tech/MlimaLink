@@ -92,6 +92,8 @@ export interface ShopStore {
   updateCartQuantity: (lineId: string, quantity: number) => void;
   setCartPaymentOption: (lineId: string, option: PaymentOption) => void;
   removeFromCart: (lineId: string) => void;
+  /** Empties the cart and forgets the discount code, e.g. after checkout. */
+  clearCart: () => void;
   /** The code the shopper entered, kept with the cart; checked again whenever the cart changes. */
   discountCode: string | null;
   setDiscountCode: (code: string | null) => void;
@@ -191,6 +193,11 @@ export function ShopStoreProvider({ children }: { children: React.ReactNode }) {
     setCart((current) => current.filter((item) => cartLineId(item) !== lineId));
   }, []);
 
+  const clearCart = useCallback(() => {
+    setCart([]);
+    setDiscountCodeState(null);
+  }, []);
+
   const setDiscountCode = useCallback((code: string | null) => {
     setDiscountCodeState(code === null ? null : normaliseCode(code) || null);
   }, []);
@@ -212,6 +219,7 @@ export function ShopStoreProvider({ children }: { children: React.ReactNode }) {
       updateCartQuantity,
       setCartPaymentOption,
       removeFromCart,
+      clearCart,
       discountCode,
       setDiscountCode,
     }),
@@ -226,6 +234,7 @@ export function ShopStoreProvider({ children }: { children: React.ReactNode }) {
       updateCartQuantity,
       setCartPaymentOption,
       removeFromCart,
+      clearCart,
       discountCode,
       setDiscountCode,
     ],
@@ -248,9 +257,9 @@ export function useShopStore() {
 
 export { formatPrice };
 
-/** "$45.00", "From $45.00" when the variants cost different amounts, plus " / month" for rentals. */
+/** "$45.00", "From $45.00" when the variants cost different amounts or it's a service's starting price, plus " / month" for rentals. */
 export function formatProductPrice(product: Product) {
   const { min, max } = priceRange(product);
-  const { pricePeriod } = listingTerms(product);
-  return `${min === max ? '' : 'From '}${formatPrice(min)}${pricePeriod ? ` / ${pricePeriod}` : ''}`;
+  const { pricePeriod, service } = listingTerms(product);
+  return `${min === max && !service ? '' : 'From '}${formatPrice(min)}${pricePeriod ? ` / ${pricePeriod}` : ''}`;
 }

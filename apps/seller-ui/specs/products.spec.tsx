@@ -88,13 +88,34 @@ async function openShoeTemplate() {
   select('Sub-category', 'Shoes');
 }
 
-function addPhoto() {
+const PHOTO_URL = 'https://ik.imagekit.io/mlima/products/shop1/loafer_a1.jpg';
+
+function pickPhoto() {
   fireEvent.change(screen.getByLabelText('Upload product images'), {
     target: {
       files: [new File(['photo'], 'loafer.jpg', { type: 'image/jpeg' })],
     },
   });
 }
+
+/** Picks a photo and waits for it to reach ImageKit. */
+async function addPhoto() {
+  reply('POST /api/seller/product-images', 200, {
+    success: true,
+    data: { fileId: 'file1', url: PHOTO_URL },
+  });
+  pickPhoto();
+  await waitFor(() =>
+    expect(screen.queryByText('Uploading image 1')).toBeNull(),
+  );
+}
+
+const imageRequests = (method: string) =>
+  fetchMock.mock.calls.filter(
+    ([url, init]) =>
+      String(url).startsWith('/api/seller/product-images') &&
+      (init?.method ?? 'GET') === method,
+  );
 
 // These fill in a whole listing, which outlasts the 5s default on busy CI runners.
 describe('Create product', { timeout: 20_000 }, () => {
@@ -240,7 +261,11 @@ describe('Create product', { timeout: 20_000 }, () => {
     });
     await openShoeTemplate();
 
-    addPhoto();
+    await addPhoto();
+    expect(sentBody('POST /api/seller/product-images')).toEqual({
+      fileName: 'loafer.jpg',
+      file: 'data:image/jpeg;base64,/9j/4AAQ',
+    });
     fill('Product title', 'Leather loafers');
     fill('Short description', 'Hand-stitched loafers');
     fill(
@@ -284,7 +309,8 @@ describe('Create product', { timeout: 20_000 }, () => {
       subCategory: 'Shoes',
       tags: ['leather', ' formal'],
       price: 45,
-      images: ['data:image/jpeg;base64,/9j/4AAQ'],
+      images: [PHOTO_URL],
+      imageFileIds: ['file1'],
       specs: [{ name: 'Brand', value: 'Mlima' }],
       options: [
         { name: 'Colour', values: [{ label: 'Black', swatch: '#111111' }] },
@@ -309,6 +335,74 @@ describe('Create product', { timeout: 20_000 }, () => {
     expect(
       (screen.getByLabelText('Product title') as HTMLInputElement).value,
     ).toBe('');
+    expect(imageRequests('DELETE')).toHaveLength(0);
+  });
+
+  it('deletes a photo from ImageKit when the seller removes it', async () => {
+    reply('DELETE /api/seller/product-images/file1', 200, {
+      success: true,
+      data: null,
+    });
+    renderDashboard(<CreateProductPage />);
+    await screen.findByRole('button', { name: 'Save product' });
+    await addPhoto();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove image 1' }));
+
+    expect(screen.queryByAltText('Product image 1')).toBeNull();
+    await waitFor(() => expect(imageRequests('DELETE')).toHaveLength(1));
+  });
+
+  it('deletes uploaded photos when the form is cleared', async () => {
+    renderDashboard(<CreateProductPage />);
+    await screen.findByRole('button', { name: 'Save product' });
+    await addPhoto();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear form' }));
+
+    await waitFor(() =>
+      expect(imageRequests('DELETE').map(([url]) => url)).toEqual([
+        '/api/seller/product-images/file1',
+      ]),
+    );
+  });
+
+  it('lets the seller retry a photo that didn’t upload', async () => {
+    reply('POST /api/seller/product-images', 502, {
+      success: false,
+      error: 'We couldn’t upload that photo. Please try again.',
+    });
+    renderDashboard(<CreateProductPage />);
+    await screen.findByRole('button', { name: 'Save product' });
+    pickPhoto();
+
+    expect(
+      await screen.findByText(
+        'We couldn’t upload that photo. Please try again.',
+      ),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Save product' }));
+    expect(
+      await screen.findByText(
+        'Some photos didn’t upload. Retry or remove them.',
+      ),
+    ).toBeTruthy();
+
+    reply('POST /api/seller/product-images', 200, {
+      success: true,
+      data: { fileId: 'file1', url: PHOTO_URL },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Retry uploading image 1' }),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Retry uploading image 1' }),
+      ).toBeNull(),
+    );
+    expect(screen.queryByText('Uploading image 1')).toBeNull();
+    expect(imageRequests('POST')).toHaveLength(2);
   });
 
   it('counts the description’s words, not its formatting', async () => {
@@ -342,7 +436,7 @@ describe('Create product', { timeout: 20_000 }, () => {
     renderDashboard(<CreateProductPage />);
     await screen.findByRole('button', { name: 'Save product' });
 
-    addPhoto();
+    await addPhoto();
     fill('Product title', 'Hass avocados');
     fill('Short description', 'Creamy Murang’a avocados');
     fill('Description', 'Hand-picked Hass avocados, ready to eat in two days.');
@@ -362,6 +456,48 @@ describe('Create product', { timeout: 20_000 }, () => {
       stock: 30,
     });
   });
+
+  it('lists a service with a starting price and no options or stock', async () => {
+    reply('POST /api/seller/products', 200, {
+      success: true,
+      message: 'Web app development is now listed.',
+      data: { id: 'p9' },
+    });
+    renderDashboard(<CreateProductPage />);
+    await screen.findByRole('button', { name: 'Save product' });
+
+    await addPhoto();
+    select('Category', 'Services');
+    select('Sub-category', 'Software & IT');
+    expect(screen.queryByText('Options')).toBeNull();
+    expect(screen.queryByLabelText('Stock')).toBeNull();
+    expect(screen.queryByText('How shoppers can pay')).toBeNull();
+    expect(screen.getByRole('link', { name: 'service profile' })).toBeTruthy();
+
+    fill('Product title', 'Web app development');
+    fill('Short description', 'Booking, shop and dashboard web apps');
+    fill(
+      'Description',
+      'I build fast web apps with React and Node.js, from design to launch.',
+    );
+    fill('Services offered', 'Web apps, mobile apps');
+    fill('Starting price (USD)', '500');
+    fireEvent.click(screen.getByLabelText(/Taking new requests/));
+    fireEvent.click(screen.getByRole('button', { name: 'Save product' }));
+
+    expect(
+      await screen.findByText('Web app development is now listed.'),
+    ).toBeTruthy();
+    expect(sentBody('POST /api/seller/products')).toMatchObject({
+      category: 'Services',
+      subCategory: 'Software & IT',
+      price: 500,
+      options: [],
+      variants: [],
+      stock: 0,
+      specs: [{ name: 'Services offered', value: 'Web apps, mobile apps' }],
+    });
+  }, 15_000);
 });
 
 const loafers: Product = {

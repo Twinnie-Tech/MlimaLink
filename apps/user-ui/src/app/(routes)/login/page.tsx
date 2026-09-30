@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { USER_QUERY_KEY } from '../../shared/hooks/use-user';
 import { EMAIL_PATTERN, loginUser } from '../../shared/utils/auth-api';
+import { takeReturnTo } from '../../shared/utils/return-to';
 import { GoogleButton } from '../../shared/widgets/google-button';
 import {
   AuthDivider,
@@ -45,7 +46,7 @@ export default function LoginPage() {
       // A "who's signed in" check started before login must not overwrite the new user.
       await queryClient.cancelQueries({ queryKey: USER_QUERY_KEY });
       queryClient.setQueryData(USER_QUERY_KEY, response.user);
-      router.push('/');
+      router.push(takeReturnTo() ?? '/');
     },
     onError: (error: Error) => setServerError(error.message),
   });

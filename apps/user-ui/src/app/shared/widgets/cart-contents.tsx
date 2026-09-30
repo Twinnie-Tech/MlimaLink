@@ -9,6 +9,7 @@ import {
   dueNowShare,
   paymentLabel,
   paymentOptionsOf,
+  sizedImage,
 } from '@org/models/catalog';
 import { paymentSplit } from '@org/models/checkout';
 import {
@@ -81,7 +82,10 @@ export function CartContents({
                 aria-hidden="true"
               >
                 <img
-                  src={choiceImage(product, variant?.choices ?? {})}
+                  src={sizedImage(
+                    choiceImage(product, variant?.choices ?? {}),
+                    192,
+                  )}
                   alt={product.name}
                   className="h-24 w-24 rounded-md object-cover"
                 />
@@ -210,8 +214,8 @@ export function CartContents({
             </div>
           )}
           <div className="flex justify-between">
-            <dt>Shipping</dt>
-            <dd>Calculated at checkout</dd>
+            <dt>Delivery</dt>
+            <dd>Added at checkout</dd>
           </div>
           <div className="flex justify-between border-t border-neutral-200 pt-3 text-base font-semibold text-neutral-900">
             <dt>Total</dt>
@@ -242,16 +246,12 @@ export function CartContents({
           onRemove={discount.remove}
         />
 
-        <button
-          type="button"
-          disabled
-          className="mt-6 w-full cursor-not-allowed rounded-md bg-brand-start/60 py-3 font-poppins font-medium text-white"
+        <Link
+          href="/checkout"
+          className="mt-6 block w-full rounded-md bg-brand-start py-3 text-center font-poppins font-medium text-white transition hover:bg-brand-end"
         >
           Proceed to Checkout
-        </button>
-        <p className="mt-2 text-center text-xs text-neutral-500">
-          Checkout is coming soon.
-        </p>
+        </Link>
         <Link
           href="/products"
           className="mt-4 block text-center text-sm font-medium text-brand-start hover:underline"

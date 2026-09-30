@@ -1,6 +1,8 @@
-import { MAX_IMAGE_DATA_URL_LENGTH } from '@org/models/catalog';
+import { MAX_UPLOAD_DATA_URL_LENGTH } from '@org/models/catalog';
 
-const MAX_EDGE = 1200;
+/** ImageKit makes smaller copies for display, so keep enough detail for zooming. */
+const MAX_EDGE = 2000;
+const UPLOADABLE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -11,15 +13,35 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('Could not read that image.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 /**
- * Shrinks a photo to at most 1200px on its longest side and returns it as a JPEG data
- * URL small enough for the product API, lowering the quality until it fits.
+ * Returns the photo as a data URL for the upload API. Photos that already fit are sent
+ * untouched; others are shrunk to at most 2000px on their longest side and saved as
+ * JPEG, lowering the quality until they fit.
  */
 export async function photoToDataUrl(file: File): Promise<string> {
   const url = URL.createObjectURL(file);
   try {
     const image = await loadImage(url);
-    const scale = Math.min(1, MAX_EDGE / Math.max(image.width, image.height));
+    const longestEdge = Math.max(image.width, image.height);
+
+    if (
+      UPLOADABLE_TYPES.includes(file.type) &&
+      longestEdge <= MAX_EDGE &&
+      file.size * 1.37 < MAX_UPLOAD_DATA_URL_LENGTH
+    ) {
+      return await readAsDataUrl(file);
+    }
+
+    const scale = Math.min(1, MAX_EDGE / longestEdge);
     const canvas = document.createElement('canvas');
     canvas.width = Math.round(image.width * scale);
     canvas.height = Math.round(image.height * scale);
@@ -29,9 +51,9 @@ export async function photoToDataUrl(file: File): Promise<string> {
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    for (const quality of [0.85, 0.75, 0.6, 0.45]) {
+    for (const quality of [0.9, 0.82, 0.72, 0.6]) {
       const dataUrl = canvas.toDataURL('image/jpeg', quality);
-      if (dataUrl.length <= MAX_IMAGE_DATA_URL_LENGTH) return dataUrl;
+      if (dataUrl.length <= MAX_UPLOAD_DATA_URL_LENGTH) return dataUrl;
     }
     throw new Error(
       `${file.name} is too detailed to upload. Try a smaller photo.`,

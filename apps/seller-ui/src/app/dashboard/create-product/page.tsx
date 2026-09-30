@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import { Controller, useForm } from 'react-hook-form';
-import { CheckCircle2, ImagePlus, Package, Plus, X } from 'lucide-react';
+import {
+  CheckCircle2,
+  ImagePlus,
+  Loader2,
+  Package,
+  Plus,
+  RotateCcw,
+  X,
+} from 'lucide-react';
 import type { PaymentOption, ProductOption, ProductVariant } from '@org/models';
 import {
   DEFAULT_PAYMENT_OPTIONS,
@@ -50,7 +58,10 @@ import {
   primaryButtonClassName,
   secondaryButtonClassName,
 } from '../../shared/dashboard/ui';
-import { photoToDataUrl } from '../../shared/utils/image';
+import {
+  deleteProductImage,
+  uploadProductImage,
+} from '../../shared/utils/product-images-api';
 import { createProduct } from '../../shared/utils/products-api';
 import { AuthRequestError } from '../../shared/utils/seller-api';
 
@@ -66,7 +77,22 @@ type ProductForm = {
   stock: string;
 };
 
-type ProductImage = { file: File; url: string };
+type ProductImage = {
+  /** Local preview URL, which also identifies the photo while it uploads. */
+  preview: string;
+  file: File;
+  status: 'uploading' | 'uploaded' | 'failed';
+  fileId?: string;
+  /** ImageKit URL, once uploaded. */
+  url?: string;
+};
+
+/** Drops a photo that won't be saved, deleting it from ImageKit if it got there. */
+function discardImage(image: ProductImage, discarded: Set<string>) {
+  discarded.add(image.preview);
+  URL.revokeObjectURL(image.preview);
+  if (image.fileId) deleteProductImage(image.fileId).catch(() => undefined);
+}
 
 const isWholeNumber = (value: string) =>
   value.trim() !== '' && Number.isInteger(Number(value)) && Number(value) >= 0;
@@ -137,11 +163,13 @@ export default function CreateProductPage() {
     DEFAULT_PAYMENT_OPTIONS,
   );
   const [paymentError, setPaymentError] = useState<string | undefined>();
+  const [takingRequests, setTakingRequests] = useState(true);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const imagesRef = useRef(images);
+  const discarded = useRef(new Set<string>());
 
   const initialCategory = PRODUCT_CATEGORIES.includes(shop.category)
     ? shop.category
@@ -167,11 +195,13 @@ export default function CreateProductPage() {
     imagesRef.current = images;
   }, [images]);
 
-  useEffect(
-    () => () =>
-      imagesRef.current.forEach((image) => URL.revokeObjectURL(image.url)),
-    [],
-  );
+  useEffect(() => {
+    const discardedImages = discarded.current;
+    return () =>
+      imagesRef.current.forEach((image) =>
+        discardImage(image, discardedImages),
+      );
+  }, []);
 
   const title = watch('title');
   const shortDescription = watch('shortDescription') ?? '';
@@ -187,11 +217,16 @@ export default function CreateProductPage() {
   const hasOptions = shopperOptions.length > 0;
   const tooManyCombinations = combinations.length > MAX_VARIANTS;
   const subCategories = getSubCategories(category);
-  const { pricePeriod, contactSeller } = listingTerms({
+  const { pricePeriod, contactSeller, service } = listingTerms({
     category,
     subCategory,
   });
   const stockLabel = contactSeller ? 'Units available' : 'Stock';
+  const priceLabel = service
+    ? 'Starting price (USD)'
+    : pricePeriod
+      ? `Price per ${pricePeriod} (USD)`
+      : 'Price (USD)';
 
   const addImages = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []).filter((file) =>
@@ -204,17 +239,52 @@ export default function CreateProductPage() {
         ? `You can add up to ${MAX_PRODUCT_IMAGES} images.`
         : null,
     );
-    setImages((current) => [
-      ...current,
-      ...files
-        .slice(0, room)
-        .map((file) => ({ file, url: URL.createObjectURL(file) })),
-    ]);
+    const added = files.slice(0, room).map((file): ProductImage => ({
+      file,
+      preview: URL.createObjectURL(file),
+      status: 'uploading',
+    }));
+    setImages((current) => [...current, ...added]);
+    added.forEach(upload);
   };
 
-  const removeImage = (url: string) => {
-    URL.revokeObjectURL(url);
-    setImages((current) => current.filter((image) => image.url !== url));
+  const updateImage = (preview: string, change: Partial<ProductImage>) =>
+    setImages((current) =>
+      current.map((image) =>
+        image.preview === preview ? { ...image, ...change } : image,
+      ),
+    );
+
+  const upload = (image: ProductImage) => {
+    uploadProductImage(image.file).then(
+      ({ fileId, url }) => {
+        if (discarded.current.has(image.preview)) {
+          deleteProductImage(fileId).catch(() => undefined);
+        } else {
+          updateImage(image.preview, { status: 'uploaded', fileId, url });
+        }
+      },
+      (error: unknown) => {
+        if (discarded.current.has(image.preview)) return;
+        updateImage(image.preview, { status: 'failed' });
+        setImageError(
+          error instanceof Error ? error.message : 'Could not upload a photo.',
+        );
+      },
+    );
+  };
+
+  const retryImage = (image: ProductImage) => {
+    updateImage(image.preview, { status: 'uploading' });
+    setImageError(null);
+    upload(image);
+  };
+
+  const removeImage = (image: ProductImage) => {
+    discardImage(image, discarded.current);
+    setImages((current) =>
+      current.filter((item) => item.preview !== image.preview),
+    );
     setImageError(null);
   };
 
@@ -239,13 +309,14 @@ export default function CreateProductPage() {
   };
 
   const startOver = () => {
-    images.forEach((image) => URL.revokeObjectURL(image.url));
+    images.forEach((image) => discardImage(image, discarded.current));
     setImages([]);
     setImageError(null);
     setSubmitError(null);
     setSaved(null);
     setPaymentOptions(DEFAULT_PAYMENT_OPTIONS);
     setPaymentError(undefined);
+    setTakingRequests(true);
     reset({ category: initialCategory, subCategory: '', description: '' });
     loadTemplate('', '');
   };
@@ -255,6 +326,12 @@ export default function CreateProductPage() {
     let ok = true;
     if (images.length === 0) {
       setImageError('Add at least one product image.');
+      ok = false;
+    } else if (images.some((image) => image.status === 'uploading')) {
+      setImageError('Wait for your photos to finish uploading.');
+      ok = false;
+    } else if (images.some((image) => image.status === 'failed')) {
+      setImageError('Some photos didn’t upload. Retry or remove them.');
       ok = false;
     }
 
@@ -314,18 +391,6 @@ export default function CreateProductPage() {
 
     setSaving(true);
     try {
-      let photos: string[];
-      try {
-        photos = await Promise.all(
-          images.map((image) => photoToDataUrl(image.file)),
-        );
-      } catch (error) {
-        setImageError(
-          error instanceof Error ? error.message : 'Could not read a photo.',
-        );
-        return;
-      }
-
       const variants: ProductVariant[] = combinations.map((choices) => {
         const row =
           variantRows[variantLabel(choices, shopperOptions)] ?? EMPTY_VARIANT;
@@ -346,13 +411,19 @@ export default function CreateProductPage() {
         tags: form.tags ? form.tags.split(',') : [],
         price: Number(form.price),
         ...(form.salePrice && { salePrice: Number(form.salePrice) }),
-        images: photos,
+        images: images.flatMap((image) => (image.url ? [image.url] : [])),
+        imageFileIds: images.flatMap((image) =>
+          image.fileId ? [image.fileId] : [],
+        ),
         specs: specs
           .filter((spec) => spec.name.trim() && spec.value.trim())
           .map(({ name, value }) => ({ name, value })),
         options: shopperOptions,
         variants,
-        ...(!hasOptions && { stock: Number(form.stock) }),
+        // A service has no stock; 1 means it's taking new requests.
+        ...(service
+          ? { stock: takingRequests ? 1 : 0 }
+          : !hasOptions && { stock: Number(form.stock) }),
         // Contact listings are paid however the seller and shopper agree.
         paymentOptions: contactSeller
           ? DEFAULT_PAYMENT_OPTIONS
@@ -366,6 +437,9 @@ export default function CreateProductPage() {
       }
 
       const response = await createProduct(payload);
+      // The photos now belong to the product, so they're kept on ImageKit.
+      images.forEach((image) => URL.revokeObjectURL(image.preview));
+      setImages([]);
       setSaved(response.message ?? `${form.title} is now listed.`);
     } catch (error) {
       setSubmitError(
@@ -458,20 +532,43 @@ export default function CreateProductPage() {
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
               {images.map((image, index) => (
                 <div
-                  key={image.url}
+                  key={image.preview}
                   className="group relative aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50"
                 >
                   <img
-                    src={image.url}
+                    src={image.preview}
                     alt={`Product image ${index + 1}`}
                     className="h-full w-full object-cover"
                   />
+                  {image.status === 'uploading' && (
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
+                      <Loader2
+                        size={20}
+                        className="animate-spin"
+                        aria-hidden="true"
+                      />
+                      <span className="sr-only">
+                        Uploading image {index + 1}
+                      </span>
+                    </span>
+                  )}
+                  {image.status === 'failed' && (
+                    <button
+                      type="button"
+                      onClick={() => retryImage(image)}
+                      aria-label={`Retry uploading image ${index + 1}`}
+                      className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-rose-700/60 text-[11px] font-medium text-white hover:bg-rose-700/70"
+                    >
+                      <RotateCcw size={18} aria-hidden="true" />
+                      Retry
+                    </button>
+                  )}
                   <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
                     {index === 0 ? 'Cover' : `Photo ${index + 1}`}
                   </span>
                   <button
                     type="button"
-                    onClick={() => removeImage(image.url)}
+                    onClick={() => removeImage(image)}
                     aria-label={`Remove image ${index + 1}`}
                     className="absolute top-1 right-1 rounded-full bg-black/70 p-1 text-white hover:bg-rose-600"
                   >
@@ -662,69 +759,75 @@ export default function CreateProductPage() {
             </div>
           </Panel>
 
-          <Panel
-            title="Options"
-            description="What shoppers choose before adding to cart, like colour or size. Tick every value you sell."
-          >
-            {subCategory ? (
-              <div className="space-y-4">
-                {options.length === 0 && (
-                  <p className="text-sm text-neutral-500">
-                    {subCategory} products don&apos;t usually come in different
-                    options. Add one if yours do.
-                  </p>
-                )}
-                {options.map((option) => (
-                  <OptionEditor
-                    key={option.id}
-                    option={option}
-                    photoCount={images.length}
-                    error={optionErrors[option.id]}
-                    onChange={updateOption}
-                    onRemove={
-                      option.custom
-                        ? () =>
-                            setOptions((current) =>
-                              current.filter((item) => item.id !== option.id),
-                            )
-                        : undefined
-                    }
-                  />
-                ))}
-                {optionCount < MAX_OPTIONS && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOptions((current) => [
-                        ...current,
-                        {
-                          id: nextId(),
-                          name: '',
-                          kind: 'choice',
-                          custom: true,
-                          values: [],
-                          selected: [],
-                        },
-                      ])
-                    }
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    <Plus size={15} /> Add another option
-                  </button>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-neutral-500">
-                Choose a sub-category to see the options shoppers usually pick
-                for it.
-              </p>
-            )}
-          </Panel>
+          {!service && (
+            <Panel
+              title="Options"
+              description="What shoppers choose before adding to cart, like colour or size. Tick every value you sell."
+            >
+              {subCategory ? (
+                <div className="space-y-4">
+                  {options.length === 0 && (
+                    <p className="text-sm text-neutral-500">
+                      {subCategory} products don&apos;t usually come in
+                      different options. Add one if yours do.
+                    </p>
+                  )}
+                  {options.map((option) => (
+                    <OptionEditor
+                      key={option.id}
+                      option={option}
+                      photoCount={images.length}
+                      error={optionErrors[option.id]}
+                      onChange={updateOption}
+                      onRemove={
+                        option.custom
+                          ? () =>
+                              setOptions((current) =>
+                                current.filter((item) => item.id !== option.id),
+                              )
+                          : undefined
+                      }
+                    />
+                  ))}
+                  {optionCount < MAX_OPTIONS && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOptions((current) => [
+                          ...current,
+                          {
+                            id: nextId(),
+                            name: '',
+                            kind: 'choice',
+                            custom: true,
+                            values: [],
+                            selected: [],
+                          },
+                        ])
+                      }
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                    >
+                      <Plus size={15} /> Add another option
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-neutral-500">
+                  Choose a sub-category to see the options shoppers usually pick
+                  for it.
+                </p>
+              )}
+            </Panel>
+          )}
 
           {subCategory && (
             <Panel
-              title="Product details"
-              description="Facts shoppers read and search by, like brand or material."
+              title={service ? 'Service details' : 'Product details'}
+              description={
+                service
+                  ? 'What you offer, how you charge and where you work. Shoppers search by these.'
+                  : 'Facts shoppers read and search by, like brand or material.'
+              }
             >
               <SpecFields
                 specs={specs}
@@ -739,19 +842,19 @@ export default function CreateProductPage() {
           )}
 
           <Panel
-            title="Pricing & inventory"
+            title={service ? 'Pricing & availability' : 'Pricing & inventory'}
             description={
-              contactSeller
-                ? 'Shoppers will call, WhatsApp or email you about this listing using the phone number and email on your account. There’s no cart checkout.'
-                : undefined
+              service
+                ? 'Shoppers send you a request with what they need, their budget and deadline, or call, WhatsApp or email you. Describe your packages in the description.'
+                : contactSeller
+                  ? 'Shoppers will call, WhatsApp or email you about this listing using the phone number and email on your account. There’s no cart checkout.'
+                  : undefined
             }
           >
             <div className="grid gap-5 sm:grid-cols-3">
               <Field
                 id="price"
-                label={
-                  pricePeriod ? `Price per ${pricePeriod} (USD)` : 'Price (USD)'
-                }
+                label={priceLabel}
                 error={errors.price?.message}
               >
                 <input
@@ -794,7 +897,7 @@ export default function CreateProductPage() {
                 />
               </Field>
 
-              {!hasOptions && (
+              {!hasOptions && !service && (
                 <Field
                   id="stock"
                   label={stockLabel}
@@ -818,6 +921,41 @@ export default function CreateProductPage() {
                 </Field>
               )}
             </div>
+
+            {service && (
+              <div className="mt-6 space-y-3">
+                <label className="flex cursor-pointer items-start gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={takingRequests}
+                    onChange={(event) =>
+                      setTakingRequests(event.target.checked)
+                    }
+                    className="mt-0.5 h-4 w-4 accent-blue-600"
+                  />
+                  <span>
+                    <span className="block font-medium text-neutral-900">
+                      Taking new requests
+                    </span>
+                    <span className="text-neutral-500">
+                      Untick when you&apos;re fully booked. The listing stays
+                      up, but shoppers can&apos;t send requests.
+                    </span>
+                  </span>
+                </label>
+                <p className="text-sm text-neutral-500">
+                  Shoppers also see your skills, qualifications and past work
+                  from your{' '}
+                  <Link
+                    href="/dashboard/service-profile"
+                    className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    service profile
+                  </Link>
+                  .
+                </p>
+              </div>
+            )}
 
             {hasOptions && (
               <div className="mt-6">
@@ -916,7 +1054,7 @@ export default function CreateProductPage() {
               <div className="flex aspect-[4/3] items-center justify-center bg-neutral-50">
                 {images[0] ? (
                   <img
-                    src={images[0].url}
+                    src={images[0].preview}
                     alt=""
                     className="h-full w-full object-cover"
                   />
@@ -937,7 +1075,7 @@ export default function CreateProductPage() {
                 )}
                 <p className="flex items-baseline gap-2 pt-1">
                   <span className="text-lg font-semibold text-neutral-900">
-                    {minPrice !== maxPrice
+                    {minPrice !== maxPrice || service
                       ? `From ${formatMoney(minPrice)}`
                       : formatMoney(minPrice)}
                     {pricePeriod && (

@@ -8,5 +8,6 @@ import { SellerDiscountCodesController } from './seller-discount-codes.controlle
 @Module({
   controllers: [DiscountCodesController, SellerDiscountCodesController],
   providers: [DiscountCodesService, PrismaService, SellerGuard],
+  exports: [DiscountCodesService],
 })
 export class DiscountCodesModule {}

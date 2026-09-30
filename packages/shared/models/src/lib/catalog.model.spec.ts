@@ -1,6 +1,7 @@
 import {
   CATEGORY_TEMPLATES,
   MAX_VARIANTS,
+  SERVICES_CATEGORY,
   choiceImage,
   countWords,
   descriptionText,
@@ -11,10 +12,12 @@ import {
   paymentOptionsOf,
   formatPrice,
   getSubCategoryTemplate,
+  imageSrcSet,
   isChoiceAvailable,
   listingTerms,
   parseProductInput,
   priceRange,
+  sizedImage,
   unitPrice,
   variantCombinations,
 } from './catalog.model.js';
@@ -59,6 +62,33 @@ const errorOf = (input: unknown) => {
   const result = parseProductInput(input);
   return 'error' in result ? result.error : null;
 };
+
+describe('ImageKit photo sizes', () => {
+  const hosted = 'https://ik.imagekit.io/mlima/products/shop1/shoe_a1.jpg';
+
+  it('asks ImageKit for a smaller, modern-format copy', () => {
+    expect(sizedImage(hosted, 480)).toBe(
+      `${hosted}?tr=w-480,c-at_max,f-auto,q-80`,
+    );
+    expect(sizedImage(`${hosted}?updatedAt=1`, 160)).toBe(
+      `${hosted}?tr=w-160,c-at_max,f-auto,q-80`,
+    );
+    expect(imageSrcSet(hosted, [320, 640])).toBe(
+      `${hosted}?tr=w-320,c-at_max,f-auto,q-80 320w, ${hosted}?tr=w-640,c-at_max,f-auto,q-80 640w`,
+    );
+  });
+
+  it('leaves other photos alone', () => {
+    for (const src of [
+      'https://cdn.example.com/shoe.jpg',
+      '/api/products/p1/images/0',
+      photo,
+    ]) {
+      expect(sizedImage(src, 480)).toBe(src);
+      expect(imageSrcSet(src, [320])).toBeUndefined();
+    }
+  });
+});
 
 describe('category templates', () => {
   it('gives every category at least one sub-category with unique names', () => {
@@ -181,16 +211,34 @@ describe('listingTerms', () => {
   it('has shoppers contact the seller for houses, land and cars, with a price period', () => {
     expect(
       listingTerms({ category: 'Property', subCategory: 'Houses for rent' }),
-    ).toEqual({ pricePeriod: 'month', contactSeller: true });
+    ).toEqual({ pricePeriod: 'month', contactSeller: true, service: false });
     expect(
       listingTerms({ category: 'Vehicles', subCategory: 'Cars for hire' }),
-    ).toEqual({ pricePeriod: 'day', contactSeller: true });
+    ).toEqual({ pricePeriod: 'day', contactSeller: true, service: false });
     expect(
       listingTerms({ category: 'Vehicles', subCategory: 'Cars for sale' }),
-    ).toEqual({ contactSeller: true });
+    ).toEqual({ contactSeller: true, service: false });
     expect(
       listingTerms({ category: 'Property', subCategory: 'Land for lease' }),
-    ).toEqual({ pricePeriod: 'year', contactSeller: true });
+    ).toEqual({ pricePeriod: 'year', contactSeller: true, service: false });
+  });
+
+  it('marks every Services sub-category as a service shoppers request', () => {
+    const services = getSubCategoryTemplate(SERVICES_CATEGORY, 'Software & IT');
+    expect(services?.options).toEqual([]);
+    expect(services?.specs.map((spec) => spec.name)).toEqual(
+      expect.arrayContaining(['Services offered', 'Price basis', 'Where']),
+    );
+    for (const subCategory of CATEGORY_TEMPLATES.find(
+      (template) => template.name === SERVICES_CATEGORY,
+    )?.subCategories ?? []) {
+      expect(
+        listingTerms({
+          category: SERVICES_CATEGORY,
+          subCategory: subCategory.name,
+        }),
+      ).toEqual({ contactSeller: true, service: true });
+    }
   });
 
   it('keeps the cart for everything else', () => {
@@ -199,12 +247,13 @@ describe('listingTerms', () => {
         category: 'Vehicles',
         subCategory: 'Spare parts & accessories',
       }),
-    ).toEqual({ contactSeller: false });
+    ).toEqual({ contactSeller: false, service: false });
     expect(listingTerms({ category: 'Fashion', subCategory: 'Shoes' })).toEqual(
-      { contactSeller: false },
+      { contactSeller: false, service: false },
     );
     expect(listingTerms({ category: 'Electronics' })).toEqual({
       contactSeller: false,
+      service: false,
     });
   });
 
@@ -300,6 +349,21 @@ describe('parseProductInput', () => {
     );
   });
 
+  it('takes services without options', () => {
+    const asService = {
+      category: SERVICES_CATEGORY,
+      subCategory: 'Software & IT',
+      specs: [],
+    };
+    const result = parseProductInput(
+      shoe({ ...asService, options: [], variants: [], stock: 1 }),
+    );
+    expect('product' in result && result.product.stock).toBe(1);
+    expect(errorOf(shoe(asService))).toBe(
+      'Services don’t have options. Describe your packages in the description instead.',
+    );
+  });
+
   it('needs a sub-category that belongs to the category', () => {
     expect(errorOf(shoe({ subCategory: 'Maize' }))).toBe(
       'Choose a Fashion sub-category from the list.',
@@ -383,6 +447,23 @@ describe('parseProductInput', () => {
         }),
       ),
     ).toBe('Photos must be JPEG, PNG or WebP images under 500 KB each.');
+  });
+
+  it('keeps one ImageKit file id per photo', () => {
+    const result = parseProductInput(shoe({ imageFileIds: ['f1', 'f-2_b'] }));
+    expect('product' in result && result.product.imageFileIds).toEqual([
+      'f1',
+      'f-2_b',
+    ]);
+
+    const plain = parseProductInput(shoe());
+    expect('product' in plain && 'imageFileIds' in plain.product).toBe(false);
+
+    for (const imageFileIds of [['f1'], ['f1', '../f2'], 'f1,f2']) {
+      expect(errorOf(shoe({ imageFileIds }))).toBe(
+        'Some photos didn’t upload properly. Remove them and add them again.',
+      );
+    }
   });
 
   it('points colour photos at an existing image', () => {

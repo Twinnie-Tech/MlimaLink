@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Verify your rider account</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #fdf6ee;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: #2b1d0e;
+    "
+  >
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="background-color: #fdf6ee; padding: 32px 16px"
+    >
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              max-width: 560px;
+              background-color: #ffffff;
+              border-radius: 12px;
+              overflow: hidden;
+              border: 1px solid #f1dcc4;
+            "
+          >
+            <!-- Header — rider brand (amber to orange), distinct from shopper and seller mail -->
+            <tr>
+              <td
+                style="
+                  background-color: #e0801f;
+                  background: linear-gradient(135deg, #f6a623 0%, #e0621f 100%);
+                  padding: 28px 32px;
+                "
+              >
+                <p
+                  style="
+                    margin: 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    letter-spacing: 0.14em;
+                    text-transform: uppercase;
+                    color: #fff1dd;
+                  "
+                >
+                  MlimaLink Riders &nbsp;·&nbsp; Delivery account
+                </p>
+                <h1
+                  style="
+                    margin: 8px 0 0;
+                    font-family: Georgia, 'Times New Roman', Times, serif;
+                    font-size: 26px;
+                    font-weight: normal;
+                    line-height: 1.3;
+                    color: #ffffff;
+                  "
+                >
+                  Verify your rider account
+                </h1>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding: 32px">
+                <p
+                  style="
+                    margin: 0 0 12px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.6;
+                    color: #2b1d0e;
+                  "
+                >
+                  Hello <strong style="color: #b4531a"><%= name %></strong>,
+                </p>
+                <p
+                  style="
+                    margin: 0 0 24px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 15px;
+                    line-height: 1.65;
+                    color: #5c4a38;
+                  "
+                >
+                  You&rsquo;re signing up to <strong>deliver orders</strong> for
+                  shops on MlimaLink. Enter the code below to verify your email
+                  and finish creating your rider account.
+                </p>
+
+                <!-- OTP card -->
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="
+                    background-color: #fff8ef;
+                    border: 1px dashed #f0c48e;
+                    border-radius: 10px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 20px 24px; text-align: center">
+                      <p
+                        style="
+                          margin: 0 0 8px;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 12px;
+                          letter-spacing: 0.14em;
+                          text-transform: uppercase;
+                          color: #8a6d50;
+                        "
+                      >
+                        Rider verification code
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          font-family: 'Courier New', Courier, monospace;
+                          font-size: 36px;
+                          font-weight: bold;
+                          letter-spacing: 10px;
+                          color: #b4531a;
+                        "
+                      >
+                        <%= otp %>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Next steps -->
+                <p
+                  style="
+                    margin: 24px 0 8px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 14px;
+                    font-weight: bold;
+                    color: #2b1d0e;
+                  "
+                >
+                  What happens next
+                </p>
+                <ol
+                  style="
+                    margin: 0;
+                    padding-left: 20px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 14px;
+                    line-height: 1.7;
+                    color: #5c4a38;
+                  "
+                >
+                  <li>Verify your email with this code</li>
+                  <li>Choose your vehicle and the towns you deliver in</li>
+                  <li>Switch on &ldquo;Taking jobs&rdquo; to start getting deliveries</li>
+                </ol>
+
+                <p
+                  style="
+                    margin: 24px 0 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: #5c4a38;
+                  "
+                >
+                  This code expires in
+                  <strong style="color: #c47b16">24 hours</strong>.
+                </p>
+                <p
+                  style="
+                    margin: 12px 0 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 13px;
+                    line-height: 1.6;
+                    color: #8a7a6a;
+                  "
+                >
+                  If you did not sign up to deliver with MlimaLink, you can
+                  safely ignore this email.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  background-color: #fdf6ee;
+                  border-top: 1px solid #f1dcc4;
+                  padding: 18px 32px;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    margin: 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    color: #8a7a6a;
+                  "
+                >
+                  &copy; MlimaLink Riders &mdash; getting orders to buyers
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

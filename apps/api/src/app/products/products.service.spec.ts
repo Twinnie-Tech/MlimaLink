@@ -18,6 +18,7 @@ function record(overrides: Partial<ProductRecord> = {}): ProductRecord {
     price: 45,
     salePrice: null,
     images: [photo, 'https://cdn.example.com/brown.jpg'],
+    imageFileIds: [],
     specs: [{ name: 'Brand', value: 'Mlima' }],
     options: [
       {
@@ -51,6 +52,7 @@ describe('ProductsApiService', () => {
   const products = {
     findMany: vi.fn(),
     findUnique: vi.fn(),
+    findFirst: vi.fn(),
     create: vi.fn(),
     deleteMany: vi.fn(),
   };
@@ -173,15 +175,33 @@ describe('ProductsApiService', () => {
     expect(await service.getProductImage('7', 0)).toBeUndefined();
   });
 
+  it("deletes the shop's product and hands back its photos", async () => {
+    products.findFirst.mockResolvedValue({
+      images: [photo],
+      imageFileIds: ['file1'],
+    });
+    products.deleteMany.mockResolvedValue({ count: 1 });
+
+    await expect(service.deleteProduct(SHOP_ID, PRODUCT_ID)).resolves.toEqual({
+      images: [photo],
+      imageFileIds: ['file1'],
+    });
+    expect(products.findFirst).toHaveBeenCalledWith({
+      where: { id: PRODUCT_ID, shopId: SHOP_ID },
+      select: { images: true, imageFileIds: true },
+    });
+    expect(products.deleteMany).toHaveBeenCalledWith({
+      where: { id: PRODUCT_ID, shopId: SHOP_ID },
+    });
+  });
+
   it("only deletes the shop's own products", async () => {
-    products.deleteMany.mockResolvedValue({ count: 0 });
+    products.findFirst.mockResolvedValue(null);
 
     await expect(
       service.deleteProduct(SHOP_ID, PRODUCT_ID),
     ).rejects.toMatchObject({ statusCode: 404 });
-    expect(products.deleteMany).toHaveBeenCalledWith({
-      where: { id: PRODUCT_ID, shopId: SHOP_ID },
-    });
+    expect(products.deleteMany).not.toHaveBeenCalled();
     await expect(service.deleteProduct(SHOP_ID, 'nope')).rejects.toMatchObject({
       statusCode: 404,
     });

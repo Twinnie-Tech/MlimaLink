@@ -176,6 +176,8 @@ describe('Seller dashboard', () => {
       'Payments',
       'Create Product',
       'All Products',
+      'Service Profile',
+      'Service Requests',
       'Create Event',
       'All Events',
       'Inbox',

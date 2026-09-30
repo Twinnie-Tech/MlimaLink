@@ -26,6 +26,16 @@
       "import": "./src/lib/checkout.model.ts",
       "default": "./src/lib/checkout.model.ts"
     },
+    "./services": {
+      "types": "./src/lib/service.model.ts",
+      "import": "./src/lib/service.model.ts",
+      "default": "./src/lib/service.model.ts"
+    },
+    "./delivery": {
+      "types": "./src/lib/delivery.model.ts",
+      "import": "./src/lib/delivery.model.ts",
+      "default": "./src/lib/delivery.model.ts"
+    },
     "./package.json": "./package.json"
   },
   "nx": {

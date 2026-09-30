@@ -65,6 +65,8 @@ const shop = {
   coverBanner: null,
   socialLinks: [],
   ratings: 0,
+  deliveryZone: null,
+  deliveryFee: null,
   sellerId: 's1',
   createdAt: new Date(),
   updatedAt: new Date(),

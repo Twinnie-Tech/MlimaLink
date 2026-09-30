@@ -8,7 +8,7 @@ import {
   SlidersHorizontal,
   Trash2,
 } from 'lucide-react';
-import { listingTerms } from '@org/models/catalog';
+import { imageSrcSet, listingTerms, sizedImage } from '@org/models/catalog';
 import { formatProductPrice, useShopStore } from '../store/shop-store';
 import { EmptyState } from './empty-state';
 
@@ -49,8 +49,11 @@ export function WishlistGrid({
               aria-hidden="true"
             >
               <img
-                src={product.imageUrl}
+                src={sizedImage(product.imageUrl, 480)}
+                srcSet={imageSrcSet(product.imageUrl, [320, 480, 640, 960])}
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                 alt={product.name}
+                loading="lazy"
                 className="h-48 w-full object-cover"
               />
             </Link>

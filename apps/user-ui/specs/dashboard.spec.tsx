@@ -182,6 +182,7 @@ describe('Dashboard layout', () => {
       '/dashboard/security',
       '/products',
       '/become-seller',
+      '/rider',
     ]);
     expect(
       within(nav).getByRole('link', { name: 'Wishlist 2 items' }),

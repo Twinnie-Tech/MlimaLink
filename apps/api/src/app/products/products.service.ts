@@ -104,13 +104,24 @@ export class ProductsApiService {
     return toProduct(record);
   }
 
-  async deleteProduct(shopId: string, id: string): Promise<void> {
-    const { count } = isObjectId(id)
+  /** Removes one of the shop's products and returns its photos, so they can be deleted too. */
+  async deleteProduct(
+    shopId: string,
+    id: string,
+  ): Promise<{ images: string[]; imageFileIds: string[] }> {
+    const record = isObjectId(id)
+      ? await this.prisma.products.findFirst({
+          where: { id, shopId },
+          select: { images: true, imageFileIds: true },
+        })
+      : null;
+    const { count } = record
       ? await this.prisma.products.deleteMany({ where: { id, shopId } })
       : { count: 0 };
-    if (count === 0) {
+    if (!record || count === 0) {
       throw notFound('Product', { id });
     }
+    return { images: record.images, imageFileIds: record.imageFileIds ?? [] };
   }
 
   private async listedProducts(category?: string): Promise<Product[]> {

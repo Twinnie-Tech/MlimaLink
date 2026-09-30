@@ -71,7 +71,7 @@ export class AuthRequestError extends Error {
 
 /** Sends a JSON request with the seller's cookies and throws AuthRequestError on failure. */
 export async function requestJson<T>(
-  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   url: string,
   body?: unknown,
 ): Promise<T> {

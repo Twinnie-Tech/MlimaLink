@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type {
   PaymentOption,
   Product,
@@ -9,12 +9,14 @@ import {
   dueNowShare,
   findVariant,
   formatPrice,
+  imageSrcSet,
   isChoiceAvailable,
   isRichText,
   listingTerms,
   paymentLabel,
   paymentOptionsOf,
   priceRange,
+  sizedImage,
   unitPrice,
 } from '@org/models/catalog';
 import { roundMoney } from '@org/models/checkout';
@@ -37,6 +39,8 @@ export interface ProductDetailProps {
   onAddToCart?: (product: Product, variant?: ProductVariant) => void;
   isWishlisted?: boolean;
   onToggleWishlist?: (product: Product) => void;
+  /** Shown on service listings, e.g. the provider's profile and a request form. */
+  renderService?: (product: Product) => ReactNode;
 }
 
 type Choices = Record<string, string>;
@@ -71,6 +75,7 @@ export function ProductDetail({
   onAddToCart,
   isWishlisted = false,
   onToggleWishlist,
+  renderService,
 }: ProductDetailProps = {}) {
   const { product, loading, error } = useProduct(productId);
   const [justAdded, setJustAdded] = useState(false);
@@ -131,7 +136,7 @@ export function ProductDetail({
   const units = variant?.stock ?? product.stock;
   const images = product.images?.length ? product.images : [product.imageUrl];
 
-  const { pricePeriod, contactSeller } = listingTerms(product);
+  const { pricePeriod, contactSeller, service } = listingTerms(product);
   const range = priceRange(product);
   const price = variant ? unitPrice(product, variant) : range.min;
   const wasPrice =
@@ -175,8 +180,16 @@ export function ProductDetail({
       <div className={styles['product-detail']}>
         <div className={styles['gallery']}>
           <div className={styles['product-image']}>
-            <img src={images[activeImage] ?? images[0]} alt={product.name} />
-            {!product.inStock && (
+            <img
+              src={sizedImage(images[activeImage] ?? images[0], 1200)}
+              srcSet={imageSrcSet(
+                images[activeImage] ?? images[0],
+                [640, 960, 1200, 1600, 2000],
+              )}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              alt={product.name}
+            />
+            {!product.inStock && !service && (
               <div className={styles['out-of-stock-overlay']}>
                 {contactSeller ? 'No longer available' : 'Out of Stock'}
               </div>
@@ -197,7 +210,7 @@ export function ProductDetail({
                   onClick={() => setActiveImage(index)}
                   className={`${styles['thumbnail']} ${index === activeImage ? styles['selected'] : ''}`}
                 >
-                  <img src={src} alt="" />
+                  <img src={sizedImage(src, 160)} alt="" loading="lazy" />
                 </button>
               ))}
             </div>
@@ -222,7 +235,7 @@ export function ProductDetail({
           </div>
 
           <div className={styles['product-price']}>
-            {!variant && range.min !== range.max && (
+            {!variant && (range.min !== range.max || service) && (
               <span className={styles['price-from']}>From </span>
             )}
             {formatPrice(price)}
@@ -235,7 +248,17 @@ export function ProductDetail({
           </div>
 
           <div className={styles['product-availability']}>
-            {contactSeller ? (
+            {service ? (
+              inStock ? (
+                <span className={styles['in-stock']}>
+                  ✓ Taking new requests
+                </span>
+              ) : (
+                <span className={styles['out-of-stock']}>
+                  Not taking new requests right now
+                </span>
+              )
+            ) : contactSeller ? (
               inStock ? (
                 <span className={styles['in-stock']}>
                   ✓ Available
@@ -325,6 +348,8 @@ export function ProductDetail({
             );
           })}
 
+          {service && renderService?.(product)}
+
           <div className={styles['product-actions']}>
             {contactSeller ? (
               <ContactSeller
@@ -393,7 +418,7 @@ export function ProductDetail({
           </div>
 
           <div className={styles['product-details']}>
-            <h3>Product Details</h3>
+            <h3>{service ? 'Service Details' : 'Product Details'}</h3>
             <ul>
               {product.specs?.map((spec) => (
                 <li key={spec.name}>
@@ -402,7 +427,8 @@ export function ProductDetail({
               ))}
               {product.shopName && (
                 <li>
-                  <strong>Sold by:</strong> {product.shopName}
+                  <strong>{service ? 'Offered by:' : 'Sold by:'}</strong>{' '}
+                  {product.shopName}
                 </li>
               )}
               <li>

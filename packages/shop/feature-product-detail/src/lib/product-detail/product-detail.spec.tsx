@@ -480,6 +480,90 @@ describe('ProductDetail', () => {
     });
   });
 
+  describe('service listing', () => {
+    const service = {
+      ...mockProduct,
+      id: 'svc',
+      name: 'Web app development',
+      category: 'Services',
+      subCategory: 'Software & IT',
+      price: 500,
+      stock: 1,
+      shopName: 'Wanjiru Codes',
+      contact: { phone: '+254712345678', email: 'wanjiru@example.com' },
+    };
+
+    const renderService = (product: object = service) => {
+      vi.mocked(useProduct).mockReturnValue({
+        product: product as typeof service,
+        loading: false,
+        error: null,
+      });
+      render(
+        <ProductDetail
+          productId="svc"
+          onAddToCart={vi.fn()}
+          renderService={(item) => <p>Request form for {item.name}</p>}
+        />,
+      );
+    };
+
+    it('shows a starting price, the request form and contact links', () => {
+      renderService();
+
+      expect(screen.getByText('From')).toBeInTheDocument();
+      expect(screen.getByText('$500.00')).toBeInTheDocument();
+      expect(screen.getByText('✓ Taking new requests')).toBeInTheDocument();
+      expect(
+        screen.getByText('Request form for Web app development'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Prefer to talk? Contact Wanjiru Codes'),
+      ).toBeTruthy();
+      const whatsapp = new URL(
+        screen.getByRole('link', { name: 'WhatsApp' }).getAttribute('href') ??
+          '',
+      );
+      expect(whatsapp.searchParams.get('text')).toBe(
+        'Hi, I saw your "Web app development" service on MlimaLink and would like to hire you.',
+      );
+      expect(screen.getByText('Service Details')).toBeInTheDocument();
+      expect(screen.getByText('Offered by:')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Add to Cart' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('says when the provider is fully booked', () => {
+      renderService({ ...service, inStock: false, stock: 0 });
+
+      expect(
+        screen.getByText('Not taking new requests right now'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Wanjiru Codes isn’t taking new requests right now. Check back soon.',
+        ),
+      ).toBeTruthy();
+      expect(screen.queryByText('No longer available')).not.toBeInTheDocument();
+    });
+
+    it('leaves the form out of everything else', () => {
+      vi.mocked(useProduct).mockReturnValue({
+        product: mockProduct,
+        loading: false,
+        error: null,
+      });
+      render(
+        <ProductDetail
+          productId="1"
+          renderService={() => <p>Request form</p>}
+        />,
+      );
+      expect(screen.queryByText('Request form')).not.toBeInTheDocument();
+    });
+  });
+
   it('should render product image with alt text', () => {
     vi.mocked(useProduct).mockReturnValue({
       product: mockProduct,

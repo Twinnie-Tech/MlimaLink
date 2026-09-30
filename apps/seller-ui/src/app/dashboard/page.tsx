@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import {
   ArrowRight,
   CalendarPlus,
@@ -16,7 +17,10 @@ import {
   TrendingUp,
   type LucideIcon,
 } from 'lucide-react';
+import { orderStatusLabel } from '@org/models/delivery';
 import { formatOpeningHours } from '@org/models/opening-hours';
+import { STATUS_TONE } from '../shared/dashboard/order-card';
+import { SHOP_ORDERS_KEY, listShopOrders } from '../shared/utils/orders-api';
 import { firstName } from '../shared/hooks/use-seller';
 import { useDashboardSeller } from '../shared/dashboard/seller-context';
 import {
@@ -122,6 +126,16 @@ export default function SellerDashboardPage() {
   const seller = useDashboardSeller();
   const { shop } = seller;
   const bankConnected = Boolean(seller.stripeId);
+  const orders =
+    useQuery({
+      queryKey: SHOP_ORDERS_KEY,
+      queryFn: listShopOrders,
+      retry: false,
+    }).data ?? [];
+  const toConfirm = orders.filter((order) => order.status === 'placed').length;
+  const revenue = orders
+    .filter((order) => order.status === 'delivered')
+    .reduce((sum, order) => sum + order.subtotal - order.discount, 0);
 
   return (
     <>
@@ -142,15 +156,19 @@ export default function SellerDashboardPage() {
         <StatCard
           icon={TrendingUp}
           label="Total revenue"
-          value={formatMoney(0)}
-          hint="No sales yet"
+          value={formatMoney(revenue)}
+          hint={revenue > 0 ? 'From delivered orders' : 'No sales yet'}
           tone="emerald"
         />
         <StatCard
           icon={ListOrdered}
           label="Orders"
-          value="0"
-          hint="Orders appear here as they come in"
+          value={String(orders.length)}
+          hint={
+            toConfirm > 0
+              ? `${toConfirm} waiting for you to confirm`
+              : 'Orders appear here as they come in'
+          }
         />
         <StatCard
           icon={Package}
@@ -206,11 +224,43 @@ export default function SellerDashboardPage() {
               </Link>
             }
           >
-            <EmptyState
-              icon={ListOrdered}
-              title="No orders yet"
-              description="When shoppers buy from your shop, their orders will show up here."
-            />
+            {orders.length === 0 ? (
+              <EmptyState
+                icon={ListOrdered}
+                title="No orders yet"
+                description="When shoppers buy from your shop, their orders will show up here."
+              />
+            ) : (
+              <ul
+                className="divide-y divide-neutral-200"
+                aria-label="Recent orders"
+              >
+                {orders.slice(0, 5).map((order) => (
+                  <li
+                    key={order.id}
+                    className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                  >
+                    <Link
+                      href="/dashboard/orders"
+                      className="min-w-0 hover:text-blue-600"
+                    >
+                      <span className="block font-medium text-neutral-900">
+                        {order.number} · {order.buyerName}
+                      </span>
+                      <span className="block text-xs text-neutral-500">
+                        {formatDate(order.createdAt)} ·{' '}
+                        {formatMoney(order.total)}
+                      </span>
+                    </Link>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_TONE[order.status]}`}
+                    >
+                      {orderStatusLabel(order.status)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Panel>
         </div>
 

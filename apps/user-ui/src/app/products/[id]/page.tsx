@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { ProductDetail } from '@org/shop-feature-product-detail';
 import { useShopStore } from '../../shared/store/shop-store';
+import { ServicePanel } from '../../shared/widgets/service-panel';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,7 @@ export default function ProductDetailPage() {
       onAddToCart={addToCart}
       isWishlisted={isWishlisted(id)}
       onToggleWishlist={toggleWishlist}
+      renderService={(product) => <ServicePanel product={product} />}
     />
   );
 }

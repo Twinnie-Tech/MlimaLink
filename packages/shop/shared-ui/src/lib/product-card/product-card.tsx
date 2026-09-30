@@ -1,5 +1,11 @@
 import { Product } from '@org/models';
-import { formatPrice, listingTerms, priceRange } from '@org/models/catalog';
+import {
+  formatPrice,
+  imageSrcSet,
+  listingTerms,
+  priceRange,
+  sizedImage,
+} from '@org/models/catalog';
 import { WishlistButton } from '../wishlist-button/wishlist-button';
 import styles from './product-card.module.css';
 
@@ -27,7 +33,7 @@ export function ProductCard({
   };
 
   const range = priceRange(product);
-  const { pricePeriod, contactSeller } = listingTerms(product);
+  const { pricePeriod, contactSeller, service } = listingTerms(product);
   const location = contactSeller
     ? product.specs?.find((spec) => spec.name === 'Location')?.value
     : undefined;
@@ -53,10 +59,20 @@ export function ProductCard({
       aria-label={`View details for ${product.name}`}
     >
       <div className={styles['product-image']}>
-        <img src={product.imageUrl} alt={product.name} />
+        <img
+          src={sizedImage(product.imageUrl, 480)}
+          srcSet={imageSrcSet(product.imageUrl, [320, 480, 640, 960])}
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          alt={product.name}
+          loading="lazy"
+        />
         {!product.inStock && (
           <div className={styles['out-of-stock-overlay']}>
-            {contactSeller ? 'No longer available' : 'Out of Stock'}
+            {service
+              ? 'Fully booked'
+              : contactSeller
+                ? 'No longer available'
+                : 'Out of Stock'}
           </div>
         )}
         {onToggleWishlist && (
@@ -109,7 +125,7 @@ export function ProductCard({
           </div>
         )}
         <div className={styles['product-price']}>
-          {range.min !== range.max && (
+          {(range.min !== range.max || service) && (
             <span className={styles['price-from']}>From </span>
           )}
           {formatPrice(range.min)}

@@ -1,7 +1,9 @@
 import {
+  BadgeCheck,
   BellPlus,
   Bell,
   CalendarPlus,
+  Inbox,
   LayoutDashboard,
   ListOrdered,
   Mail,
@@ -41,6 +43,21 @@ export const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
         label: 'All Products',
         href: '/dashboard/all-products',
         icon: PackageSearch,
+      },
+    ],
+  },
+  {
+    title: 'Services',
+    items: [
+      {
+        label: 'Service Profile',
+        href: '/dashboard/service-profile',
+        icon: BadgeCheck,
+      },
+      {
+        label: 'Service Requests',
+        href: '/dashboard/service-requests',
+        icon: Inbox,
       },
     ],
   },
