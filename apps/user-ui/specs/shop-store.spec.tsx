@@ -4,6 +4,7 @@ import type { Product } from '@org/models';
 import {
   SHOP_STORAGE_KEY,
   ShopStoreProvider,
+  cartLineId,
   useShopStore,
 } from '../src/app/shared/store/shop-store';
 
@@ -79,20 +80,69 @@ describe('shop store', () => {
     expect(result.current.cart).toEqual([]);
   });
 
+  it('keeps each colour and size on its own line, priced per variant', async () => {
+    const sneakers: Product = {
+      ...shoes,
+      id: '7',
+      salePrice: 70,
+      options: [
+        { name: 'Colour', values: [{ label: 'Black' }, { label: 'White' }] },
+        { name: 'Size', values: [{ label: '42' }] },
+      ],
+      variants: [
+        { choices: { Colour: 'Black', Size: '42' }, stock: 3, sku: 'B42' },
+        { choices: { Colour: 'White', Size: '42' }, stock: 3, price: 90 },
+      ],
+    };
+    const [black, white] = sneakers.variants ?? [];
+    const { result } = await renderStore();
+
+    act(() => result.current.addToCart(sneakers, black));
+    act(() => result.current.addToCart(sneakers, white));
+    act(() => result.current.addToCart(sneakers, black));
+
+    expect(result.current.cart).toEqual([
+      {
+        product: sneakers,
+        quantity: 2,
+        variant: { choices: black.choices, sku: 'B42' },
+      },
+      {
+        product: sneakers,
+        quantity: 1,
+        variant: { choices: white.choices, price: 90 },
+      },
+    ]);
+    expect(result.current.cartSubtotal).toBeCloseTo(2 * 70 + 90);
+
+    const whiteLine = cartLineId(result.current.cart[1]);
+    expect(whiteLine).not.toBe(cartLineId(result.current.cart[0]));
+
+    act(() => result.current.updateCartQuantity(whiteLine, 3));
+    expect(result.current.cart.map((item) => item.quantity)).toEqual([2, 3]);
+
+    act(() => result.current.removeFromCart(whiteLine));
+    expect(result.current.cart).toHaveLength(1);
+    expect(result.current.cart[0].variant?.choices).toEqual(black.choices);
+  });
+
   it('persists to and restores from localStorage', async () => {
     const first = await renderStore();
     act(() => first.result.current.toggleWishlist(shoes));
     act(() => first.result.current.addToCart(headphones));
+    act(() => first.result.current.setDiscountCode(' harvest10 '));
     first.unmount();
 
     expect(JSON.parse(localStorage.getItem(SHOP_STORAGE_KEY) ?? '{}')).toEqual({
       wishlist: [shoes],
       cart: [{ product: headphones, quantity: 1 }],
+      discountCode: 'HARVEST10',
     });
 
     const { result } = await renderStore();
     expect(result.current.isWishlisted('1')).toBe(true);
     expect(result.current.cartCount).toBe(1);
+    expect(result.current.discountCode).toBe('HARVEST10');
   });
 
   it('ignores corrupt saved data', async () => {

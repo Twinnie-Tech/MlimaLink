@@ -4,6 +4,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AllExceptionsFilter } from '@org/errors';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { DiscountCodesModule } from './discount-codes/discount-codes.module';
 import { ProductsModule } from './products/products.module';
 
 @Module({
@@ -16,6 +17,7 @@ import { ProductsModule } from './products/products.module';
       },
     ]),
     ProductsModule,
+    DiscountCodesModule,
   ],
   controllers: [AppController],
   providers: [

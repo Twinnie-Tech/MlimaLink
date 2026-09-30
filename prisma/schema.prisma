@@ -81,7 +81,7 @@ type social_link {
 /// indexes treat a missing value as a duplicate, so an optional sellers.shopId
 /// could only ever be empty for one seller.
 model shops {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   bio           String?
   category      String
@@ -93,14 +93,16 @@ model shops {
   coverBanner   String?
   socialLinks   social_link[]
   /// Average of the shop's review ratings; 0 until the first review.
-  ratings       Float          @default(0)
+  ratings       Float            @default(0)
   /// Optional; at most one image, and uploading a new avatar replaces the old one.
   avatar        images[]
   reviews       shop_reviews[]
-  sellerId      String         @unique @db.ObjectId
-  seller        sellers        @relation(fields: [sellerId], references: [id])
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  products      products[]
+  discountCodes discount_codes[]
+  sellerId      String           @unique @db.ObjectId
+  seller        sellers          @relation(fields: [sellerId], references: [id])
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 }
 
 /// A shopper's review of a shop. One review per shopper per shop; posting again
@@ -119,5 +121,94 @@ model shop_reviews {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, shopId])
+  @@index([shopId])
+}
+
+/// A value a shopper can pick for an option, e.g. "Black" or "42".
+type product_option_value {
+  label      String
+  /// Hex colour shown as a swatch, e.g. "#111111". Colour options only.
+  swatch     String?
+  /// Index into products.images of the photo showing this value.
+  imageIndex Int?
+}
+
+/// Something the shopper picks before buying, e.g. Colour or Size.
+type product_option {
+  name   String
+  values product_option_value[]
+}
+
+/// A detail shown on the product page, e.g. Brand: Bata.
+type product_spec {
+  name  String
+  value String
+}
+
+/// One combination of option values with its own stock.
+type product_variant {
+  sku     String?
+  /// Option name → chosen value, e.g. { "Colour": "Black", "Size": "42" }.
+  choices Json
+  /// Overrides products.price for this combination.
+  price   Float?
+  stock   Int
+}
+
+/// A product listed by a shop. Checked by parseProductInput in @org/models, which also
+/// requires exactly one variant per combination of option values.
+model products {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  shortDescription String
+  description      String
+  category         String
+  subCategory      String
+  tags             String[]
+  price            Float
+  salePrice        Float?
+  /// Cover photo first. Data URLs until image hosting is set up.
+  images           String[]
+  specs            product_spec[]
+  options          product_option[]
+  variants         product_variant[]
+  /// Sum of the variants' stock, or the product's own stock when it has no options.
+  stock            Int
+  /// "full_upfront", "deposit" (half now, half on delivery) and/or "cash_on_delivery".
+  /// Empty on older listings, which are treated as full payment upfront.
+  paymentOptions   String[]
+  ratings          Float             @default(0)
+  reviewCount      Int               @default(0)
+  shopId           String            @db.ObjectId
+  shop             shops             @relation(fields: [shopId], references: [id])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([shopId])
+  @@index([category, subCategory])
+}
+
+/// A code shoppers enter at checkout for money off one shop's products. Codes are
+/// unique across the marketplace. Checked by parseDiscountCodeInput in @org/models.
+model discount_codes {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  /// Upper case letters and digits, e.g. "HARVEST10".
+  code       String   @unique
+  /// "percentage" or "fixed"
+  type       String
+  /// Percent off (1–90) or USD off.
+  value      Float
+  /// USD the shopper must spend on this shop's products first.
+  minSpend   Float?
+  usageLimit Int?
+  usedCount  Int      @default(0)
+  /// Last day the code works, "YYYY-MM-DD" (UTC).
+  expiresAt  String?
+  active     Boolean  @default(true)
+  shopId     String   @db.ObjectId
+  shop       shops    @relation(fields: [shopId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   @@index([shopId])
 }

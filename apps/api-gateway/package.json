@@ -43,8 +43,7 @@
         "executor": "@nx/js:node",
         "defaultConfiguration": "development",
         "dependsOn": [
-          "build",
-          "api:serve"
+          "build"
         ],
         "options": {
           "buildTarget": "@org/api-gateway:build",

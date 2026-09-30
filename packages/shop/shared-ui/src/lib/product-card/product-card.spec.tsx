@@ -127,6 +127,49 @@ describe('ProductCard', () => {
     ).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('should show colour dots and the lowest price for products with options', () => {
+    const colours = ['Black', 'White', 'Red', 'Blue', 'Green', 'Pink'];
+    const product = createMockProduct({
+      price: 60,
+      salePrice: 50,
+      options: [
+        {
+          name: 'Colour',
+          values: colours.map((label) => ({ label, swatch: '#123456' })),
+        },
+      ],
+      variants: colours.map((Colour, index) => ({
+        choices: { Colour },
+        stock: 1,
+        price: index === 0 ? 70 : undefined,
+      })),
+    });
+    render(<ProductCard product={product} onProductClick={mockOnClick} />);
+
+    expect(screen.getByText('6 colours:')).toBeInTheDocument();
+    expect(screen.getByTitle('Black')).toBeInTheDocument();
+    expect(screen.queryByTitle('Pink')).not.toBeInTheDocument();
+    expect(screen.getByText('+1')).toBeInTheDocument();
+    expect(screen.getByText('From')).toBeInTheDocument();
+    expect(screen.getByText('$50.00')).toBeInTheDocument();
+    expect(screen.getByText('$60.00')).toBeInTheDocument();
+  });
+
+  it('should show the rent period and location for house listings', () => {
+    const product = createMockProduct({
+      category: 'Property',
+      subCategory: 'Houses for rent',
+      price: 25000,
+      specs: [{ name: 'Location', value: 'Kilimani, Nairobi' }],
+    });
+    render(<ProductCard product={product} onProductClick={mockOnClick} />);
+
+    expect(screen.getByText('Property › Houses for rent')).toBeInTheDocument();
+    expect(screen.getByText('Kilimani, Nairobi')).toBeInTheDocument();
+    expect(screen.getByText('$25,000.00')).toBeInTheDocument();
+    expect(screen.getByText('/ month')).toBeInTheDocument();
+  });
+
   it('should have proper accessibility attributes', () => {
     render(<ProductCard product={mockProduct} onProductClick={mockOnClick} />);
 

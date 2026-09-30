@@ -13,8 +13,15 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react';
+import { choiceImage, variantLabel } from '@org/models/catalog';
 import { firstName } from '../../shared/hooks/use-user';
-import { formatPrice, useShopStore } from '../../shared/store/shop-store';
+import {
+  cartItemPrice,
+  cartLineId,
+  formatPrice,
+  formatProductPrice,
+  useShopStore,
+} from '../../shared/store/shop-store';
 import { useDashboardUser } from '../../shared/dashboard/user-context';
 import {
   DetailList,
@@ -164,7 +171,7 @@ export default function DashboardPage() {
                         {product.name}
                       </p>
                       <p className="text-sm text-neutral-500">
-                        {formatPrice(product.price)}
+                        {formatProductPrice(product)}
                       </p>
                     </Link>
                   </li>
@@ -181,22 +188,38 @@ export default function DashboardPage() {
             ) : (
               <>
                 <ul className="space-y-3">
-                  {cart.slice(0, 3).map(({ product, quantity }) => (
+                  {cart.slice(0, 3).map((item) => (
                     <li
-                      key={product.id}
+                      key={cartLineId(item)}
                       className="flex items-center gap-3 text-sm"
                     >
                       <img
-                        src={product.imageUrl}
+                        src={choiceImage(
+                          item.product,
+                          item.variant?.choices ?? {},
+                        )}
                         alt=""
                         className="h-10 w-10 shrink-0 rounded-md object-cover"
                       />
                       <span className="min-w-0 flex-1 truncate text-neutral-700">
-                        {product.name}
-                        <span className="text-neutral-400"> × {quantity}</span>
+                        {item.product.name}
+                        {item.variant && (
+                          <span className="text-neutral-500">
+                            {' '}
+                            ·{' '}
+                            {variantLabel(
+                              item.variant.choices,
+                              item.product.options ?? [],
+                            )}
+                          </span>
+                        )}
+                        <span className="text-neutral-400">
+                          {' '}
+                          × {item.quantity}
+                        </span>
                       </span>
                       <span className="shrink-0 font-medium text-neutral-900">
-                        {formatPrice(product.price * quantity)}
+                        {formatPrice(cartItemPrice(item) * item.quantity)}
                       </span>
                     </li>
                   ))}

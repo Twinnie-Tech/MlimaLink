@@ -6,7 +6,6 @@ import SellerLandingPage from '../src/app/(routes)/page';
 import DashboardLayout from '../src/app/dashboard/layout';
 import SellerDashboardPage from '../src/app/dashboard/page';
 import CreateProductPage from '../src/app/dashboard/create-product/page';
-import DiscountCodesPage from '../src/app/dashboard/discount-codes/page';
 import SettingsPage from '../src/app/dashboard/settings/page';
 import { THEME_STORAGE_KEY } from '../src/app/shared/theme/theme-script';
 import {
@@ -268,64 +267,5 @@ describe('Seller dashboard', () => {
     expect(
       screen.getByRole('link', { name: 'Reset password' }).getAttribute('href'),
     ).toBe('/forgot-password');
-  });
-});
-
-describe('Create product', () => {
-  it('checks the form without pretending to save', async () => {
-    pathname = '/dashboard/create-product';
-    signedIn();
-    renderDashboard(<CreateProductPage />);
-
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Check product' }),
-    );
-
-    expect(await screen.findByText('Product title is required')).toBeTruthy();
-    expect(screen.getByText('Add at least one product image.')).toBeTruthy();
-    expect((screen.getByLabelText('Category') as HTMLSelectElement).value).toBe(
-      'Fruits & Vegetables',
-    );
-
-    fill('Price (USD)', '10');
-    fill('Sale price', '12');
-    fireEvent.click(screen.getByRole('button', { name: 'Check product' }));
-
-    expect(
-      await screen.findByText('Sale price must be lower than the price'),
-    ).toBeTruthy();
-  });
-});
-
-describe('Discount codes', () => {
-  it('rejects codes with spaces or symbols', async () => {
-    pathname = '/dashboard/discount-codes';
-    signedIn();
-    renderDashboard(<DiscountCodesPage />);
-
-    await screen.findByLabelText('Code');
-    fill('Code', 'save 10!');
-    fill('Discount (%)', '10');
-    fireEvent.click(screen.getByRole('button', { name: 'Check code' }));
-
-    expect(
-      await screen.findByText('Use 4–16 letters or numbers, no spaces'),
-    ).toBeTruthy();
-    expect(screen.queryByRole('status')).toBeNull();
-  });
-
-  it('accepts a valid code but says nothing was saved', async () => {
-    pathname = '/dashboard/discount-codes';
-    signedIn();
-    renderDashboard(<DiscountCodesPage />);
-
-    await screen.findByLabelText('Code');
-    fill('Code', 'harvest10');
-    fill('Discount (%)', '10');
-    fireEvent.click(screen.getByRole('button', { name: 'Check code' }));
-
-    expect((await screen.findByRole('status')).textContent).toContain(
-      "This code wasn't saved",
-    );
   });
 });

@@ -2,6 +2,8 @@
  * NestJS API for the MlimaLink shop.
  */
 
+import './env';
+
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -21,6 +23,8 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // New products carry up to 6 photos as data URLs (see MAX_IMAGE_DATA_URL_LENGTH).
+  app.useBodyParser('json', { limit: '5mb' });
   app.use(cookieParser());
   app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
@@ -32,6 +36,9 @@ async function bootstrap() {
     .setDescription('Shop backend API for products and categories')
     .setVersion('1.0')
     .addTag('products')
+    .addTag('seller products')
+    .addTag('discount codes')
+    .addTag('seller discount codes')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

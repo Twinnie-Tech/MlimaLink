@@ -16,6 +16,16 @@
       "import": "./src/lib/opening-hours.model.ts",
       "default": "./src/lib/opening-hours.model.ts"
     },
+    "./catalog": {
+      "types": "./src/lib/catalog.model.ts",
+      "import": "./src/lib/catalog.model.ts",
+      "default": "./src/lib/catalog.model.ts"
+    },
+    "./checkout": {
+      "types": "./src/lib/checkout.model.ts",
+      "import": "./src/lib/checkout.model.ts",
+      "default": "./src/lib/checkout.model.ts"
+    },
     "./package.json": "./package.json"
   },
   "nx": {
