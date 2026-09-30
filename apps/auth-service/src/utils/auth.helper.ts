@@ -31,7 +31,7 @@ export type RegistrationData = {
 
 export function validateRegistrationData(
   data: RegistrationData,
-  userType: RegistrationUserType,
+  userType: RegistrationUserType | 'rider',
 ): void {
   const { name, email, password, phone_number, country } = data;
 
@@ -39,7 +39,8 @@ export function validateRegistrationData(
     !name ||
     !email ||
     !password ||
-    (userType === 'seller' && (!phone_number || !country))
+    (userType === 'seller' && (!phone_number || !country)) ||
+    (userType === 'rider' && !phone_number)
   ) {
     throw validationError('Missing required fields!');
   }

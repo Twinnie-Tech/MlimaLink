@@ -221,12 +221,54 @@ describe('auth tokens', () => {
       vi.stubEnv('SELLER_ACCESS_TOKEN_SECRET', 'access-secret');
 
       expect(() => getTokenSecrets('seller')).toThrow(
-        'Shopper and seller token secrets must all be different',
+        'Shopper, seller and rider token secrets must all be different',
       );
       expect(() => getTokenSecrets('user')).toThrow(
-        'Shopper and seller token secrets must all be different',
+        'Shopper, seller and rider token secrets must all be different',
       );
     });
+
+    it('refuses a rider secret shared with another account', () => {
+      vi.stubEnv('RIDER_ACCESS_TOKEN_SECRET', 'rider-access-secret');
+      vi.stubEnv('RIDER_REFRESH_TOKEN_SECRET', 'seller-refresh-secret');
+
+      expect(() => getTokenSecrets('rider')).toThrow(
+        'Shopper, seller and rider token secrets must all be different',
+      );
+      expect(() => getTokenSecrets('seller')).toThrow(
+        'Shopper, seller and rider token secrets must all be different',
+      );
+    });
+
+    it('keeps shopper and seller sign-in working when rider secrets are unset', () => {
+      vi.stubEnv('RIDER_ACCESS_TOKEN_SECRET', '');
+      vi.stubEnv('RIDER_REFRESH_TOKEN_SECRET', '');
+
+      expect(() => getTokenSecrets('user')).not.toThrow();
+      expect(() => getTokenSecrets('seller')).not.toThrow();
+      expect(() => getTokenSecrets('rider')).toThrow(
+        'RIDER_ACCESS_TOKEN_SECRET and RIDER_REFRESH_TOKEN_SECRET must be set in .env',
+      );
+    });
+  });
+
+  it('rejects shopper and seller tokens on rider routes', () => {
+    vi.stubEnv('RIDER_ACCESS_TOKEN_SECRET', 'rider-access-secret');
+    vi.stubEnv('RIDER_REFRESH_TOKEN_SECRET', 'rider-refresh-secret');
+
+    const rider = signAccessToken({ userId: 'r1', role: 'rider' }, 'rider');
+    expect(verifyToken(rider, 'access', 'rider')).toMatchObject({
+      userId: 'r1',
+      aud: 'rider',
+    });
+    expectUnauthorized(() =>
+      verifyToken(
+        signAccessToken({ userId: 'u1', role: 'user' }, 'user'),
+        'access',
+        'rider',
+      ),
+    );
+    expectUnauthorized(() => verifyToken(rider, 'access', 'seller'));
   });
 
   it('uses session cookies when remember me is off', () => {

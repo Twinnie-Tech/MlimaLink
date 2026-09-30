@@ -69,14 +69,15 @@ export class AuthRequestError extends Error {
   }
 }
 
-async function requestAuth<T>(
-  method: 'GET' | 'POST',
-  path: string,
+/** Sends a JSON request with the seller's cookies and throws AuthRequestError on failure. */
+export async function requestJson<T>(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  url: string,
   body?: unknown,
 ): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`/api/auth/${path}`, {
+    response = await fetch(url, {
       method,
       headers:
         body === undefined ? undefined : { 'Content-Type': 'application/json' },
@@ -110,8 +111,28 @@ async function requestAuth<T>(
   return data as T;
 }
 
-const isUnauthorized = (error: unknown) =>
+function requestAuth<T>(method: 'GET' | 'POST', path: string, body?: unknown) {
+  return requestJson<T>(method, `/api/auth/${path}`, body);
+}
+
+export const isUnauthorized = (error: unknown) =>
   error instanceof AuthRequestError && error.status === 401;
+
+/** Renews an expired seller access token with the refresh token cookie. */
+export function refreshSellerSession() {
+  return requestAuth<MessageResponse>('POST', 'refresh-token/seller');
+}
+
+/** Retries once after renewing an expired seller session. */
+export async function withSession<T>(request: () => Promise<T>): Promise<T> {
+  try {
+    return await request();
+  } catch (error) {
+    if (!isUnauthorized(error)) throw error;
+  }
+  await refreshSellerSession();
+  return request();
+}
 
 /**
  * Returns the signed-in seller, or null when no seller is signed in.
@@ -128,7 +149,7 @@ export async function getLoggedInSeller(): Promise<Seller | null> {
   }
 
   try {
-    await requestAuth('POST', 'refresh-token/seller');
+    await refreshSellerSession();
   } catch (error) {
     if (isUnauthorized(error)) return null;
     throw error;

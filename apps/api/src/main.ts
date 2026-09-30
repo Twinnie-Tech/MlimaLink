@@ -2,6 +2,8 @@
  * NestJS API for the MlimaLink shop.
  */
 
+import './env';
+
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -21,6 +23,8 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Photo uploads carry a data URL (see MAX_IMAGE_DATA_URL_LENGTH).
+  app.useBodyParser('json', { limit: '5mb' });
   app.use(cookieParser());
   app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
@@ -29,9 +33,22 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('MlimaLink API')
-    .setDescription('Shop backend API for products and categories')
+    .setDescription(
+      'Shop backend API for products, services, orders and deliveries',
+    )
     .setVersion('1.0')
     .addTag('products')
+    .addTag('seller products')
+    .addTag('seller product images')
+    .addTag('discount codes')
+    .addTag('seller discount codes')
+    .addTag('providers')
+    .addTag('service requests')
+    .addTag('seller service profile')
+    .addTag('seller service requests')
+    .addTag('orders')
+    .addTag('seller orders')
+    .addTag('rider')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

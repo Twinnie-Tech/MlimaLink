@@ -1,5 +1,28 @@
 // eslint-disable-next-line
-import { Product, ProductFilter } from '@org/models';
+import type { Product, ProductFilter } from '@org/models';
+// eslint-disable-next-line
+import { variantCombinations } from '@org/models/catalog';
+
+const shoeOptions = [
+  {
+    name: 'Colour',
+    values: [
+      { label: 'Black', swatch: '#111111' },
+      { label: 'White', swatch: '#ffffff' },
+      { label: 'Red', swatch: '#dc2626' },
+    ],
+  },
+  {
+    name: 'Size',
+    values: ['40', '41', '42', '43', '44'].map((label) => ({ label })),
+  },
+];
+const soldOutShoes = ['White / 44', 'Red / 40', 'Red / 41'];
+const shoeVariants = variantCombinations(shoeOptions).map((choices) => ({
+  choices,
+  stock: soldOutShoes.includes(`${choices.Colour} / ${choices.Size}`) ? 0 : 4,
+  ...(choices.Size === '44' && { price: 134.99 }),
+}));
 
 export class ProductsService {
   private products: Product[] = [
@@ -15,6 +38,7 @@ export class ProductsService {
       inStock: true,
       rating: 4.5,
       reviewCount: 234,
+      paymentOptions: ['full_upfront', 'deposit'],
     },
     {
       id: '2',
@@ -93,6 +117,15 @@ export class ProductsService {
       inStock: true,
       rating: 4.8,
       reviewCount: 523,
+      specs: [
+        { name: 'Brand', value: 'Stride' },
+        { name: 'Material', value: 'Mesh and rubber' },
+        { name: 'Gender', value: 'Unisex' },
+      ],
+      options: shoeOptions,
+      variants: shoeVariants,
+      stock: shoeVariants.reduce((sum, variant) => sum + variant.stock, 0),
+      paymentOptions: ['full_upfront', 'deposit', 'cash_on_delivery'],
     },
     {
       id: '8',

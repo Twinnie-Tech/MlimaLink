@@ -1,5 +1,6 @@
 import {
   Bell,
+  Bike,
   Heart,
   LayoutDashboard,
   MapPin,
@@ -59,6 +60,7 @@ export const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
     items: [
       { label: 'Back to shop', href: '/products', icon: ShoppingBag },
       { label: 'Become a seller', href: '/become-seller', icon: Store },
+      { label: 'Deliver with us', href: '/rider', icon: Bike },
     ],
   },
 ];

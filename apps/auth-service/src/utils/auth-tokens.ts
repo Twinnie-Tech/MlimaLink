@@ -7,9 +7,17 @@ export const ACCESS_TOKEN_COOKIE = 'accessToken';
 export const REFRESH_TOKEN_COOKIE = 'refreshToken';
 export const SELLER_ACCESS_TOKEN_COOKIE = 'sellerAccessToken';
 export const SELLER_REFRESH_TOKEN_COOKIE = 'sellerRefreshToken';
+export const RIDER_ACCESS_TOKEN_COOKIE = 'riderAccessToken';
+export const RIDER_REFRESH_TOKEN_COOKIE = 'riderRefreshToken';
 
-/** Shoppers and sellers are separate accounts with separate cookies. */
-export type AuthAccount = 'user' | 'seller';
+/** Shoppers, sellers and delivery riders are separate accounts with separate cookies. */
+export type AuthAccount = 'user' | 'seller' | 'rider';
+
+export const AUTH_ACCOUNTS: readonly AuthAccount[] = [
+  'user',
+  'seller',
+  'rider',
+];
 
 /**
  * Cookies are shared by every port on a host, so user-ui and seller-ui on the same
@@ -23,6 +31,10 @@ export const AUTH_COOKIE_NAMES: Record<
   seller: {
     access: SELLER_ACCESS_TOKEN_COOKIE,
     refresh: SELLER_REFRESH_TOKEN_COOKIE,
+  },
+  rider: {
+    access: RIDER_ACCESS_TOKEN_COOKIE,
+    refresh: RIDER_REFRESH_TOKEN_COOKIE,
   },
 };
 
@@ -46,8 +58,8 @@ type TokenPolicy = {
 };
 
 /**
- * Shoppers and sellers are separate accounts: separate secrets, cookies and
- * audiences, so a token issued for one can never be used as the other.
+ * Shoppers, sellers and riders are separate accounts: separate secrets, cookies and
+ * audiences, so a token issued for one can never be used as another.
  * Sellers control shops and payouts, so their sessions end sooner when idle.
  */
 export const TOKEN_POLICIES: Record<AuthAccount, TokenPolicy> = {
@@ -68,6 +80,15 @@ export const TOKEN_POLICIES: Record<AuthAccount, TokenPolicy> = {
     accessTtlSeconds: 15 * MINUTE,
     refreshTtlSeconds: 1 * DAY,
     roles: ['seller'],
+  },
+  rider: {
+    secretEnv: {
+      access: 'RIDER_ACCESS_TOKEN_SECRET',
+      refresh: 'RIDER_REFRESH_TOKEN_SECRET',
+    },
+    accessTtlSeconds: 15 * MINUTE,
+    refreshTtlSeconds: 7 * DAY,
+    roles: ['rider'],
   },
 };
 
@@ -95,7 +116,7 @@ export const safeUserSelect = {
   createdAt: true,
 } as const;
 
-/** The account's signing secrets. Throws when they are missing or shared with the other account. */
+/** The account's signing secrets. Throws when they are missing or shared with another account. */
 export function getTokenSecrets(account: AuthAccount) {
   const { secretEnv } = TOKEN_POLICIES[account];
   const accessSecret = process.env[secretEnv.access];
@@ -113,14 +134,16 @@ export function getTokenSecrets(account: AuthAccount) {
     );
   }
 
-  const other =
-    TOKEN_POLICIES[account === 'user' ? 'seller' : 'user'].secretEnv;
-  const otherSecrets = [process.env[other.access], process.env[other.refresh]];
+  const otherSecrets = AUTH_ACCOUNTS.filter((other) => other !== account)
+    .map((other) => TOKEN_POLICIES[other].secretEnv)
+    .flatMap((env) => [process.env[env.access], process.env[env.refresh]]);
   if (
     otherSecrets.includes(accessSecret) ||
     otherSecrets.includes(refreshSecret)
   ) {
-    throw new Error('Shopper and seller token secrets must all be different');
+    throw new Error(
+      'Shopper, seller and rider token secrets must all be different',
+    );
   }
 
   return { accessSecret, refreshSecret };

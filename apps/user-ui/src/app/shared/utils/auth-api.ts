@@ -73,8 +73,13 @@ function postAuth<T>(path: string, body: unknown): Promise<T> {
   return requestAuth<T>('POST', path, body);
 }
 
-const isUnauthorized = (error: unknown) =>
+export const isUnauthorized = (error: unknown) =>
   error instanceof AuthRequestError && error.status === 401;
+
+/** Renews an expired access token with the refresh token cookie. */
+export function refreshUserSession() {
+  return requestAuth<MessageResponse>('POST', 'refresh-token');
+}
 
 /**
  * Returns the signed-in user, or null when nobody is signed in.
@@ -91,7 +96,7 @@ export async function getLoggedInUser(): Promise<AuthUser | null> {
   }
 
   try {
-    await requestAuth('POST', 'refresh-token');
+    await refreshUserSession();
   } catch (error) {
     if (isUnauthorized(error)) return null;
     throw error;

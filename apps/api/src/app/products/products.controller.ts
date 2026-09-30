@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -6,6 +6,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import type { Response } from 'express';
 import type {
   ApiResponse,
   PaginatedResponse,
@@ -32,7 +33,7 @@ export class ProductsController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'pageSize', required: false, type: Number })
   @ApiOkResponse({ description: 'Paginated products response' })
-  getProducts(
+  async getProducts(
     @Query('category') category?: string,
     @Query('minPrice') minPrice?: string,
     @Query('maxPrice') maxPrice?: string,
@@ -40,7 +41,7 @@ export class ProductsController {
     @Query('searchTerm') searchTerm?: string,
     @Query('page') page = '1',
     @Query('pageSize') pageSize = '10',
-  ): ApiResponse<PaginatedResponse<Product>> {
+  ): Promise<ApiResponse<PaginatedResponse<Product>>> {
     const filter: ProductFilter = {};
 
     if (category) {
@@ -59,7 +60,7 @@ export class ProductsController {
       filter.searchTerm = searchTerm;
     }
 
-    const result = this.productsApiService.getProducts(
+    const result = await this.productsApiService.getProducts(
       filter,
       Number(page) || 1,
       Number(pageSize) || 10,
@@ -74,9 +75,9 @@ export class ProductsController {
   @Get('categories')
   @ApiOperation({ summary: 'List product categories' })
   @ApiOkResponse({ description: 'Categories response' })
-  getCategories(): ApiResponse<string[]> {
+  async getCategories(): Promise<ApiResponse<string[]>> {
     return {
-      data: this.productsApiService.getCategories(),
+      data: await this.productsApiService.getCategories(),
       success: true,
     };
   }
@@ -85,8 +86,8 @@ export class ProductsController {
   @ApiOperation({ summary: 'Get a product by id' })
   @ApiOkResponse({ description: 'Product response' })
   @ApiNotFoundResponse({ description: 'Product not found' })
-  getProductById(@Param('id') id: string): ApiResponse<Product> {
-    const product = this.productsApiService.getProductById(id);
+  async getProductById(@Param('id') id: string): Promise<ApiResponse<Product>> {
+    const product = await this.productsApiService.getProductById(id);
 
     if (!product) {
       throw notFound('Product', { id });
@@ -96,5 +97,27 @@ export class ProductsController {
       data: product,
       success: true,
     };
+  }
+
+  @Get(':id/images/:index')
+  @ApiOperation({ summary: 'Get one of a product’s photos' })
+  @ApiNotFoundResponse({ description: 'Photo not found' })
+  async getProductImage(
+    @Param('id') id: string,
+    @Param('index') index: string,
+    @Res() res: Response,
+  ) {
+    const image = /^\d+$/.test(index)
+      ? await this.productsApiService.getProductImage(id, Number(index))
+      : undefined;
+
+    if (!image) {
+      throw notFound('Photo', { id, index });
+    }
+
+    res
+      .type(image.contentType)
+      .set('Cache-Control', 'public, max-age=86400')
+      .send(image.body);
   }
 }

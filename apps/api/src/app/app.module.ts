@@ -4,7 +4,11 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AllExceptionsFilter } from '@org/errors';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { DiscountCodesModule } from './discount-codes/discount-codes.module';
+import { OrdersModule } from './orders/orders.module';
+import { ProductImagesModule } from './product-images/product-images.module';
 import { ProductsModule } from './products/products.module';
+import { ServicesModule } from './services/services.module';
 
 @Module({
   imports: [
@@ -16,6 +20,10 @@ import { ProductsModule } from './products/products.module';
       },
     ]),
     ProductsModule,
+    ProductImagesModule,
+    DiscountCodesModule,
+    ServicesModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [

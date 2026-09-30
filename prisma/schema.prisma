@@ -81,26 +81,33 @@ type social_link {
 /// indexes treat a missing value as a duplicate, so an optional sellers.shopId
 /// could only ever be empty for one seller.
 model shops {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  bio           String?
-  category      String
-  address       String
+  id             String            @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  bio            String?
+  category       String
+  address        String
   /// Open days only; an empty list means the seller hasn't set hours.
-  opening_hours opening_day[]
-  website       String?
+  opening_hours  opening_day[]
+  website        String?
   /// Wide header image shown at the top of the shop page (URL).
-  coverBanner   String?
-  socialLinks   social_link[]
+  coverBanner    String?
+  socialLinks    social_link[]
   /// Average of the shop's review ratings; 0 until the first review.
-  ratings       Float          @default(0)
+  ratings        Float             @default(0)
   /// Optional; at most one image, and uploading a new avatar replaces the old one.
-  avatar        images[]
-  reviews       shop_reviews[]
-  sellerId      String         @unique @db.ObjectId
-  seller        sellers        @relation(fields: [sellerId], references: [id])
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  avatar         images[]
+  reviews        shop_reviews[]
+  products       products[]
+  discountCodes  discount_codes[]
+  serviceProfile service_profiles?
+  /// Town riders collect orders from, one of DELIVERY_ZONES in @org/models.
+  deliveryZone   String?
+  /// USD charged to shoppers per order; DEFAULT_DELIVERY_FEE when unset.
+  deliveryFee    Float?
+  sellerId       String            @unique @db.ObjectId
+  seller         sellers           @relation(fields: [sellerId], references: [id])
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 }
 
 /// A shopper's review of a shop. One review per shopper per shop; posting again
@@ -119,5 +126,278 @@ model shop_reviews {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, shopId])
+  @@index([shopId])
+}
+
+/// A value a shopper can pick for an option, e.g. "Black" or "42".
+type product_option_value {
+  label      String
+  /// Hex colour shown as a swatch, e.g. "#111111". Colour options only.
+  swatch     String?
+  /// Index into products.images of the photo showing this value.
+  imageIndex Int?
+}
+
+/// Something the shopper picks before buying, e.g. Colour or Size.
+type product_option {
+  name   String
+  values product_option_value[]
+}
+
+/// A detail shown on the product page, e.g. Brand: Bata.
+type product_spec {
+  name  String
+  value String
+}
+
+/// One combination of option values with its own stock.
+type product_variant {
+  sku     String?
+  /// Option name → chosen value, e.g. { "Colour": "Black", "Size": "42" }.
+  choices Json
+  /// Overrides products.price for this combination.
+  price   Float?
+  stock   Int
+}
+
+/// A product listed by a shop. Checked by parseProductInput in @org/models, which also
+/// requires exactly one variant per combination of option values.
+model products {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  shortDescription String
+  description      String
+  category         String
+  subCategory      String
+  tags             String[]
+  price            Float
+  salePrice        Float?
+  /// Cover photo first. ImageKit URLs; older listings may hold data URLs.
+  images           String[]
+  /// ImageKit file id of each photo, same order as images, for deleting them with
+  /// the product. Empty for data URL photos.
+  imageFileIds     String[]
+  specs            product_spec[]
+  options          product_option[]
+  variants         product_variant[]
+  /// Sum of the variants' stock, or the product's own stock when it has no options.
+  stock            Int
+  /// "full_upfront", "deposit" (half now, half on delivery) and/or "cash_on_delivery".
+  /// Empty on older listings, which are treated as full payment upfront.
+  paymentOptions   String[]
+  ratings          Float             @default(0)
+  reviewCount      Int               @default(0)
+  shopId           String            @db.ObjectId
+  shop             shops             @relation(fields: [shopId], references: [id])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([shopId])
+  @@index([category, subCategory])
+}
+
+/// A code shoppers enter at checkout for money off one shop's products. Codes are
+/// unique across the marketplace. Checked by parseDiscountCodeInput in @org/models.
+model discount_codes {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  /// Upper case letters and digits, e.g. "HARVEST10".
+  code       String   @unique
+  /// "percentage" or "fixed"
+  type       String
+  /// Percent off (1–90) or USD off.
+  value      Float
+  /// USD the shopper must spend on this shop's products first.
+  minSpend   Float?
+  usageLimit Int?
+  usedCount  Int      @default(0)
+  /// Last day the code works, "YYYY-MM-DD" (UTC).
+  expiresAt  String?
+  active     Boolean  @default(true)
+  shopId     String   @db.ObjectId
+  shop       shops    @relation(fields: [shopId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([shopId])
+}
+
+/// A degree, licence or certificate on a provider's profile.
+type qualification {
+  title  String
+  issuer String?
+  year   Int?
+}
+
+/// How a shop presents itself as a service provider: skills, qualifications and past
+/// work. One per shop. Checked by parseServiceProfileInput in @org/models.
+model service_profiles {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  headline         String
+  about            String
+  skills           String[]
+  yearsExperience  Int
+  qualifications   qualification[]
+  serviceArea      String
+  /// Also takes work online.
+  remote           Boolean         @default(false)
+  /// ImageKit URLs of past work.
+  portfolio        String[]
+  /// ImageKit file id of each portfolio photo, same order as portfolio.
+  portfolioFileIds String[]
+  shopId           String          @unique @db.ObjectId
+  shop             shops           @relation(fields: [shopId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+/// A shopper asking a provider for one of their services. The listing's title is copied
+/// so the request still reads well if the listing is removed, which is why productId,
+/// shopId and userId are plain ids rather than relations.
+model service_requests {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId    String   @db.ObjectId
+  serviceTitle String
+  shopId       String   @db.ObjectId
+  userId       String   @db.ObjectId
+  clientName   String
+  clientEmail  String
+  clientPhone  String?
+  details      String
+  /// USD
+  budget       Float?
+  /// "YYYY-MM-DD"
+  neededBy     String?
+  /// "pending", "accepted", "declined" or "completed"
+  status       String   @default("pending")
+  /// The provider's reply, shown to the shopper.
+  sellerNote   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([shopId, createdAt])
+  @@index([userId, createdAt])
+}
+
+/// Someone who delivers orders for shops. Signs up and logs in through auth-service
+/// like sellers do; the delivery fields are filled in from the rider dashboard.
+model riders {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String   @unique
+  /// International format, e.g. "+254712345678".
+  phone_number String
+  password     String
+  /// "motorbike", "bicycle", "car", "van" or "on_foot"; unset until the profile is filled in.
+  vehicle      String?
+  /// Towns the rider delivers in, from DELIVERY_ZONES in @org/models.
+  zones        String[]
+  /// Taking jobs right now.
+  available    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([zones, available])
+}
+
+/// Where the shopper wants the order brought.
+type delivery_address {
+  recipientName String
+  phone         String
+  zone          String
+  area          String
+  street        String?
+  notes         String?
+}
+
+/// A product in an order, copied at checkout so the order doesn't change with the listing.
+type order_item {
+  productId     String @db.ObjectId
+  name          String
+  imageUrl      String
+  /// Option name → chosen value, e.g. { "Size": "42" }.
+  choices       Json?
+  quantity      Int
+  unitPrice     Float
+  total         Float
+  discount      Float
+  paymentOption String
+}
+
+/// One shop's part of a checkout. The shop name and prices are copied, so shopId and
+/// userId are plain ids like service_requests.
+model orders {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  /// Short reference shown to people, e.g. "ML-7Q2K9D".
+  number       String           @unique
+  shopId       String           @db.ObjectId
+  shopName     String
+  userId       String           @db.ObjectId
+  buyerName    String
+  buyerEmail   String
+  address      delivery_address
+  items        order_item[]
+  subtotal     Float
+  discount     Float
+  discountCode String?
+  deliveryFee  Float
+  total        Float
+  /// Due when ordering, including the delivery fee.
+  payNow       Float
+  onDelivery   Float
+  /// "placed", "confirmed", "out_for_delivery", "delivered" or "cancelled"
+  status       String           @default("placed")
+  /// Four digits the shopper gives the rider to prove the order arrived.
+  deliveryCode String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([shopId, createdAt])
+  @@index([userId, createdAt])
+}
+
+type geo_point {
+  lat Float
+  lng Float
+  at  DateTime
+}
+
+type delivery_event {
+  /// The delivery status this event moved to.
+  status String
+  at     DateTime
+  note   String?
+  /// Where the rider was, when their phone shared it.
+  lat    Float?
+  lng    Float?
+}
+
+/// Getting one order from the shop to the shopper. One per order; asking for a rider
+/// again after a decline or cancellation reuses it.
+model deliveries {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  orderId         String           @unique @db.ObjectId
+  shopId          String           @db.ObjectId
+  pickupZone      String
+  dropoffZone     String
+  /// USD paid to the rider: the delivery fee the shopper paid.
+  fee             Float
+  /// "open", "offered", "declined", "assigned", "picked_up", "delivered" or "cancelled"
+  status          String
+  /// The rider a seller picked, while waiting for their answer.
+  offeredRiderId  String?          @db.ObjectId
+  /// The rider doing the delivery, once someone accepts.
+  riderId         String?          @db.ObjectId
+  /// Wrong delivery codes entered since the last lock.
+  codeAttempts    Int              @default(0)
+  /// Set after too many wrong codes; no code is accepted until then.
+  codeLockedUntil DateTime?
+  lastLocation    geo_point?
+  events          delivery_event[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([status, pickupZone])
+  @@index([riderId, updatedAt])
+  @@index([offeredRiderId, status])
   @@index([shopId])
 }
