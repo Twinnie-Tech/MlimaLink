@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Product, ApiResponse } from '@org/models';
+import { Product } from '@org/models';
+import { fetchApiData } from './fetch-api-data';
 
 const API_URL = '/api';
 
@@ -19,22 +20,19 @@ export function useProduct(id: string | undefined) {
       setError(null);
 
       try {
-        const response = await fetch(`${API_URL}/products/${id}`);
-        const data: ApiResponse<Product> =
-          (await response.json()) as ApiResponse<Product>;
-
-        if (!data.success) {
-          throw new Error(data.error || 'Failed to load product');
-        }
-
-        setProduct(data.data);
+        setProduct(
+          await fetchApiData<Product>(
+            `${API_URL}/products/${id}`,
+            'Failed to load product',
+          ),
+        );
       } catch (err) {
         const message =
           err instanceof Error
             ? err.message
             : 'An error occurred while loading the product';
         setError(message);
-        console.error('Error loading product:', err);
+        console.warn('Error loading product:', message);
         setProduct(null);
       } finally {
         setLoading(false);
