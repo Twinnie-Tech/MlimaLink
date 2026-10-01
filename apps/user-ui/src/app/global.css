@@ -9,6 +9,43 @@
 @theme {
   --color-brand-start: #667eea;
   --color-brand-end: #764ba2;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 8s ease-in-out 1.5s infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-blob: blob 14s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes blob {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(30px, -40px) scale(1.08);
+    }
+    66% {
+      transform: translate(-25px, 25px) scale(0.95);
+    }
+  }
 }
 
 /* Font variables come from next/font/google in layout.tsx. */
@@ -21,6 +58,15 @@
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--color-neutral-300) transparent;
+}
+
+/* Faint brand grid behind the landing hero, fading out towards the edges. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(102 126 234 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(102 126 234 / 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 35%, transparent 75%);
 }
 
 /*

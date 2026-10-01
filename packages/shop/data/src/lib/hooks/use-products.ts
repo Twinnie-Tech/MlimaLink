@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
-import {
-  Product,
-  ApiResponse,
-  PaginatedResponse,
-  ProductFilter,
-} from '@org/models';
+import { Product, PaginatedResponse, ProductFilter } from '@org/models';
+import { fetchApiData } from './fetch-api-data';
 
 const API_URL = '/api';
 
@@ -37,24 +33,21 @@ export function useProducts(filter?: ProductFilter, page = 1, pageSize = 12) {
           if (filter.searchTerm) params.append('searchTerm', filter.searchTerm);
         }
 
-        const response = await fetch(`${API_URL}/products?${params}`);
-        const data: ApiResponse<PaginatedResponse<Product>> =
-          (await response.json()) as ApiResponse<PaginatedResponse<Product>>;
+        const data = await fetchApiData<PaginatedResponse<Product>>(
+          `${API_URL}/products?${params}`,
+          'Failed to load products',
+        );
 
-        if (!data.success) {
-          throw new Error(data.error || 'Failed to load products');
-        }
-
-        setProducts(data.data.items);
-        setTotalProducts(data.data.total);
-        setTotalPages(data.data.totalPages);
+        setProducts(data.items);
+        setTotalProducts(data.total);
+        setTotalPages(data.totalPages);
       } catch (err) {
         const message =
           err instanceof Error
             ? err.message
             : 'An error occurred while loading products';
         setError(message);
-        console.error('Error loading products:', err);
+        console.warn('Error loading products:', message);
         setProducts([]);
         setTotalProducts(0);
         setTotalPages(0);
@@ -86,22 +79,19 @@ export function useCategories() {
       setError(null);
 
       try {
-        const response = await fetch(`${API_URL}/products/categories`);
-        const data: ApiResponse<string[]> =
-          (await response.json()) as ApiResponse<string[]>;
-
-        if (!data.success) {
-          throw new Error(data.error || 'Failed to load categories');
-        }
-
-        setCategories(data.data);
+        setCategories(
+          await fetchApiData<string[]>(
+            `${API_URL}/products/categories`,
+            'Failed to load categories',
+          ),
+        );
       } catch (err) {
         const message =
           err instanceof Error
             ? err.message
             : 'An error occurred while loading categories';
         setError(message);
-        console.error('Error loading categories:', err);
+        console.warn('Error loading categories:', message);
         setCategories([]);
       } finally {
         setLoading(false);
