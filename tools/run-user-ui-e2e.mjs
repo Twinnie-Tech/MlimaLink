@@ -71,9 +71,16 @@ process.on('SIGTERM', () => {
   process.exit(1);
 });
 
+// CI has no .env. Auth-service doesn't run here, so no real tokens exist; the guards just
+// need a secret to answer signed-in-only routes with a 401 instead of a 500.
+const e2eSecret = 'e2e-only-not-a-real-secret';
 start(process.execPath, ['dist/main.js'], 'apps/api', {
   HOST: '0.0.0.0',
   API_PORT: '3333',
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET ?? e2eSecret,
+  SELLER_ACCESS_TOKEN_SECRET:
+    process.env.SELLER_ACCESS_TOKEN_SECRET ?? e2eSecret,
+  RIDER_ACCESS_TOKEN_SECRET: process.env.RIDER_ACCESS_TOKEN_SECRET ?? e2eSecret,
 });
 start(process.execPath, ['dist/main.js'], 'apps/api-gateway', {
   HOST: '0.0.0.0',
