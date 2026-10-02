@@ -4,3 +4,4 @@ export * from './lib/catalog.model.js';
 export * from './lib/checkout.model.js';
 export * from './lib/service.model.js';
 export * from './lib/delivery.model.js';
+export * from './lib/shop.model.js';

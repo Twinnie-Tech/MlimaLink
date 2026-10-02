@@ -223,6 +223,7 @@ describe('ProductDetail', () => {
       specs: [{ name: 'Brand', value: 'Stride' }],
       subCategory: 'Shoes',
       shopName: 'Mama Shoes',
+      shopId: 'shop1',
       options: [
         {
           name: 'Colour',
@@ -266,7 +267,10 @@ describe('ProductDetail', () => {
       expect(screen.getByText('$50.00')).toBeInTheDocument();
       expect(screen.getByText('$60.00')).toBeInTheDocument();
       expect(screen.getByText('Stride')).toBeInTheDocument();
-      expect(screen.getByText('Mama Shoes')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Mama Shoes' })).toHaveAttribute(
+        'href',
+        '/shops/shop1',
+      );
       expect(screen.getByText(/Electronics › Shoes/)).toBeInTheDocument();
     });
 

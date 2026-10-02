@@ -110,6 +110,55 @@ export function formatOpeningHours(
   return lines;
 }
 
+/** Opening hours are entered in the shop's local time. */
+export const SHOP_TIME_ZONE = 'Africa/Nairobi';
+
+export type OpenStatus = { open: boolean; label: string };
+
+/**
+ * Whether a shop is open at `now` and when that changes, e.g. "Open until 17:00"
+ * or "Opens tomorrow at 08:00". Null when the seller hasn't set hours.
+ */
+export function openStatus(
+  hours: ReadonlyArray<OpeningDay>,
+  now: Date = new Date(),
+): OpenStatus | null {
+  if (hours.length === 0) return null;
+
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: SHOP_TIME_ZONE,
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(now);
+  const part = (type: string) =>
+    parts.find((entry) => entry.type === type)?.value ?? '';
+  const today = WEEK_DAYS.findIndex(
+    (weekDay) => weekDay.short === part('weekday'),
+  );
+  // "HH:mm" strings sort the same way as the times they stand for.
+  const time = `${part('hour')}:${part('minute')}`;
+  const byDay = new Map(hours.map((entry) => [entry.day as string, entry]));
+
+  const todays = byDay.get(WEEK_DAYS[today]?.key);
+  if (todays && todays.open <= time && time < todays.close) {
+    return { open: true, label: `Open until ${todays.close}` };
+  }
+  if (todays && time < todays.open) {
+    return { open: false, label: `Opens today at ${todays.open}` };
+  }
+  for (let ahead = 1; ahead <= 7; ahead++) {
+    const weekDay = WEEK_DAYS[(today + ahead) % WEEK_DAYS.length];
+    const next = byDay.get(weekDay.key);
+    if (next) {
+      const when = ahead === 1 ? 'tomorrow' : weekDay.label;
+      return { open: false, label: `Opens ${when} at ${next.open}` };
+    }
+  }
+  return { open: false, label: 'Closed' };
+}
+
 function shortDay(day: WeekDay): string {
   return WEEK_DAYS.find((weekDay) => weekDay.key === day)?.short ?? day;
 }

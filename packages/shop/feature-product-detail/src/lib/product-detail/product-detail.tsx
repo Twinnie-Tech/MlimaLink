@@ -428,7 +428,13 @@ export function ProductDetail({
               {product.shopName && (
                 <li>
                   <strong>{service ? 'Offered by:' : 'Sold by:'}</strong>{' '}
-                  {product.shopName}
+                  {product.shopId ? (
+                    <a href={`/shops/${encodeURIComponent(product.shopId)}`}>
+                      {product.shopName}
+                    </a>
+                  ) : (
+                    product.shopName
+                  )}
                 </li>
               )}
               <li>
