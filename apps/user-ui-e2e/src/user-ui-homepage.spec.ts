@@ -20,12 +20,22 @@ test.describe('User UI Homepage', () => {
     ).toBeVisible();
   });
 
-  test('should redirect to products page by default', async ({ page }) => {
-    await page.waitForURL('**/products');
-    expect(page.url()).toContain('/products');
+  test('should show the landing page and lead into the products', async ({
+    page,
+  }) => {
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: 'Shop local. Sell further. Delivered to your door.',
+      }),
+    ).toBeVisible();
 
-    const productsHeading = page.locator('h1:has-text("Our Products")');
-    await expect(productsHeading).toBeVisible();
+    await page
+      .getByRole('link', { name: /Start shopping/ })
+      .first()
+      .click();
+    await page.waitForURL('**/products');
+    await expect(page.locator('h1:has-text("Our Products")')).toBeVisible();
   });
 
   test('should search products from the header', async ({ page }) => {
@@ -51,7 +61,8 @@ test.describe('User UI Homepage', () => {
     await expect(page).toHaveTitle(/shop/i);
   });
 
-  test('should display the tagline', async ({ page }) => {
+  test('should display the tagline on the products page', async ({ page }) => {
+    await page.goto('/products');
     const tagline = page.locator('p:has-text("Explore our wide selection")');
     await expect(tagline).toBeVisible();
   });

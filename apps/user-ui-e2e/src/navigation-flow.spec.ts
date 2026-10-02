@@ -4,10 +4,13 @@ test.describe('Navigation Flow', () => {
   test('should complete full user journey from listing to detail and back', async ({
     page,
   }) => {
-    // Start at home page
+    // Start at the landing page and head into the shop
     await page.goto('/');
+    await page
+      .getByRole('link', { name: /Start shopping/ })
+      .first()
+      .click();
 
-    // Should redirect to products
     await page.waitForURL('**/products');
     expect(page.url()).toContain('/products');
 

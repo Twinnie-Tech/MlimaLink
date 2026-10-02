@@ -97,6 +97,9 @@ test.describe('Header departments and navigation', () => {
     ).toBeVisible();
 
     await nav.getByRole('link', { name: 'Home' }).click();
-    await page.waitForURL('**/products');
+    await page.waitForURL((url) => url.pathname === '/');
+    await expect(
+      page.getByRole('heading', { level: 1, name: /Shop local/ }),
+    ).toBeVisible();
   });
 });

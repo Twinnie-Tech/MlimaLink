@@ -56,7 +56,7 @@ test.describe('Login page', () => {
     await page.getByRole('checkbox', { name: 'Remember me' }).check();
     await page.getByRole('button', { name: 'Login', exact: true }).click();
 
-    await page.waitForURL('**/products');
+    await page.waitForURL((url) => url.pathname === '/');
     expect(requests).toEqual([
       { email: 'jane@example.com', password: 'Wrong123!', rememberMe: true },
     ]);
