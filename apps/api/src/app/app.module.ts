@@ -9,6 +9,7 @@ import { OrdersModule } from './orders/orders.module';
 import { ProductImagesModule } from './product-images/product-images.module';
 import { ProductsModule } from './products/products.module';
 import { ServicesModule } from './services/services.module';
+import { ShopsModule } from './shops/shops.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ServicesModule } from './services/services.module';
     DiscountCodesModule,
     ServicesModule,
     OrdersModule,
+    ShopsModule,
   ],
   controllers: [AppController],
   providers: [

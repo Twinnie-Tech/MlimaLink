@@ -5,10 +5,12 @@ export function EmptyState({
   icon: Icon,
   title,
   description,
+  action = { href: '/products', label: 'Browse products' },
 }: {
   icon: LucideIcon;
   title: string;
   description: string;
+  action?: { href: string; label: string };
 }) {
   return (
     <div className="flex flex-col items-center rounded-xl border border-neutral-200 bg-white px-6 py-16 text-center">
@@ -20,10 +22,10 @@ export function EmptyState({
       </h2>
       <p className="mt-2 max-w-sm text-neutral-500">{description}</p>
       <Link
-        href="/products"
+        href={action.href}
         className="mt-6 rounded-md bg-brand-start px-6 py-3 font-poppins font-medium text-white transition hover:bg-brand-end"
       >
-        Browse products
+        {action.label}
       </Link>
     </div>
   );

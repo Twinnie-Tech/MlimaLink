@@ -279,6 +279,17 @@
   margin-right: 8px;
 }
 
+.product-details a {
+  color: #667eea;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.product-details a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
 .gallery {
   display: flex;
   flex-direction: column;

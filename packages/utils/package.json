@@ -1,0 +1,29 @@
+{
+  "name": "@org/utils",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./kafka": {
+      "types": "./kafka/index.ts",
+      "import": "./kafka/index.ts",
+      "default": "./kafka/index.ts"
+    },
+    "./logs": {
+      "types": "./logs/index.ts",
+      "import": "./logs/index.ts",
+      "default": "./logs/index.ts"
+    }
+  },
+  "nx": {
+    "name": "utils",
+    "tags": [
+      "scope:shared",
+      "type:util"
+    ]
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4",
+    "tslib": "^2.3.0"
+  }
+}
