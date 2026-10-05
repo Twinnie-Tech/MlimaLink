@@ -1,5 +1,4 @@
-import type { Producer } from 'kafkajs';
-import { getKafka } from '../kafka/index.js';
+import { getProducer } from '../kafka/index.js';
 
 /** Topic every service publishes its logs to. */
 export const LOGS_TOPIC = 'logs';
@@ -31,27 +30,13 @@ export function createLogEntry(
   };
 }
 
-let producer: Promise<Producer> | undefined;
-
-function logProducer(): Promise<Producer> {
-  producer ??= (async () => {
-    const created = getKafka().producer();
-    await created.connect();
-    return created;
-  })().catch((error) => {
-    producer = undefined;
-    throw error;
-  });
-  return producer;
-}
-
 /**
  * Publishes a log entry to the logs topic, keyed by source so each service's logs stay
  * in order. Never throws: a broken log pipeline must not take the service down with it.
  */
 export async function sendLog(entry: LogEntry): Promise<boolean> {
   try {
-    const connected = await logProducer();
+    const connected = await getProducer();
     await connected.send({
       topic: LOGS_TOPIC,
       messages: [{ key: entry.source, value: JSON.stringify(entry) }],
@@ -63,11 +48,4 @@ export async function sendLog(entry: LogEntry): Promise<boolean> {
     );
     return false;
   }
-}
-
-/** Call on shutdown so buffered logs are flushed. */
-export async function disconnectLogProducer(): Promise<void> {
-  const current = producer;
-  producer = undefined;
-  if (current) await (await current.catch(() => undefined))?.disconnect();
 }

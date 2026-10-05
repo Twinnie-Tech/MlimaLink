@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./events": {
+      "types": "./events/index.ts",
+      "import": "./events/index.ts",
+      "default": "./events/index.ts"
+    },
     "./kafka": {
       "types": "./kafka/index.ts",
       "import": "./kafka/index.ts",

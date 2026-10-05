@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Product } from '@org/models';
 import {
   SHOP_STORAGE_KEY,
@@ -49,6 +49,65 @@ describe('shop store', () => {
 
     act(() => result.current.toggleWishlist(shoes));
     expect(result.current.isWishlisted('1')).toBe(false);
+  });
+
+  async function renderTrackedStore() {
+    const onActivity = vi.fn();
+    const hook = renderHook(() => useShopStore(), {
+      wrapper: ({ children }) => (
+        <ShopStoreProvider onActivity={onActivity}>
+          {children}
+        </ShopStoreProvider>
+      ),
+    });
+    await waitFor(() => expect(hook.result.current.ready).toBe(true));
+    const reported = () => onActivity.mock.calls.map(([activity]) => activity);
+    return { ...hook, reported };
+  }
+
+  it('reports wishlist adds and removals', async () => {
+    const { result, reported } = await renderTrackedStore();
+
+    act(() => result.current.toggleWishlist(shoes));
+    act(() => result.current.toggleWishlist(shoes));
+    act(() => result.current.toggleWishlist(headphones));
+    act(() => result.current.removeFromWishlist('2'));
+    act(() => result.current.removeFromWishlist('2'));
+
+    expect(reported()).toEqual([
+      { action: 'add_to_wishlist', productId: '1' },
+      { action: 'remove_from_wishlist', productId: '1' },
+      { action: 'add_to_wishlist', productId: '2' },
+      { action: 'remove_from_wishlist', productId: '2' },
+    ]);
+  });
+
+  it('reports a cart removal once no line of the product is left', async () => {
+    const { result, reported } = await renderTrackedStore();
+    const black = { choices: { Colour: 'Black' }, stock: 3 };
+    const white = { choices: { Colour: 'White' }, stock: 3 };
+
+    act(() => result.current.addToCart(shoes, black));
+    act(() => result.current.addToCart(shoes, white));
+    act(() =>
+      result.current.removeFromCart(
+        cartLineId({ product: shoes, variant: black }),
+      ),
+    );
+    expect(reported()).toEqual([
+      { action: 'add_to_cart', productId: '1' },
+      { action: 'add_to_cart', productId: '1' },
+    ]);
+
+    act(() =>
+      result.current.removeFromCart(
+        cartLineId({ product: shoes, variant: white }),
+      ),
+    );
+    expect(reported().at(-1)).toEqual({
+      action: 'remove_from_cart',
+      productId: '1',
+    });
   });
 
   it('adds to the cart, merges quantities and totals the cart', async () => {

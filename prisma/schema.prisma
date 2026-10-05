@@ -401,3 +401,59 @@ model deliveries {
   @@index([offeredRiderId, status])
   @@index([shopId])
 }
+
+/// Something a shopper did with a product, from the user_events topic. Used for
+/// recommendations.
+type user_action {
+  /// "product_view", "add_to_wishlist", "add_to_cart" or "purchase". Removing a product
+  /// from the wishlist or cart deletes its matching add instead of being stored.
+  action    String
+  productId String   @db.ObjectId
+  shopId    String?  @db.ObjectId
+  at        DateTime
+}
+
+/// What a shopper has been doing, kept up to date by kafka-service from the user_events
+/// topic. userId is a plain id like orders.userId.
+model user_analytics {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String        @unique @db.ObjectId
+  /// Oldest first; kafka-service keeps only the latest USER_ACTIONS_KEPT.
+  actions      user_action[]
+  wishlistAdds Int           @default(0)
+  cartAdds     Int           @default(0)
+  lastActiveAt DateTime
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+/// How shoppers respond to one product, kept up to date by kafka-service from the
+/// user_events topic. productId and shopId are plain ids so the numbers survive the
+/// listing being removed.
+model product_analytics {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId    String   @unique @db.ObjectId
+  shopId       String?  @db.ObjectId
+  views        Int      @default(0)
+  /// Shoppers who have it in their cart now: adds minus removals.
+  cartAdds     Int      @default(0)
+  /// Shoppers who have it on their wishlist now: adds minus removals.
+  wishlistAdds Int      @default(0)
+  /// Order lines it has appeared in.
+  purchases    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([shopId])
+}
+
+/// Visits to a shop's page by signed-in shoppers, kept up to date by kafka-service from
+/// the user_events topic.
+model shop_analytics {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  shopId        String   @unique @db.ObjectId
+  totalVisits   Int      @default(0)
+  lastVisitedAt DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
