@@ -49,6 +49,7 @@ async function bootstrap() {
     .addTag('orders')
     .addTag('seller orders')
     .addTag('rider')
+    .addTag('events')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);

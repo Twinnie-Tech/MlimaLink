@@ -1,20 +1,14 @@
-const producer = {
-  connect: vi.fn(),
-  send: vi.fn(),
-  disconnect: vi.fn(),
-};
+const producer = { send: vi.fn() };
+const getProducer = vi.fn();
 
-vi.mock('../kafka/index.js', () => ({
-  getKafka: () => ({ producer: () => producer }),
-}));
+vi.mock('../kafka/index.js', () => ({ getProducer }));
 
-const { LOGS_TOPIC, createLogEntry, disconnectLogProducer, sendLog } =
-  await import('./index.js');
+const { LOGS_TOPIC, createLogEntry, sendLog } = await import('./index.js');
 
 describe('logs', () => {
-  beforeEach(async () => {
-    await disconnectLogProducer();
+  beforeEach(() => {
     vi.clearAllMocks();
+    getProducer.mockResolvedValue(producer);
   });
 
   it('stamps entries with the time and leaves out empty meta', () => {
@@ -27,33 +21,28 @@ describe('logs', () => {
     });
   });
 
-  it('publishes to the logs topic keyed by source and connects once', async () => {
+  it('publishes to the logs topic keyed by source', async () => {
     const entry = createLogEntry('warn', 'Slow query', 'api', { ms: 900 });
 
     expect(await sendLog(entry)).toBe(true);
-    expect(await sendLog(entry)).toBe(true);
-
-    expect(producer.connect).toHaveBeenCalledTimes(1);
     expect(producer.send).toHaveBeenCalledWith({
       topic: LOGS_TOPIC,
       messages: [{ key: 'api', value: JSON.stringify(entry) }],
     });
   });
 
-  it('reports failure instead of throwing and retries the connection later', async () => {
+  it('reports failure instead of throwing', async () => {
     const error = vi
       .spyOn(console, 'error')
       .mockImplementation(() => undefined);
-    producer.connect.mockRejectedValueOnce(new Error('broker down'));
-    const entry = createLogEntry('error', 'Boom', 'auth-service');
+    getProducer.mockRejectedValueOnce(new Error('broker down'));
 
-    expect(await sendLog(entry)).toBe(false);
+    expect(await sendLog(createLogEntry('error', 'Boom', 'auth-service'))).toBe(
+      false,
+    );
     expect(error).toHaveBeenCalledWith(
       "Couldn't send log to Kafka: broker down",
     );
-
-    expect(await sendLog(entry)).toBe(true);
-    expect(producer.connect).toHaveBeenCalledTimes(2);
     error.mockRestore();
   });
 });

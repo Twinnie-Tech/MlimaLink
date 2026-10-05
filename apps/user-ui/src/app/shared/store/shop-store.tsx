@@ -17,6 +17,7 @@ import {
   unitPrice,
 } from '@org/models/catalog';
 import { normaliseCode } from '@org/models/checkout';
+import type { ProductActivity } from '../utils/events-api';
 
 export const SHOP_STORAGE_KEY = 'mlimalink-shop';
 
@@ -101,7 +102,14 @@ export interface ShopStore {
 
 const ShopStoreContext = createContext<ShopStore | null>(null);
 
-export function ShopStoreProvider({ children }: { children: React.ReactNode }) {
+export function ShopStoreProvider({
+  children,
+  onActivity,
+}: {
+  children: React.ReactNode;
+  /** Told when the shopper adds a product to, or removes one from, the wishlist or cart. */
+  onActivity?: (activity: ProductActivity) => void;
+}) {
   const [ready, setReady] = useState(false);
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -135,17 +143,30 @@ export function ShopStoreProvider({ children }: { children: React.ReactNode }) {
     [wishlist],
   );
 
-  const toggleWishlist = useCallback((product: Product) => {
-    setWishlist((current) =>
-      current.some((p) => p.id === product.id)
-        ? current.filter((p) => p.id !== product.id)
-        : [...current, product],
-    );
-  }, []);
+  const toggleWishlist = useCallback(
+    (product: Product) => {
+      const adding = !wishlist.some((p) => p.id === product.id);
+      setWishlist((current) =>
+        current.some((p) => p.id === product.id)
+          ? current.filter((p) => p.id !== product.id)
+          : [...current, product],
+      );
+      onActivity?.({
+        action: adding ? 'add_to_wishlist' : 'remove_from_wishlist',
+        productId: product.id,
+      });
+    },
+    [wishlist, onActivity],
+  );
 
-  const removeFromWishlist = useCallback((productId: string) => {
-    setWishlist((current) => current.filter((p) => p.id !== productId));
-  }, []);
+  const removeFromWishlist = useCallback(
+    (productId: string) => {
+      if (!wishlist.some((p) => p.id === productId)) return;
+      setWishlist((current) => current.filter((p) => p.id !== productId));
+      onActivity?.({ action: 'remove_from_wishlist', productId });
+    },
+    [wishlist, onActivity],
+  );
 
   const addToCart = useCallback(
     (product: Product, variant?: ProductVariant, quantity = 1) => {
@@ -164,8 +185,9 @@ export function ShopStoreProvider({ children }: { children: React.ReactNode }) {
         }
         return [...current, line];
       });
+      onActivity?.({ action: 'add_to_cart', productId: product.id });
     },
-    [],
+    [onActivity],
   );
 
   const updateCartQuantity = useCallback((lineId: string, quantity: number) => {
@@ -189,9 +211,23 @@ export function ShopStoreProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  const removeFromCart = useCallback((lineId: string) => {
-    setCart((current) => current.filter((item) => cartLineId(item) !== lineId));
-  }, []);
+  const removeFromCart = useCallback(
+    (lineId: string) => {
+      const removed = cart.find((item) => cartLineId(item) === lineId);
+      setCart((current) =>
+        current.filter((item) => cartLineId(item) !== lineId),
+      );
+      // Another colour or size of the same product can still be in the cart.
+      const productId = removed?.product.id;
+      if (
+        productId &&
+        !cart.some((item) => item !== removed && item.product.id === productId)
+      ) {
+        onActivity?.({ action: 'remove_from_cart', productId });
+      }
+    },
+    [cart, onActivity],
+  );
 
   const clearCart = useCallback(() => {
     setCart([]);

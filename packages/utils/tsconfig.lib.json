@@ -10,7 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["node"]
   },
-  "include": ["kafka/**/*.ts", "logs/**/*.ts"],
+  "include": ["events/**/*.ts", "kafka/**/*.ts", "logs/**/*.ts"],
   "references": [],
   "exclude": ["vitest.config.mts", "**/*.spec.ts", "**/*.test.ts"]
 }

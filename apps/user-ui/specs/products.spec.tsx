@@ -1,19 +1,20 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { ProductListProps } from '@org/shop-feature-products';
 import type { ProductDetailProps } from '@org/shop-feature-product-detail';
 import type { Product } from '@org/models';
 import ProductsPage from '../src/app/products/page';
 import ProductDetailPage from '../src/app/products/[id]/page';
+import { QueryProvider } from '../src/app/shared/providers/query-provider';
 import { ShopStoreProvider } from '../src/app/shared/store/shop-store';
 
 const push = vi.fn();
 const replace = vi.fn();
-const navigation = { search: 'search=shoes' };
+const navigation = { search: 'search=shoes', id: '42' };
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push, replace }),
-  useParams: () => ({ id: '42' }),
+  useParams: () => ({ id: navigation.id }),
   useSearchParams: () => new URLSearchParams(navigation.search),
 }));
 
@@ -76,7 +77,11 @@ vi.mock('@org/shop-feature-product-detail', () => ({
 }));
 
 function renderWithStore(ui: React.ReactElement) {
-  return render(<ShopStoreProvider>{ui}</ShopStoreProvider>);
+  return render(
+    <QueryProvider>
+      <ShopStoreProvider>{ui}</ShopStoreProvider>
+    </QueryProvider>,
+  );
 }
 
 describe('user-ui product pages', () => {
@@ -84,7 +89,12 @@ describe('user-ui product pages', () => {
     push.mockClear();
     replace.mockClear();
     navigation.search = 'search=shoes';
+    navigation.id = '42';
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('navigates to the product detail page when a product is selected', () => {
@@ -134,5 +144,39 @@ describe('user-ui product pages', () => {
     fireEvent.click(screen.getByText('back'));
 
     expect(push).toHaveBeenCalledWith('/products');
+  });
+
+  it('reports a product view once for a signed-in shopper', async () => {
+    const productId = 'c'.repeat(24);
+    navigation.id = productId;
+    const fetchMock = vi.fn(async (url: string) =>
+      url === '/api/auth/logged-in-user'
+        ? Response.json({
+            success: true,
+            user: { id: 'a'.repeat(24), name: 'Amina', email: 'a@x.co' },
+          })
+        : new Response(null, { status: 202 }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { rerender } = renderWithStore(<ProductDetailPage />);
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/events',
+        expect.objectContaining({
+          body: JSON.stringify({ action: 'product_view', productId }),
+        }),
+      ),
+    );
+    rerender(
+      <QueryProvider>
+        <ShopStoreProvider>
+          <ProductDetailPage />
+        </ShopStoreProvider>
+      </QueryProvider>,
+    );
+
+    const views = fetchMock.mock.calls.filter(([url]) => url === '/api/events');
+    expect(views).toHaveLength(1);
   });
 });

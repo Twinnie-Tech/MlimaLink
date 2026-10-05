@@ -17,6 +17,7 @@ import {
   parseCheckoutInput,
   parseCheckoutItems,
 } from '@org/models/delivery';
+import { EventsService } from '../events/events.service';
 import { UserGuard, type UserRequest } from '../user.guard';
 import { CheckoutService } from './checkout.service';
 import { OrdersService } from './orders.service';
@@ -27,6 +28,7 @@ export class OrdersController {
   constructor(
     private readonly checkout: CheckoutService,
     private readonly orders: OrdersService,
+    private readonly events: EventsService,
   ) {}
 
   @Post('quote')
@@ -63,6 +65,7 @@ export class OrdersController {
     const parsed = parseCheckoutInput(body);
     if ('error' in parsed) throw validationError(parsed.error);
     const orders = await this.checkout.place(req.user, parsed.checkout);
+    this.events.trackPurchases(req.user.id, orders);
     return {
       success: true,
       message:

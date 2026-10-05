@@ -4,7 +4,7 @@ import { Header } from './shared/widgets/header';
 import { SiteHeader } from './shared/widgets/site-header';
 import { themeInitScript } from './shared/theme/theme-script';
 import { QueryProvider } from './shared/providers/query-provider';
-import { ShopStoreProvider } from './shared/store/shop-store';
+import { TrackedShopStoreProvider } from './shared/providers/tracked-shop-store';
 import './global.css';
 
 const roboto = Roboto({
@@ -40,14 +40,14 @@ export default function RootLayout({
       </head>
       <body>
         <QueryProvider>
-          <ShopStoreProvider>
+          <TrackedShopStoreProvider>
             <div className="flex min-h-screen flex-col">
               <SiteHeader>
                 <Header />
               </SiteHeader>
               <main className="flex-1 bg-neutral-100">{children}</main>
             </div>
-          </ShopStoreProvider>
+          </TrackedShopStoreProvider>
         </QueryProvider>
       </body>
     </html>

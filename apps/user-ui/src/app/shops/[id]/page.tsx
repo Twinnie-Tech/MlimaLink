@@ -20,6 +20,7 @@ import {
 import type { ShopDetail } from '@org/models';
 import { imageSrcSet, sizedImage } from '@org/models/catalog';
 import { formatOpeningHours, openStatus } from '@org/models/opening-hours';
+import { useTrackShopVisit } from '../../shared/hooks/use-track-page-view';
 import { formatPrice } from '../../shared/store/shop-store';
 import { AuthRequestError } from '../../shared/utils/auth-api';
 import { getShop, shopQueryKey } from '../../shared/utils/shops-api';
@@ -172,6 +173,7 @@ export default function ShopPage() {
     queryFn: () => getShop(id),
     retry: false,
   });
+  useTrackShopVisit(shop?.id);
 
   if (isPending) {
     return (
