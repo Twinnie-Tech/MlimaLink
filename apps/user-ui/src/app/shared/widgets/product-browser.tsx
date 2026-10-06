@@ -1,6 +1,12 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import {
+  startTransition,
+  useCallback,
+  useMemo,
+  useOptimistic,
+  useState,
+} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { PackageSearch, SearchX, SlidersHorizontal, X } from 'lucide-react';
@@ -94,7 +100,10 @@ function SkeletonGrid() {
 /** The product catalogue with filters, sorting and pages. Everything lives in the URL so results can be shared. */
 export function ProductBrowser() {
   const router = useRouter();
-  const params = useSearchParams();
+  const searchParams = useSearchParams();
+  // Navigation is async; without this, controlled inputs snap back until the URL catches up.
+  const [query, setQuery] = useOptimistic(searchParams.toString());
+  const params = useMemo(() => new URLSearchParams(query), [query]);
   const { isWishlisted, toggleWishlist } = useShopStore();
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -125,9 +134,12 @@ export function ProductBrowser() {
     }
     // Any new filter starts again from the first page.
     if (!('page' in changes)) next.delete('page');
-    const query = next.toString().replace(/\+/g, '%20');
-    router.replace(query ? `/products?${query}` : '/products', {
-      scroll: 'page' in changes,
+    const nextQuery = next.toString().replace(/\+/g, '%20');
+    startTransition(() => {
+      setQuery(nextQuery);
+      router.replace(nextQuery ? `/products?${nextQuery}` : '/products', {
+        scroll: 'page' in changes,
+      });
     });
   };
   const closeFilters = useCallback(() => setFiltersOpen(false), []);
