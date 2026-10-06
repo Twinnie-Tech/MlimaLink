@@ -146,7 +146,8 @@ test.describe('Product Listing Page', () => {
     await page.waitForURL(/\/products\?sale=1$/);
     await onSaleResponse;
 
-    await expect(page.getByLabel('On sale')).toBeChecked();
+    // Exact, because the "Remove filter On sale" chip's label also contains "On sale".
+    await expect(page.getByLabel('On sale', { exact: true })).toBeChecked();
     await expect(
       page.getByRole('button', { name: 'Remove filter On sale' }),
     ).toBeVisible();
