@@ -20,6 +20,11 @@ import {
   sizedImage,
   unitPrice,
   variantCombinations,
+  compareSizes,
+  discountPercent,
+  isProductSort,
+  productColours,
+  productSizes,
 } from './catalog.model.js';
 import type { ProductOption } from './product.model.js';
 
@@ -489,5 +494,66 @@ describe('parseProductInput', () => {
     ).toBe(
       'That makes 110 combinations; the limit is 100. Remove some values.',
     );
+  });
+});
+
+describe('discountPercent', () => {
+  it('rounds the saving to a whole percent while on sale', () => {
+    expect(discountPercent({ price: 149.99, salePrice: 104.99 })).toBe(30);
+    expect(discountPercent({ price: 50 })).toBe(0);
+    expect(discountPercent({ price: 50, salePrice: 50 })).toBe(0);
+    expect(discountPercent({ price: 0, salePrice: 0 })).toBe(0);
+  });
+});
+
+describe('productColours and productSizes', () => {
+  it('reads the Colour and Size options', () => {
+    const product = { options: colourAndSize };
+    expect(productColours(product).map((value) => value.label)).toEqual(
+      colourAndSize[0].values.map((value) => value.label),
+    );
+    expect(productSizes(product)).toEqual(
+      colourAndSize[1].values.map((value) => value.label),
+    );
+  });
+
+  it('treats any option with swatches as the colours', () => {
+    const finish = {
+      options: [
+        { name: 'Finish', values: [{ label: 'Oak', swatch: '#a16207' }] },
+      ],
+    };
+    expect(productColours(finish)).toEqual([
+      { label: 'Oak', swatch: '#a16207' },
+    ]);
+  });
+
+  it('falls back to Colour and Size specs', () => {
+    const product = {
+      options: [],
+      specs: [
+        { name: 'Color', value: 'Grey' },
+        { name: 'Size', value: 'XL' },
+      ],
+    };
+    expect(productColours(product)).toEqual([{ label: 'Grey' }]);
+    expect(productSizes(product)).toEqual(['XL']);
+    expect(productColours({})).toEqual([]);
+  });
+});
+
+describe('compareSizes', () => {
+  it('orders letter sizes, then numbers, then other labels', () => {
+    expect(
+      ['One size', '42', 'XL', 'S', '9.5', 'M', '40'].sort(compareSizes),
+    ).toEqual(['S', 'M', 'XL', '9.5', '40', '42', 'One size']);
+  });
+});
+
+describe('isProductSort', () => {
+  it('accepts only known sort orders', () => {
+    expect(isProductSort('price_asc')).toBe(true);
+    expect(isProductSort('cheapest')).toBe(false);
+    expect(isProductSort(undefined)).toBe(false);
   });
 });

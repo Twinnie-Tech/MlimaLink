@@ -47,6 +47,15 @@ function readToken(req: Request): string | undefined {
   return header?.startsWith('Bearer ') ? header.slice(7) : undefined;
 }
 
+/** The signed-in shopper's id on public routes, or undefined for guests and expired sessions. */
+export function optionalUserId(req: Request): string | undefined {
+  try {
+    return verifyUserAccessToken(readToken(req));
+  } catch {
+    return undefined;
+  }
+}
+
 /** Lets through signed-in shoppers and attaches them as `req.user`. */
 @Injectable()
 export class UserGuard implements CanActivate {

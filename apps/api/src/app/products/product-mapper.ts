@@ -1,6 +1,20 @@
 import type { Prisma } from '@prisma/client';
-import type { PaymentOption, Product, ProductFilter } from '@org/models';
-import { descriptionText, listingTerms, priceRange } from '@org/models/catalog';
+import type {
+  PaymentOption,
+  Product,
+  ProductFacets,
+  ProductFilter,
+  ProductSort,
+} from '@org/models';
+import {
+  compareSizes,
+  descriptionText,
+  discountPercent,
+  listingTerms,
+  priceRange,
+  productColours,
+  productSizes,
+} from '@org/models/catalog';
 import { sanitizeDescription } from './rich-text';
 
 export const productWithShop = {
@@ -77,14 +91,41 @@ export function toProduct(record: ProductRecord): Product {
   };
 }
 
-/** The same filters the sample catalogue applies, plus sub-category, tags and details in search. */
+const includesAny = (values: string[], wanted: string[]) => {
+  const lower = new Set(values.map((value) => value.toLowerCase()));
+  return wanted.some((value) => lower.has(value.toLowerCase()));
+};
+
+/** Category, price, stock, colour, size, rating, sale and search filters. Search covers tags and details too. */
 export function matchesFilter(product: Product, filter?: ProductFilter) {
   if (!filter) return true;
   if (filter.category && product.category !== filter.category) return false;
+  if (filter.subCategory && product.subCategory !== filter.subCategory) {
+    return false;
+  }
   const { min, max } = priceRange(product);
   if (filter.minPrice !== undefined && max < filter.minPrice) return false;
   if (filter.maxPrice !== undefined && min > filter.maxPrice) return false;
   if (filter.inStock !== undefined && product.inStock !== filter.inStock) {
+    return false;
+  }
+  if (filter.onSale && discountPercent(product) === 0) return false;
+  if (filter.minRating !== undefined && product.rating < filter.minRating) {
+    return false;
+  }
+  if (
+    filter.colors?.length &&
+    !includesAny(
+      productColours(product).map((value) => value.label),
+      filter.colors,
+    )
+  ) {
+    return false;
+  }
+  if (
+    filter.sizes?.length &&
+    !includesAny(productSizes(product), filter.sizes)
+  ) {
     return false;
   }
   if (filter.searchTerm) {
@@ -102,4 +143,71 @@ export function matchesFilter(product: Product, filter?: ProductFilter) {
     }
   }
   return true;
+}
+
+const SORTERS: Record<ProductSort, (a: Product, b: Product) => number> = {
+  newest: () => 0,
+  price_asc: (a, b) => priceRange(a).min - priceRange(b).min,
+  price_desc: (a, b) => priceRange(b).min - priceRange(a).min,
+  rating: (a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount,
+  discount: (a, b) => discountPercent(b) - discountPercent(a),
+};
+
+/** A sorted copy. Ties keep their order, so `newest` leaves the list as it is. */
+export function sortProducts(
+  products: Product[],
+  sort: ProductSort = 'newest',
+) {
+  return [...products].sort(SORTERS[sort]);
+}
+
+const MAX_FACET_COLOURS = 24;
+const MAX_FACET_SIZES = 30;
+
+/** The colours, sizes, sub-categories and price span of some products, most common colours first. */
+export function productFacets(
+  products: Product[],
+  categories: string[],
+  category?: string,
+): ProductFacets {
+  const colours = new Map<
+    string,
+    { label: string; swatch?: string; count: number }
+  >();
+  const sizes = new Map<string, string>();
+  const subCategories = new Set<string>();
+  let minPrice = Infinity;
+  let maxPrice = -Infinity;
+
+  for (const product of products) {
+    for (const { label, swatch } of productColours(product)) {
+      const key = label.toLowerCase();
+      const seen = colours.get(key);
+      if (seen) {
+        seen.count += 1;
+        seen.swatch ??= swatch;
+      } else {
+        colours.set(key, { label, ...(swatch && { swatch }), count: 1 });
+      }
+    }
+    for (const size of productSizes(product)) {
+      if (!sizes.has(size.toLowerCase())) sizes.set(size.toLowerCase(), size);
+    }
+    if (category && product.subCategory) subCategories.add(product.subCategory);
+    const { min, max } = priceRange(product);
+    minPrice = Math.min(minPrice, min);
+    maxPrice = Math.max(maxPrice, max);
+  }
+
+  return {
+    categories,
+    subCategories: [...subCategories].sort(),
+    colors: [...colours.values()]
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+      .slice(0, MAX_FACET_COLOURS)
+      .map(({ label, swatch }) => ({ label, ...(swatch && { swatch }) })),
+    sizes: [...sizes.values()].sort(compareSizes).slice(0, MAX_FACET_SIZES),
+    minPrice: products.length ? Math.floor(minPrice) : 0,
+    maxPrice: products.length ? Math.ceil(maxPrice) : 0,
+  };
 }

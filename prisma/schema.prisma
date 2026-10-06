@@ -38,10 +38,11 @@ model users {
   country      String?
   following    String[]
   /// At most one image; uploading a new avatar replaces the old one.
-  avatar       images[]
-  shop_reviews shop_reviews[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  avatar          images[]
+  shop_reviews    shop_reviews[]
+  product_reviews product_reviews[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 }
 
 model sellers {
@@ -120,6 +121,8 @@ model shop_reviews {
   rating    Float
   /// Optional written review
   reviews   String?
+  /// The shopper had a delivered order from this shop when they posted.
+  verified  Boolean  @default(false)
   shopId    String   @db.ObjectId
   shops     shops    @relation(fields: [shopId], references: [id])
   createdAt DateTime @default(now())
@@ -127,6 +130,26 @@ model shop_reviews {
 
   @@unique([userId, shopId])
   @@index([shopId])
+}
+
+/// A shopper's review of a product. One review per shopper per product; posting again
+/// updates it, and products.ratings and reviewCount are recalculated. productId is a
+/// plain id: deleting a product deletes its reviews in code.
+model product_reviews {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      users    @relation(fields: [userId], references: [id])
+  productId String   @db.ObjectId
+  /// 1 to 5
+  rating    Int
+  comment   String?
+  /// The shopper had a delivered order containing this product when they posted.
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+  @@index([productId, createdAt])
 }
 
 /// A value a shopper can pick for an option, e.g. "Black" or "42".

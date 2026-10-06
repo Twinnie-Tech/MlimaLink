@@ -19,6 +19,8 @@ function productsUrl(term: string, currentParams?: URLSearchParams) {
   } else {
     params.delete('search');
   }
+  // New results start from the first page.
+  params.delete('page');
   const query = params.toString().replace(/\+/g, '%20');
   return query ? `/products?${query}` : '/products';
 }

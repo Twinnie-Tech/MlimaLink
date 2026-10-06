@@ -91,10 +91,36 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+/** How a product list is ordered. `newest` keeps listings newest first. */
+export type ProductSort =
+  'newest' | 'price_asc' | 'price_desc' | 'rating' | 'discount';
+
 export interface ProductFilter {
   category?: string;
+  subCategory?: string;
   minPrice?: number;
   maxPrice?: number;
   inStock?: boolean;
   searchTerm?: string;
+  /** Matches products offered in any of these colours, ignoring case. */
+  colors?: string[];
+  /** Matches products offered in any of these sizes, ignoring case. */
+  sizes?: string[];
+  /** Lowest average rating, 1 to 5. */
+  minRating?: number;
+  /** Only products whose sale price is below the regular price. */
+  onSale?: boolean;
+  sort?: ProductSort;
+}
+
+/** What shoppers can filter a product list by, from the products in a category. */
+export interface ProductFacets {
+  categories: string[];
+  /** Sub-categories of the chosen category; empty when no category is chosen. */
+  subCategories: string[];
+  colors: { label: string; swatch?: string }[];
+  sizes: string[];
+  /** Cheapest and dearest unit price; both 0 when nothing matches. */
+  minPrice: number;
+  maxPrice: number;
 }

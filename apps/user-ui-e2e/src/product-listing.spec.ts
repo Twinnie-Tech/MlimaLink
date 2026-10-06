@@ -29,7 +29,7 @@ test.describe('Product Listing Page', () => {
   });
 
   test('should filter products by category', async ({ page }) => {
-    const categoryDropdown = page.locator('select');
+    const categoryDropdown = page.getByLabel('Filter by category');
     await expect(
       categoryDropdown.locator('option[value="Electronics"]'),
     ).toBeAttached();
@@ -107,22 +107,48 @@ test.describe('Product Listing Page', () => {
   test('should render pagination controls together with the pagination section', async ({
     page,
   }) => {
-    // The pagination section only renders when there are multiple pages. Rather
-    // than branch on its presence, assert the controls travel together with it:
-    // the Previous/Next buttons and page-info count must match the section count.
-    const paginationSection = page.locator('[class*="pagination"]');
-    const previousButton = page.locator('button:has-text("Previous")');
-    const nextButton = page.locator('button:has-text("Next")');
-    const pageInfo = page.locator('[class*="page-info"]');
-
-    const sectionCount = await paginationSection.count();
-    await expect(previousButton).toHaveCount(sectionCount);
-    await expect(nextButton).toHaveCount(sectionCount);
-    await expect(pageInfo).toHaveCount(sectionCount);
+    await expect(page.getByText(/Showing \d+ of \d+ products/)).toBeVisible({
+      timeout: 30_000,
+    });
+    // The page navigation only renders when there are multiple pages. Rather
+    // than branch on its presence, assert the controls travel together with it.
+    const pagination = page.getByRole('navigation', { name: 'Product pages' });
+    const sectionCount = await pagination.count();
+    await expect(
+      pagination.getByRole('button', { name: 'Previous' }),
+    ).toHaveCount(sectionCount);
+    await expect(pagination.getByRole('button', { name: 'Next' })).toHaveCount(
+      sectionCount,
+    );
+    await expect(
+      pagination.getByRole('button', { name: 'Page 1', exact: true }),
+    ).toHaveCount(sectionCount);
   });
 
   test('should show results count', async ({ page }) => {
-    const resultsInfo = page.locator('[class*="results-info"]');
-    await expect(resultsInfo).toContainText(/Showing \d+ of \d+ products/);
+    await expect(page.getByText(/Showing \d+ of \d+ products/)).toBeVisible({
+      timeout: 30_000,
+    });
+  });
+
+  test('should filter products on sale from the offers banner', async ({
+    page,
+  }) => {
+    const banner = page.getByRole('region', { name: 'Top deals' });
+    await expect(banner).toBeVisible({ timeout: 30_000 });
+
+    const onSaleResponse = page.waitForResponse(
+      (res) =>
+        res.url().includes('/api/products?') &&
+        res.url().includes('onSale=true'),
+    );
+    await banner.getByRole('link', { name: 'See all offers' }).click();
+    await page.waitForURL(/\/products\?sale=1$/);
+    await onSaleResponse;
+
+    await expect(page.getByLabel('On sale')).toBeChecked();
+    await expect(
+      page.getByRole('button', { name: 'Remove filter On sale' }),
+    ).toBeVisible();
   });
 });

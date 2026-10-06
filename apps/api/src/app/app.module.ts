@@ -9,6 +9,7 @@ import { EventsModule } from './events/events.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductImagesModule } from './product-images/product-images.module';
 import { ProductsModule } from './products/products.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { ServicesModule } from './services/services.module';
 import { ShopsModule } from './shops/shops.module';
 
@@ -28,6 +29,7 @@ import { ShopsModule } from './shops/shops.module';
     OrdersModule,
     ShopsModule,
     EventsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [

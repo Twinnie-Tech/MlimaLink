@@ -3,6 +3,7 @@ import type {
   Product,
   ProductOption,
   ProductOptionValue,
+  ProductSort,
   ProductSpec,
   ProductVariant,
 } from './product.model.js';
@@ -1031,6 +1032,68 @@ export function priceRange(
     ? product.variants.map((variant) => unitPrice(product, variant))
     : [unitPrice(product)];
   return { min: Math.min(...prices), max: Math.max(...prices) };
+}
+
+export const PRODUCT_SORTS: { id: ProductSort; label: string }[] = [
+  { id: 'newest', label: 'Newest' },
+  { id: 'price_asc', label: 'Price: low to high' },
+  { id: 'price_desc', label: 'Price: high to low' },
+  { id: 'rating', label: 'Top rated' },
+  { id: 'discount', label: 'Biggest discount' },
+];
+
+export const isProductSort = (value: unknown): value is ProductSort =>
+  PRODUCT_SORTS.some((sort) => sort.id === value);
+
+/** Whole percent off the regular price while a sale price is set, else 0. */
+export function discountPercent(
+  product: Pick<Product, 'price' | 'salePrice'>,
+): number {
+  const { price, salePrice } = product;
+  if (salePrice == null || price <= 0 || salePrice >= price) return 0;
+  return Math.round((1 - salePrice / price) * 100);
+}
+
+const COLOUR_NAME = /^colou?rs?$/i;
+const SIZE_NAME = /^sizes?$/i;
+
+/** Colours a product comes in: its colour option (or any option with swatches), else a Colour spec. */
+export function productColours(
+  product: Pick<Product, 'options' | 'specs'>,
+): ProductOptionValue[] {
+  const option = product.options?.find(
+    (option) =>
+      COLOUR_NAME.test(option.name) ||
+      option.values.some((value) => value.swatch),
+  );
+  if (option) return option.values;
+  const spec = product.specs?.find((spec) => COLOUR_NAME.test(spec.name));
+  return spec ? [{ label: spec.value }] : [];
+}
+
+/** Sizes a product comes in: its Size option, else a Size spec. */
+export function productSizes(
+  product: Pick<Product, 'options' | 'specs'>,
+): string[] {
+  const option = product.options?.find((option) => SIZE_NAME.test(option.name));
+  if (option) return option.values.map((value) => value.label);
+  const spec = product.specs?.find((spec) => SIZE_NAME.test(spec.name));
+  return spec ? [spec.value] : [];
+}
+
+const LETTER_SIZES = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+
+/** Letter sizes smallest first, then numbers in order, then anything else alphabetically. */
+export function compareSizes(a: string, b: string): number {
+  const rank = (size: string) => {
+    const letter = LETTER_SIZES.indexOf(size.toUpperCase());
+    if (letter >= 0) return [0, letter] as const;
+    const number = Number.parseFloat(size);
+    return Number.isFinite(number) ? ([1, number] as const) : ([2, 0] as const);
+  };
+  const [groupA, valueA] = rank(a);
+  const [groupB, valueB] = rank(b);
+  return groupA - groupB || valueA - valueB || a.localeCompare(b);
 }
 
 /** A product as a seller submits it, after checking. */
