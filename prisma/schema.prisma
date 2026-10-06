@@ -423,6 +423,11 @@ model user_analytics {
   wishlistAdds Int           @default(0)
   cartAdds     Int           @default(0)
   lastActiveAt DateTime
+  /// Last known "mobile", "tablet" or "desktop"; kept until an event says otherwise.
+  device       String?
+  /// Last known location from the host's geo-IP headers; unset when running locally.
+  country      String?
+  city         String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }

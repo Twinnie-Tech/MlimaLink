@@ -26,7 +26,18 @@ export const CLIENT_EVENT_ACTIONS = USER_EVENT_ACTIONS.filter(
   (action): action is ClientEventAction => action !== 'purchase',
 );
 
-export interface UserEvent {
+export const DEVICE_TYPES = ['mobile', 'tablet', 'desktop'] as const;
+export type DeviceType = (typeof DEVICE_TYPES)[number];
+
+/** Where and on what the shopper was; each part is only known some of the time. */
+export interface UserEventContext {
+  device?: DeviceType;
+  /** Usually an ISO country code, as given by the host's geo-IP headers. */
+  country?: string;
+  city?: string;
+}
+
+export interface UserEvent extends UserEventContext {
   userId: string;
   action: UserEventAction;
   /** Set for product actions. */
@@ -38,14 +49,33 @@ export interface UserEvent {
 }
 
 /** What a client reports; the server adds who did it and when. */
-export type UserEventInput = Pick<UserEvent, 'productId' | 'shopId'> & {
-  action: ClientEventAction;
-};
+export type UserEventInput = Pick<UserEvent, 'productId' | 'shopId'> &
+  UserEventContext & {
+    action: ClientEventAction;
+  };
 
 const OBJECT_ID = /^[a-f\d]{24}$/i;
+const MAX_PLACE_LENGTH = 100;
 
 const isObjectId = (value: unknown): value is string =>
   typeof value === 'string' && OBJECT_ID.test(value);
+
+const isPlace = (value: unknown): value is string =>
+  typeof value === 'string' &&
+  value.trim().length > 0 &&
+  value.length <= MAX_PLACE_LENGTH;
+
+/** Context that doesn't fit is dropped rather than failing the whole event. */
+function parseContext(input: Record<string, unknown>): UserEventContext {
+  const { device, country, city } = input;
+  return {
+    ...(DEVICE_TYPES.includes(device as DeviceType)
+      ? { device: device as DeviceType }
+      : {}),
+    ...(isPlace(country) ? { country: country.trim() } : {}),
+    ...(isPlace(city) ? { city: city.trim() } : {}),
+  };
+}
 
 export function isUserEventAction(value: unknown): value is UserEventAction {
   return USER_EVENT_ACTIONS.includes(value as UserEventAction);
@@ -55,7 +85,8 @@ export function isProductAction(value: unknown): value is ProductAction {
   return PRODUCT_ACTIONS.includes(value as ProductAction);
 }
 
-type EventFields = Pick<UserEvent, 'action' | 'productId' | 'shopId'>;
+type EventFields = Pick<UserEvent, 'action' | 'productId' | 'shopId'> &
+  UserEventContext;
 
 function parseEventFields(
   body: unknown,
@@ -84,13 +115,15 @@ function parseEventFields(
       action: known,
       ...(productId ? { productId } : {}),
       ...(shopId ? { shopId } : {}),
+      ...parseContext(input),
     },
   };
 }
 
 /**
- * Checks a client's { action, productId?, shopId? }: shop visits need a shopId, product
- * actions a productId, and purchases can't be reported this way.
+ * Checks a client's { action, productId?, shopId?, device?, country?, city? }: shop
+ * visits need a shopId, product actions a productId, and purchases can't be reported
+ * this way.
  */
 export function parseUserEventInput(
   body: unknown,

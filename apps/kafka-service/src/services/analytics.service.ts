@@ -36,15 +36,30 @@ export async function updateUserAnalytics(event: UserEvent): Promise<void> {
   actions = actions.slice(-USER_ACTIONS_KEPT);
   const wishlistAdds = action === 'add_to_wishlist' ? 1 : 0;
   const cartAdds = action === 'add_to_cart' ? 1 : 0;
+  // Only overwrite what this event knows, so a desktop visit without a location keeps the city.
+  const { device, country, city } = event;
+  const lastSeen = {
+    ...(device ? { device } : {}),
+    ...(country ? { country } : {}),
+    ...(city ? { city } : {}),
+  };
 
   await prisma.user_analytics.upsert({
     where: { userId },
-    create: { userId, actions, wishlistAdds, cartAdds, lastActiveAt: at },
+    create: {
+      userId,
+      actions,
+      wishlistAdds,
+      cartAdds,
+      lastActiveAt: at,
+      ...lastSeen,
+    },
     update: {
       actions: { set: actions },
       wishlistAdds: { increment: wishlistAdds },
       cartAdds: { increment: cartAdds },
       lastActiveAt: at,
+      ...lastSeen,
     },
   });
 }

@@ -26,7 +26,7 @@ export class EventsController {
   @Throttle({ default: { ttl: 60_000, limit: 60 } })
   @ApiOperation({
     summary:
-      'Record what the signed-in shopper did on the user_events topic ({ action, productId?, shopId? })',
+      'Record what the signed-in shopper did on the user_events topic ({ action, productId?, shopId?, device?, country?, city? })',
   })
   async track(
     @Req() req: UserRequest,

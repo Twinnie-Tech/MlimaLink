@@ -55,6 +55,29 @@ describe('EventsService', () => {
     );
   });
 
+  it('passes on the shopper’s device and location', async () => {
+    prisma.products.findUnique.mockResolvedValue({ id: productId, shopId });
+
+    await service.track(userId, {
+      action: 'product_view',
+      productId,
+      device: 'mobile',
+      country: 'KE',
+      city: 'Nairobi',
+    });
+
+    expect(sendUserEvent).toHaveBeenCalledWith({
+      userId,
+      action: 'product_view',
+      productId,
+      shopId,
+      device: 'mobile',
+      country: 'KE',
+      city: 'Nairobi',
+      timestamp: expect.any(String),
+    });
+  });
+
   it('sends nothing for listings that aren’t in the database', async () => {
     prisma.products.findUnique.mockResolvedValue(null);
     prisma.shops.findUnique.mockResolvedValue(null);
