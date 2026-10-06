@@ -3,13 +3,19 @@
 import Link from 'next/link';
 import { Heart, Star } from 'lucide-react';
 import type { Product } from '@org/models';
-import { imageSrcSet, sizedImage } from '@org/models/catalog';
+import {
+  discountPercent,
+  formatPrice,
+  imageSrcSet,
+  sizedImage,
+} from '@org/models/catalog';
 import { formatProductPrice, useShopStore } from '../store/shop-store';
 
 /** A product in a grid, linking to its page, with a wishlist toggle. */
 export function ProductTile({ product }: { product: Product }) {
   const { isWishlisted, toggleWishlist } = useShopStore();
   const saved = isWishlisted(product.id);
+  const discount = discountPercent(product);
 
   return (
     <div className="group relative h-full">
@@ -17,7 +23,12 @@ export function ProductTile({ product }: { product: Product }) {
         href={`/products/${product.id}`}
         className="flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
       >
-        <div className="aspect-[4/3] overflow-hidden bg-neutral-100">
+        <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100">
+          {discount > 0 && (
+            <span className="absolute top-3 left-3 z-10 rounded-full bg-rose-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+              <span className="sr-only">On sale, </span>−{discount}%
+            </span>
+          )}
           {product.imageUrl && (
             <img
               src={sizedImage(product.imageUrl, 480)}
@@ -49,6 +60,11 @@ export function ProductTile({ product }: { product: Product }) {
           <p className="mt-auto flex items-center justify-between gap-2 pt-2 text-sm">
             <span className="font-semibold text-neutral-900">
               {formatProductPrice(product)}
+              {discount > 0 && (
+                <s className="ml-1.5 text-xs font-normal text-neutral-500">
+                  {formatPrice(product.price)}
+                </s>
+              )}
             </span>
             {!product.inStock && (
               <span className="text-xs text-neutral-500">Out of stock</span>

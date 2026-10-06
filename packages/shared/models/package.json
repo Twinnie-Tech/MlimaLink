@@ -36,6 +36,11 @@
       "import": "./src/lib/delivery.model.ts",
       "default": "./src/lib/delivery.model.ts"
     },
+    "./reviews": {
+      "types": "./src/lib/review.model.ts",
+      "import": "./src/lib/review.model.ts",
+      "default": "./src/lib/review.model.ts"
+    },
     "./package.json": "./package.json"
   },
   "nx": {

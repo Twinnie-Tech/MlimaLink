@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Bike,
   Briefcase,
@@ -26,6 +26,7 @@ import { AuthRequestError } from '../../shared/utils/auth-api';
 import { getShop, shopQueryKey } from '../../shared/utils/shops-api';
 import { EmptyState } from '../../shared/widgets/empty-state';
 import { ProductTile } from '../../shared/widgets/product-tile';
+import { ReviewsSection } from '../../shared/widgets/reviews-section';
 import {
   OpenBadge,
   ShopAvatar,
@@ -164,6 +165,7 @@ function ShopSidebar({ shop }: { shop: ShopDetail }) {
 export default function ShopPage() {
   const { id } = useParams<{ id: string }>();
   const [query, setQuery] = useState('');
+  const queryClient = useQueryClient();
   const {
     data: shop,
     isPending,
@@ -322,6 +324,19 @@ export default function ShopPage() {
                 listings.
               </p>
             )}
+
+            <div className="mt-10">
+              <ReviewsSection
+                target={{ kind: 'shops', id: shop.id }}
+                subject={shop.name}
+                returnTo={`/shops/${shop.id}`}
+                onSaved={() =>
+                  queryClient.invalidateQueries({
+                    queryKey: shopQueryKey(shop.id),
+                  })
+                }
+              />
+            </div>
           </section>
 
           <ShopSidebar shop={shop} />

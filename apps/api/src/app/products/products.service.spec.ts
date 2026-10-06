@@ -56,12 +56,15 @@ describe('ProductsApiService', () => {
     create: vi.fn(),
     deleteMany: vi.fn(),
   };
+  const product_reviews = { deleteMany: vi.fn() };
   const service = new ProductsApiService({
     products,
+    product_reviews,
   } as unknown as PrismaService);
 
   beforeEach(() => {
     Object.values(products).forEach((mock) => mock.mockReset());
+    product_reviews.deleteMany.mockReset();
     products.findMany.mockResolvedValue([record()]);
   });
 
@@ -103,6 +106,114 @@ describe('ProductsApiService', () => {
     );
     const withinRange = await service.getProducts({ minPrice: 48 });
     expect(withinRange.items[0].id).toBe(PRODUCT_ID);
+  });
+
+  it('filters by colour and size options, ignoring case', async () => {
+    const brown = await service.getProducts({ colors: ['brown'] });
+    expect(brown.items.map((product) => product.id)).toEqual([PRODUCT_ID]);
+
+    // Sample "Running Shoes Elite" has a Size option; the loafers don't.
+    const size42 = await service.getProducts({ sizes: ['42'] });
+    expect(size42.items.map((product) => product.id)).toEqual(['7']);
+
+    // Samples without colour options can still match by their Colour spec.
+    const black = await service.getProducts({ colors: ['Black'] });
+    expect(black.items.map((product) => product.id)).toEqual([
+      PRODUCT_ID,
+      '1',
+      '7',
+      '11',
+    ]);
+  });
+
+  it('filters by sub-category, rating and sale', async () => {
+    products.findMany.mockResolvedValue([
+      record(),
+      record({ id: 'b'.repeat(24), subCategory: 'Bags', salePrice: 30 }),
+    ]);
+
+    const shoes = await service.getProducts({
+      category: 'Fashion',
+      subCategory: 'Shoes',
+    });
+    expect(shoes.items.map((product) => product.id)).toEqual([PRODUCT_ID]);
+
+    const onSale = await service.getProducts({ onSale: true });
+    expect(onSale.items.map((product) => product.id)).toEqual([
+      'b'.repeat(24),
+      '2',
+      '4',
+      '5',
+      '9',
+      '11',
+    ]);
+
+    const topRated = await service.getProducts({ minRating: 4.6 });
+    expect(topRated.items.map((product) => product.id)).toEqual([
+      '3',
+      '4',
+      '7',
+      '11',
+    ]);
+  });
+
+  it('sorts by price, rating and discount', async () => {
+    const cheapest = await service.getProducts({ sort: 'price_asc' }, 1, 3);
+    expect(cheapest.items.map((product) => product.id)).toEqual([
+      '4',
+      '3',
+      '5',
+    ]);
+
+    const dearest = await service.getProducts({ sort: 'price_desc' }, 1, 1);
+    expect(dearest.items[0].id).toBe('2');
+
+    const best = await service.getProducts({ sort: 'rating' }, 1, 1);
+    expect(best.items[0].id).toBe('7');
+
+    const deals = await service.getProducts({ sort: 'discount' }, 1, 2);
+    expect(deals.items.map((product) => product.id)).toEqual(['11', '9']);
+  });
+
+  it('lists in-stock offers, biggest discount first', async () => {
+    products.findMany.mockResolvedValue([
+      record({ salePrice: 9 }),
+      record({ id: 'b'.repeat(24), salePrice: 10, stock: 0 }),
+    ]);
+
+    const offers = await service.getOffers(3);
+
+    expect(offers.map((product) => product.id)).toEqual([
+      PRODUCT_ID,
+      '11',
+      '9',
+    ]);
+  });
+
+  it('describes what a category can be filtered by', async () => {
+    const all = await service.getFacets();
+    expect(all.categories).toEqual(
+      expect.arrayContaining(['Electronics', 'Fashion']),
+    );
+    expect(all.subCategories).toEqual([]);
+    // Most common first; White's swatch comes from the shoes, not the T-shirt's spec.
+    expect(all.colors.slice(0, 2)).toEqual([
+      { label: 'Black', swatch: '#111111' },
+      { label: 'White', swatch: '#ffffff' },
+    ]);
+    expect(all.sizes).toEqual(['40', '41', '42', '43', '44']);
+
+    const fashion = await service.getFacets({ category: 'Fashion' });
+    expect(fashion).toMatchObject({
+      subCategories: ['Shoes'],
+      colors: [
+        { label: 'Black', swatch: '#111111' },
+        { label: 'Brown', swatch: '#92400e' },
+      ],
+      sizes: [],
+      minPrice: 45,
+      maxPrice: 50,
+    });
   });
 
   it('asks the database for one category only', async () => {
@@ -192,6 +303,9 @@ describe('ProductsApiService', () => {
     });
     expect(products.deleteMany).toHaveBeenCalledWith({
       where: { id: PRODUCT_ID, shopId: SHOP_ID },
+    });
+    expect(product_reviews.deleteMany).toHaveBeenCalledWith({
+      where: { productId: PRODUCT_ID },
     });
   });
 

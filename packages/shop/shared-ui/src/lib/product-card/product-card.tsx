@@ -1,5 +1,6 @@
 import { Product } from '@org/models';
 import {
+  discountPercent,
   formatPrice,
   imageSrcSet,
   listingTerms,
@@ -33,6 +34,7 @@ export function ProductCard({
   };
 
   const range = priceRange(product);
+  const discount = discountPercent(product);
   const { pricePeriod, contactSeller, service } = listingTerms(product);
   const location = contactSeller
     ? product.specs?.find((spec) => spec.name === 'Location')?.value
@@ -66,6 +68,11 @@ export function ProductCard({
           alt={product.name}
           loading="lazy"
         />
+        {discount > 0 && product.inStock && (
+          <span className={styles['sale-badge']}>
+            <span className={styles['sr-only']}>On sale, </span>−{discount}%
+          </span>
+        )}
         {!product.inStock && (
           <div className={styles['out-of-stock-overlay']}>
             {service

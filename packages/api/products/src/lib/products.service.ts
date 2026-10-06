@@ -38,6 +38,7 @@ export class ProductsService {
       inStock: true,
       rating: 4.5,
       reviewCount: 234,
+      specs: [{ name: 'Colour', value: 'Black' }],
       paymentOptions: ['full_upfront', 'deposit'],
     },
     {
@@ -46,12 +47,14 @@ export class ProductsService {
       description:
         'Advanced fitness tracking, heart rate monitoring, GPS, and smartphone integration in a sleek design.',
       price: 349.99,
+      salePrice: 279.99,
       category: 'Electronics',
       imageUrl:
         'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
       inStock: true,
       rating: 4.3,
       reviewCount: 189,
+      specs: [{ name: 'Colour', value: 'Silver' }],
     },
     {
       id: '3',
@@ -65,6 +68,7 @@ export class ProductsService {
       inStock: false,
       rating: 4.7,
       reviewCount: 92,
+      specs: [{ name: 'Colour', value: 'White' }],
     },
     {
       id: '4',
@@ -72,6 +76,7 @@ export class ProductsService {
       description:
         'Insulated water bottle that keeps drinks cold for 24 hours or hot for 12 hours.',
       price: 24.99,
+      salePrice: 19.99,
       category: 'Home & Kitchen',
       imageUrl:
         'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500',
@@ -85,12 +90,14 @@ export class ProductsService {
       description:
         'Non-slip, eco-friendly yoga mat with extra cushioning for comfortable practice.',
       price: 45.99,
+      salePrice: 34.99,
       category: 'Sports',
       imageUrl:
         'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=500',
       inStock: true,
       rating: 4.4,
       reviewCount: 156,
+      specs: [{ name: 'Colour', value: 'Purple' }],
     },
     {
       id: '6',
@@ -146,12 +153,14 @@ export class ProductsService {
       description:
         'Durable and stylish backpack with laptop compartment and multiple pockets.',
       price: 79.99,
+      salePrice: 59.99,
       category: 'Accessories',
       imageUrl:
         'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500',
       inStock: true,
       rating: 4.5,
       reviewCount: 201,
+      specs: [{ name: 'Colour', value: 'Grey' }],
     },
     {
       id: '10',
@@ -172,12 +181,14 @@ export class ProductsService {
       description:
         'UV protection polarized sunglasses with stylish frame design.',
       price: 149.99,
+      salePrice: 104.99,
       category: 'Accessories',
       imageUrl:
         'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500',
       inStock: true,
       rating: 4.6,
       reviewCount: 89,
+      specs: [{ name: 'Colour', value: 'Black' }],
     },
     {
       id: '12',

@@ -4,19 +4,24 @@ import { notFound } from '@org/errors';
 import type {
   PaginatedResponse,
   Product,
+  ProductFacets,
   ProductFilter,
   ProductInput,
 } from '@org/models';
+import { discountPercent } from '@org/models/catalog';
 import { PrismaService } from '../prisma.service';
 import {
   isObjectId,
   matchesFilter,
+  productFacets,
   productWithShop,
+  sortProducts,
   toProduct,
 } from './product-mapper';
 
 /** Seller products are filtered in memory; this caps how many are read per request. */
 const MAX_LISTED_PRODUCTS = 500;
+export const MAX_OFFERS = 12;
 
 @Injectable()
 export class ProductsApiService {
@@ -25,21 +30,17 @@ export class ProductsApiService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Seller products, newest first, followed by the sample catalogue. */
+  /** Seller products, newest first, followed by the sample catalogue, unless another sort is asked for. */
   async getProducts(
     filter?: ProductFilter,
     page = 1,
     pageSize = 10,
   ): Promise<PaginatedResponse<Product>> {
-    const listed = (await this.listedProducts(filter?.category)).filter(
-      (product) => matchesFilter(product, filter),
-    );
-    const samples = this.samples.getProducts(
-      filter,
-      1,
-      Number.MAX_SAFE_INTEGER,
-    ).items;
-    const all = [...listed, ...samples];
+    const matching = [
+      ...(await this.listedProducts(filter?.category)),
+      ...this.sampleProducts(),
+    ].filter((product) => matchesFilter(product, filter));
+    const all = sortProducts(matching, filter?.sort);
     const start = (page - 1) * pageSize;
     return {
       items: all.slice(start, start + pageSize),
@@ -61,12 +62,27 @@ export class ProductsApiService {
 
   async getCategories(): Promise<string[]> {
     const listed = await this.listedProducts();
-    return [
-      ...new Set([
-        ...listed.map((product) => product.category),
-        ...this.samples.getCategories(),
-      ]),
-    ].sort();
+    return this.categoriesOf(listed);
+  }
+
+  /** In-stock products on sale, biggest discount first. */
+  async getOffers(limit = MAX_OFFERS): Promise<Product[]> {
+    const onSale = [
+      ...(await this.listedProducts()),
+      ...this.sampleProducts(),
+    ].filter((product) => product.inStock && discountPercent(product) > 0);
+    return sortProducts(onSale, 'discount').slice(0, limit);
+  }
+
+  /** What the products in a category (and search) can be filtered by. */
+  async getFacets(
+    filter: Pick<ProductFilter, 'category' | 'searchTerm'> = {},
+  ): Promise<ProductFacets> {
+    const listed = await this.listedProducts();
+    const matching = [...listed, ...this.sampleProducts()].filter((product) =>
+      matchesFilter(product, filter),
+    );
+    return productFacets(matching, this.categoriesOf(listed), filter.category);
   }
 
   /** The stored photo as bytes, or undefined when the product or photo doesn't exist. */
@@ -121,7 +137,22 @@ export class ProductsApiService {
     if (!record || count === 0) {
       throw notFound('Product', { id });
     }
+    await this.prisma.product_reviews.deleteMany({ where: { productId: id } });
     return { images: record.images, imageFileIds: record.imageFileIds ?? [] };
+  }
+
+  private sampleProducts(): Product[] {
+    return this.samples.getProducts(undefined, 1, Number.MAX_SAFE_INTEGER)
+      .items;
+  }
+
+  private categoriesOf(listed: Product[]): string[] {
+    return [
+      ...new Set([
+        ...listed.map((product) => product.category),
+        ...this.samples.getCategories(),
+      ]),
+    ].sort();
   }
 
   private async listedProducts(category?: string): Promise<Product[]> {
