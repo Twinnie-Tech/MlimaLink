@@ -46,9 +46,9 @@ test.describe('User UI Homepage', () => {
     await headerSearch.press('Enter');
 
     await page.waitForURL(/\/products\?search=Wireless$/);
-    await expect(page.locator('[class*="results-info"]')).toContainText(
-      'for “Wireless”',
-    );
+    await expect(
+      page.getByText(/Showing \d+ of \d+ products for “Wireless”/),
+    ).toBeVisible();
     await expect(
       page.locator('[class*="product-card"] h3').first(),
     ).toContainText(/wireless/i);
@@ -63,7 +63,9 @@ test.describe('User UI Homepage', () => {
 
   test('should display the tagline on the products page', async ({ page }) => {
     await page.goto('/products');
-    const tagline = page.locator('p:has-text("Explore our wide selection")');
+    const tagline = page.getByText(
+      'Fresh finds from shops across Mt Kenya, delivered by local riders.',
+    );
     await expect(tagline).toBeVisible();
   });
 });
