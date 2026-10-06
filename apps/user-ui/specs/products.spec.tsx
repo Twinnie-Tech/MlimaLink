@@ -7,6 +7,11 @@ import ProductsPage from '../src/app/products/page';
 import ProductDetailPage from '../src/app/products/[id]/page';
 import { QueryProvider } from '../src/app/shared/providers/query-provider';
 import { ShopStoreProvider } from '../src/app/shared/store/shop-store';
+import { sendKafkaEvent } from '../src/actions/track-user';
+
+vi.mock('../src/actions/track-user', () => ({
+  sendKafkaEvent: vi.fn().mockResolvedValue(true),
+}));
 
 const push = vi.fn();
 const replace = vi.fn();
@@ -149,24 +154,23 @@ describe('user-ui product pages', () => {
   it('reports a product view once for a signed-in shopper', async () => {
     const productId = 'c'.repeat(24);
     navigation.id = productId;
-    const fetchMock = vi.fn(async (url: string) =>
-      url === '/api/auth/logged-in-user'
-        ? Response.json({
-            success: true,
-            user: { id: 'a'.repeat(24), name: 'Amina', email: 'a@x.co' },
-          })
-        : new Response(null, { status: 202 }),
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({
+          success: true,
+          user: { id: 'a'.repeat(24), name: 'Amina', email: 'a@x.co' },
+        }),
+      ),
     );
-    vi.stubGlobal('fetch', fetchMock);
+    vi.mocked(sendKafkaEvent).mockClear();
 
     const { rerender } = renderWithStore(<ProductDetailPage />);
     await waitFor(() =>
-      expect(fetchMock).toHaveBeenCalledWith(
-        '/api/events',
-        expect.objectContaining({
-          body: JSON.stringify({ action: 'product_view', productId }),
-        }),
-      ),
+      expect(sendKafkaEvent).toHaveBeenCalledWith({
+        action: 'product_view',
+        productId,
+      }),
     );
     rerender(
       <QueryProvider>
@@ -176,7 +180,6 @@ describe('user-ui product pages', () => {
       </QueryProvider>,
     );
 
-    const views = fetchMock.mock.calls.filter(([url]) => url === '/api/events');
-    expect(views).toHaveLength(1);
+    expect(sendKafkaEvent).toHaveBeenCalledTimes(1);
   });
 });

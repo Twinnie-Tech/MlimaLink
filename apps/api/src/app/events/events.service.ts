@@ -18,6 +18,12 @@ export class EventsService {
    */
   async track(userId: string, input: UserEventInput): Promise<boolean> {
     const timestamp = new Date().toISOString();
+    const { device, country, city } = input;
+    const context = {
+      ...(device ? { device } : {}),
+      ...(country ? { country } : {}),
+      ...(city ? { city } : {}),
+    };
 
     if (input.action === 'shop_visit') {
       const shop = await this.prisma.shops.findUnique({
@@ -29,6 +35,7 @@ export class EventsService {
         userId,
         action: input.action,
         shopId: shop.id,
+        ...context,
         timestamp,
       });
       return true;
@@ -44,6 +51,7 @@ export class EventsService {
       action: input.action,
       productId: product.id,
       shopId: product.shopId,
+      ...context,
       timestamp,
     });
     return true;

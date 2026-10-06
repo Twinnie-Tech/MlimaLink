@@ -1,42 +1,34 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { sendKafkaEvent } from '../src/actions/track-user';
 import { trackUserActivity } from '../src/app/shared/utils/events-api';
 
-const fetchMock = vi.fn();
+vi.mock('../src/actions/track-user', () => ({ sendKafkaEvent: vi.fn() }));
+
+const send = vi.mocked(sendKafkaEvent);
 
 beforeEach(() => {
-  fetchMock.mockResolvedValue(new Response(null, { status: 202 }));
-  vi.stubGlobal('fetch', fetchMock);
-});
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-  fetchMock.mockReset();
+  send.mockReset();
+  send.mockResolvedValue(true);
 });
 
 describe('trackUserActivity', () => {
-  it('posts the activity to /api/events with the session cookies', () => {
+  it('hands the activity to the sendKafkaEvent server action', () => {
     const productId = 'c'.repeat(24);
 
     trackUserActivity({ action: 'add_to_cart', productId });
 
-    expect(fetchMock).toHaveBeenCalledWith('/api/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      keepalive: true,
-      body: JSON.stringify({ action: 'add_to_cart', productId }),
-    });
+    expect(send).toHaveBeenCalledWith({ action: 'add_to_cart', productId });
   });
 
   it('skips sample listings, which aren’t in the database', () => {
     trackUserActivity({ action: 'add_to_wishlist', productId: '1' });
     trackUserActivity({ action: 'shop_visit', shopId: 'shop1' });
 
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
   });
 
-  it('swallows network failures', async () => {
-    fetchMock.mockRejectedValueOnce(new TypeError('offline'));
+  it('swallows failures', async () => {
+    send.mockRejectedValueOnce(new TypeError('offline'));
 
     expect(() =>
       trackUserActivity({ action: 'shop_visit', shopId: 'b'.repeat(24) }),

@@ -58,6 +58,24 @@ describe('updateUserAnalytics', () => {
     });
   });
 
+  it('records where the shopper was, keeping what the event doesn’t say', async () => {
+    db.user_analytics.findUnique.mockResolvedValue(null);
+
+    await updateUserAnalytics({
+      userId,
+      action: 'product_view',
+      productId,
+      device: 'mobile',
+      country: 'KE',
+      timestamp,
+    });
+
+    const { create, update } = db.user_analytics.upsert.mock.calls[0][0];
+    expect(create).toMatchObject({ device: 'mobile', country: 'KE' });
+    expect(update).toMatchObject({ device: 'mobile', country: 'KE' });
+    expect(update).not.toHaveProperty('city');
+  });
+
   it('keeps only the latest actions', async () => {
     const old = Array.from({ length: USER_ACTIONS_KEPT }, (_, index) => ({
       action: 'add_to_cart',

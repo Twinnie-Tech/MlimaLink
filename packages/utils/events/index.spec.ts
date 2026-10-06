@@ -50,6 +50,38 @@ describe('parseUserEventInput', () => {
       error: expect.stringContaining(error),
     });
   });
+
+  it('keeps the device and location', () => {
+    expect(
+      parseUserEventInput({
+        action: 'product_view',
+        productId,
+        device: 'mobile',
+        country: ' KE ',
+        city: 'Nairobi',
+      }),
+    ).toEqual({
+      event: {
+        action: 'product_view',
+        productId,
+        device: 'mobile',
+        country: 'KE',
+        city: 'Nairobi',
+      },
+    });
+  });
+
+  it('drops a device or location that doesn’t fit, keeping the event', () => {
+    expect(
+      parseUserEventInput({
+        action: 'product_view',
+        productId,
+        device: 'fridge',
+        country: '   ',
+        city: 'x'.repeat(101),
+      }),
+    ).toEqual({ event: { action: 'product_view', productId } });
+  });
 });
 
 describe('parseUserEvent', () => {
@@ -82,6 +114,28 @@ describe('parseUserEvent', () => {
     });
 
     expect(parseUserEvent(raw)).toMatchObject({ action: 'purchase' });
+  });
+
+  it('reads the device and location', () => {
+    const raw = JSON.stringify({
+      userId,
+      action: 'product_view',
+      productId,
+      device: 'desktop',
+      country: 'KE',
+      city: 'Mombasa',
+      timestamp,
+    });
+
+    expect(parseUserEvent(raw)).toEqual({
+      userId,
+      action: 'product_view',
+      productId,
+      device: 'desktop',
+      country: 'KE',
+      city: 'Mombasa',
+      timestamp,
+    });
   });
 
   it.each([
