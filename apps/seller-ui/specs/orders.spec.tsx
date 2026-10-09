@@ -331,6 +331,10 @@ it('shows earnings after the MlimaLink fee on the payments page', async () => {
   expect(within(table).getAllByText('−$2.00')).toHaveLength(2);
   expect(within(table).queryByText('ML-BBBBBB')).toBeNull();
   // One delivered order earns $18; the confirmed one is still pending.
-  expect(screen.getByText('Earned').parentElement?.parentElement?.textContent).toContain('$18.00');
-  expect(screen.getByText('Pending').parentElement?.parentElement?.textContent).toContain('$18.00');
+  expect(
+    screen.getByText('Earned').parentElement?.parentElement?.textContent,
+  ).toContain('$18.00');
+  expect(
+    screen.getByText('Pending').parentElement?.parentElement?.textContent,
+  ).toContain('$18.00');
 });

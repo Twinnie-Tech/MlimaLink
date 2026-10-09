@@ -106,7 +106,10 @@ describe('AdminAuthController', () => {
       const next = vi.fn();
 
       await controller.loginAdmin(
-        { email: ' Admin@MlimaLink.com ', password: 'Secret123!' } as LoginUserDto,
+        {
+          email: ' Admin@MlimaLink.com ',
+          password: 'Secret123!',
+        } as LoginUserDto,
         res as unknown as Response,
         next as NextFunction,
       );
@@ -154,7 +157,10 @@ describe('AdminAuthController', () => {
       const next = vi.fn();
 
       await controller.loginAdmin(
-        { email: 'someone@example.com', password: 'Secret123!' } as LoginUserDto,
+        {
+          email: 'someone@example.com',
+          password: 'Secret123!',
+        } as LoginUserDto,
         mockRes() as unknown as Response,
         next as NextFunction,
       );
