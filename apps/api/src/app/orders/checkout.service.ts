@@ -23,7 +23,12 @@ import {
   paymentOptionsOf,
   unitPrice,
 } from '@org/models/catalog';
-import { allocateDiscount, roundMoney } from '@org/models/checkout';
+import {
+  PLATFORM_FEE_PERCENT,
+  allocateDiscount,
+  feeSplit,
+  roundMoney,
+} from '@org/models/checkout';
 import { DEFAULT_DELIVERY_FEE } from '@org/models/delivery';
 import { DiscountCodesService } from '../discount-codes/discount-codes.service';
 import { MailService } from '../mail/mail.service';
@@ -96,6 +101,8 @@ export class CheckoutService {
       total: group.total,
       payNow: group.payNow,
       onDelivery: group.onDelivery,
+      platformFee: group.platformFee,
+      sellerEarnings: group.sellerEarnings,
     }));
     return {
       groups: shown,
@@ -106,6 +113,8 @@ export class CheckoutService {
       total: sum(shown.map((group) => group.total)),
       payNow: sum(shown.map((group) => group.payNow)),
       onDelivery: sum(shown.map((group) => group.onDelivery)),
+      platformFee: sum(shown.map((group) => group.platformFee)),
+      sellerEarnings: sum(shown.map((group) => group.sellerEarnings)),
     };
   }
 
@@ -182,6 +191,7 @@ export class CheckoutService {
             priced.groups[index].items.map(describeItem).join('\n'),
             `Deliver to: ${order.address.area}, ${order.address.zone}`,
             `Paid when ordering: ${formatPrice(order.payNow)} (including ${formatPrice(order.deliveryFee)} delivery)\nDue on delivery: ${formatPrice(order.onDelivery)}`,
+            `MlimaLink fee (${PLATFORM_FEE_PERCENT}%): ${formatPrice(priced.groups[index].platformFee)}\nYou receive: ${formatPrice(priced.groups[index].sellerEarnings)}`,
             'Confirm the order, then ask a rider to collect it from your Orders page.',
           ],
           link: { label: 'Open your orders', url: sellerOrdersUrl() },
@@ -371,6 +381,8 @@ export class CheckoutService {
         total: 0,
         payNow: 0,
         onDelivery: 0,
+        platformFee: 0,
+        sellerEarnings: 0,
       };
       group.items.push(item);
       group.stock.push({
@@ -399,6 +411,7 @@ export class CheckoutService {
         ) + group.deliveryFee,
       );
       group.onDelivery = roundMoney(group.total - group.payNow);
+      Object.assign(group, feeSplit(group.subtotal, group.discount));
     }
 
     return {
@@ -429,6 +442,8 @@ export class CheckoutService {
       total: group.total,
       payNow: group.payNow,
       onDelivery: group.onDelivery,
+      platformFee: group.platformFee,
+      sellerEarnings: group.sellerEarnings,
       deliveryCode: makeDeliveryCode(),
     };
     for (let attempt = 0; ; attempt++) {

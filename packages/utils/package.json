@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./auth": {
+      "types": "./auth/index.ts",
+      "import": "./auth/index.ts",
+      "default": "./auth/index.ts"
+    },
     "./events": {
       "types": "./events/index.ts",
       "import": "./events/index.ts",
@@ -28,7 +33,11 @@
     ]
   },
   "dependencies": {
+    "jsonwebtoken": "^9.0.3",
     "kafkajs": "^2.2.4",
     "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10"
   }
 }

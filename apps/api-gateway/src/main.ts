@@ -29,9 +29,31 @@ async function bootstrap() {
   const authTarget =
     process.env.AUTH_SERVICE_URL ??
     `http://127.0.0.1:${process.env.AUTH_PORT ? Number(process.env.AUTH_PORT) : 3334}`;
+  const chatTarget =
+    process.env.CHAT_SERVICE_URL ??
+    `http://127.0.0.1:${process.env.CHAT_SERVICE_PORT ? Number(process.env.CHAT_SERVICE_PORT) : 3336}`;
+  const loggerTarget =
+    process.env.LOGGER_SERVICE_URL ??
+    `http://127.0.0.1:${process.env.LOGGER_SERVICE_PORT ? Number(process.env.LOGGER_SERVICE_PORT) : 3337}`;
   const expressApp = app.getHttpAdapter().getInstance();
 
+  // pathFilter instead of a mount path keeps the full path, which WebSocket upgrades need.
+  const chatProxy = createProxyMiddleware({
+    target: chatTarget,
+    changeOrigin: true,
+    pathFilter: '/api/chat',
+    ws: true,
+  });
+
   // Must be mounted before the catch-all /api proxy below.
+  expressApp.use(chatProxy);
+  expressApp.use(
+    createProxyMiddleware({
+      target: loggerTarget,
+      changeOrigin: true,
+      pathFilter: '/api/logs',
+    }),
+  );
   expressApp.use(
     '/api/auth',
     createProxyMiddleware({
@@ -59,7 +81,10 @@ async function bootstrap() {
       : 3000;
 
   await app.listen(port, host);
+  app.getHttpServer().on('upgrade', chatProxy.upgrade);
   Logger.log(`🚀 API Gateway running on: http://${host}:${port}`);
+  Logger.log(`↪️  Proxying /api/chat (and WebSockets) → ${chatTarget}`);
+  Logger.log(`↪️  Proxying /api/logs → ${loggerTarget}`);
   Logger.log(`↪️  Proxying /api/auth → ${authTarget}/api/auth`);
   Logger.log(`↪️  Proxying /api → ${apiTarget}/api`);
 }

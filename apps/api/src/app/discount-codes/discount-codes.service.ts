@@ -12,6 +12,7 @@ import {
   DISCOUNT_CODE_PATTERN,
   MAX_CART_QUANTITY,
   discountAmount,
+  discountScope,
   discountUnavailable,
   normaliseCode,
   roundMoney,
@@ -21,6 +22,17 @@ import { PrismaService } from '../prisma.service';
 import { isObjectId } from '../products/product-mapper';
 
 const MAX_CART_LINES = 100;
+const NAMES_SHOWN = 3;
+
+/** "Sneakers, Hat and Scarf" or "Sneakers, Hat, Scarf and 4 more". */
+function listNames(names: string[]) {
+  if (names.length <= NAMES_SHOWN) {
+    return names.length === 1
+      ? names[0]
+      : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+  }
+  return `${names.slice(0, NAMES_SHOWN).join(', ')} and ${names.length - NAMES_SHOWN} more`;
+}
 
 type DiscountRecord = Prisma.discount_codesGetPayload<object>;
 
@@ -34,6 +46,7 @@ export function toDiscountCode(record: DiscountRecord): DiscountCode {
     ...(record.usageLimit != null && { usageLimit: record.usageLimit }),
     usedCount: record.usedCount,
     ...(record.expiresAt != null && { expiresAt: record.expiresAt }),
+    ...(record.productIds?.length && { productIds: record.productIds }),
     active: record.active,
     createdAt: record.createdAt.toISOString(),
   };
@@ -89,6 +102,16 @@ export class DiscountCodesService {
     shopId: string,
     input: DiscountCodeInput,
   ): Promise<DiscountCode> {
+    if (input.productIds) {
+      const owned = await this.prisma.products.count({
+        where: { id: { in: input.productIds }, shopId },
+      });
+      if (owned !== input.productIds.length) {
+        throw validationError(
+          'Some of the chosen products aren’t in your shop any more. Refresh and choose again.',
+        );
+      }
+    }
     try {
       const record = await this.prisma.discount_codes.create({
         data: { ...input, shopId },
@@ -168,22 +191,31 @@ export class DiscountCodesService {
     if (unavailable) throw validationError(unavailable);
 
     const shopName = record.shop.name;
-    const ids = [...new Set(items.map((item) => item.productId))].filter(
-      isObjectId,
-    );
+    const limitedTo = record.productIds ?? [];
+    const limited = limitedTo.length > 0;
+    const select = {
+      id: true,
+      name: true,
+      price: true,
+      salePrice: true,
+      options: true,
+      variants: true,
+    } as const;
+    // A limited code looks up all of its products so the shopper can be told which ones it's for.
+    const ids = limited
+      ? limitedTo
+      : [...new Set(items.map((item) => item.productId))].filter(isObjectId);
     const products = ids.length
       ? await this.prisma.products.findMany({
           where: { id: { in: ids }, shopId: record.shopId },
-          select: {
-            id: true,
-            price: true,
-            salePrice: true,
-            options: true,
-            variants: true,
-          },
+          select,
         })
       : [];
     const byId = new Map(products.map((product) => [product.id, product]));
+    const productNames = limited
+      ? products.map((product) => product.name)
+      : undefined;
+    const scope = discountScope({ shopName, productNames });
 
     const lines = items.flatMap((item, index) => {
       const product = byId.get(item.productId);
@@ -214,8 +246,15 @@ export class DiscountCodesService {
     });
 
     if (lines.length === 0) {
+      if (!productNames) {
+        throw validationError(
+          `This code is for products from ${shopName}. Add some to your cart to use it.`,
+        );
+      }
       throw validationError(
-        `This code is for products from ${shopName}. Add some to your cart to use it.`,
+        productNames.length === 0
+          ? `The products this code was for are no longer sold by ${shopName}.`
+          : `This code is only for ${listNames(productNames)} from ${shopName}. Add ${productNames.length === 1 ? 'it' : 'one of them'} to your cart to use it.`,
       );
     }
 
@@ -225,7 +264,7 @@ export class DiscountCodesService {
     const amount = discountAmount(discount, subtotal);
     if (amount === 0) {
       throw validationError(
-        `Spend ${formatPrice(discount.minSpend ?? 0)} on ${shopName} products to use this code. You have ${formatPrice(subtotal)} so far.`,
+        `Spend ${formatPrice(discount.minSpend ?? 0)} on ${scope} to use this code. You have ${formatPrice(subtotal)} so far.`,
       );
     }
 
@@ -236,6 +275,7 @@ export class DiscountCodesService {
       value: discount.value,
       amount,
       lines,
+      ...(productNames && { productNames }),
     };
   }
 }

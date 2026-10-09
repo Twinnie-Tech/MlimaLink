@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { SELLER_QUERY_KEY } from '../../shared/hooks/use-seller';
+import { switchSeller } from '../../shared/hooks/use-seller';
 import { EMAIL_PATTERN, loginSeller } from '../../shared/utils/seller-api';
 import {
   AuthShell,
@@ -40,9 +40,7 @@ export default function SellerLoginPage() {
     mutationFn: (data: FormData) => loginSeller({ ...data, rememberMe }),
     onSuccess: async ({ seller }) => {
       setServerError(null);
-      // A "who's signed in" check started before login must not overwrite the new seller.
-      await queryClient.cancelQueries({ queryKey: SELLER_QUERY_KEY });
-      queryClient.setQueryData(SELLER_QUERY_KEY, seller);
+      await switchSeller(queryClient, seller);
       // Sellers who stopped part-way through sign-up carry on where they left off.
       router.push(seller.shop ? '/dashboard' : '/signup');
     },

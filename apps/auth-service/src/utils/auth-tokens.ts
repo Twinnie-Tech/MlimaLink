@@ -9,14 +9,17 @@ export const SELLER_ACCESS_TOKEN_COOKIE = 'sellerAccessToken';
 export const SELLER_REFRESH_TOKEN_COOKIE = 'sellerRefreshToken';
 export const RIDER_ACCESS_TOKEN_COOKIE = 'riderAccessToken';
 export const RIDER_REFRESH_TOKEN_COOKIE = 'riderRefreshToken';
+export const ADMIN_ACCESS_TOKEN_COOKIE = 'adminAccessToken';
+export const ADMIN_REFRESH_TOKEN_COOKIE = 'adminRefreshToken';
 
-/** Shoppers, sellers and delivery riders are separate accounts with separate cookies. */
-export type AuthAccount = 'user' | 'seller' | 'rider';
+/** Shoppers, sellers, delivery riders and admins are separate accounts with separate cookies. */
+export type AuthAccount = 'user' | 'seller' | 'rider' | 'admin';
 
 export const AUTH_ACCOUNTS: readonly AuthAccount[] = [
   'user',
   'seller',
   'rider',
+  'admin',
 ];
 
 /**
@@ -35,6 +38,10 @@ export const AUTH_COOKIE_NAMES: Record<
   rider: {
     access: RIDER_ACCESS_TOKEN_COOKIE,
     refresh: RIDER_REFRESH_TOKEN_COOKIE,
+  },
+  admin: {
+    access: ADMIN_ACCESS_TOKEN_COOKIE,
+    refresh: ADMIN_REFRESH_TOKEN_COOKIE,
   },
 };
 
@@ -58,9 +65,10 @@ type TokenPolicy = {
 };
 
 /**
- * Shoppers, sellers and riders are separate accounts: separate secrets, cookies and
- * audiences, so a token issued for one can never be used as another.
- * Sellers control shops and payouts, so their sessions end sooner when idle.
+ * Shoppers, sellers, riders and admins are separate accounts: separate secrets, cookies
+ * and audiences, so a token issued for one can never be used as another.
+ * Sellers control shops and payouts, so their sessions end sooner when idle;
+ * admins control every account, so theirs end sooner still.
  */
 export const TOKEN_POLICIES: Record<AuthAccount, TokenPolicy> = {
   user: {
@@ -89,6 +97,15 @@ export const TOKEN_POLICIES: Record<AuthAccount, TokenPolicy> = {
     accessTtlSeconds: 15 * MINUTE,
     refreshTtlSeconds: 7 * DAY,
     roles: ['rider'],
+  },
+  admin: {
+    secretEnv: {
+      access: 'ADMIN_ACCESS_TOKEN_SECRET',
+      refresh: 'ADMIN_REFRESH_TOKEN_SECRET',
+    },
+    accessTtlSeconds: 10 * MINUTE,
+    refreshTtlSeconds: 8 * 60 * MINUTE,
+    roles: ['admin'],
   },
 };
 
@@ -142,7 +159,7 @@ export function getTokenSecrets(account: AuthAccount) {
     otherSecrets.includes(refreshSecret)
   ) {
     throw new Error(
-      'Shopper, seller and rider token secrets must all be different',
+      'Shopper, seller, rider and admin token secrets must all be different',
     );
   }
 

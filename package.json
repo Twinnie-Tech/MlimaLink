@@ -9,8 +9,13 @@
     "serve:gateway": "npx nx run @org/api-gateway:serve",
     "serve:auth": "npx nx run auth-service:serve",
     "serve:kafka": "npx nx run kafka-service:serve",
+    "serve:chat": "npx nx run chatting-service:serve",
+    "serve:logger": "npx nx run logger-service:serve",
+    "serve:recommendation": "npx nx run recommendation-service:serve",
     "serve:user-ui": "npx nx run @org/user-ui:dev",
-    "serve:seller-ui": "npx nx run @org/seller-ui:dev"
+    "serve:seller-ui": "npx nx run @org/seller-ui:dev",
+    "serve:admin-ui": "npx nx run @org/admin-ui:dev",
+    "admin:create": "node tools/create-admin.mjs"
   },
   "private": true,
   "dependencies": {

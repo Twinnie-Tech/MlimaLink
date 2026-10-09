@@ -12,6 +12,7 @@ import type {
   RiderJob,
   VehicleType,
 } from '@org/models';
+import { feeSplit } from '@org/models/checkout';
 
 export type OrderRecord = Prisma.ordersGetPayload<object>;
 export type DeliveryRecord = Prisma.deliveriesGetPayload<object>;
@@ -103,6 +104,22 @@ export function toDeliverySummary(
   };
 }
 
+/** The fee split stored at checkout, or worked out at today's rate for orders placed before fees were recorded. */
+export function orderFees(
+  record: Pick<
+    OrderRecord,
+    'subtotal' | 'discount' | 'platformFee' | 'sellerEarnings'
+  >,
+): { platformFee: number; sellerEarnings: number } {
+  if (record.platformFee != null && record.sellerEarnings != null) {
+    return {
+      platformFee: record.platformFee,
+      sellerEarnings: record.sellerEarnings,
+    };
+  }
+  return feeSplit(record.subtotal, record.discount);
+}
+
 export function toOrder(
   record: OrderRecord,
   viewer: OrderViewer,
@@ -125,6 +142,7 @@ export function toOrder(
     total: record.total,
     payNow: record.payNow,
     onDelivery: record.onDelivery,
+    ...orderFees(record),
     status: record.status as OrderStatus,
     ...(viewer === 'buyer' && { deliveryCode: record.deliveryCode }),
     ...(delivery && {

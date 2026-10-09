@@ -5,6 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Bike, Loader2, MapPin, MessageCircle, Phone } from 'lucide-react';
 import type { DeliveryEvent, Order, OrderStatus } from '@org/models';
 import { describeChoices } from '@org/models/catalog';
+import { PLATFORM_FEE_PERCENT } from '@org/models/checkout';
 import {
   ORDER_NOTE_MAX,
   canRequestDelivery,
@@ -326,6 +327,21 @@ export function SellerOrderCard({
           <span>Delivery fee {formatMoney(order.deliveryFee)}</span>
           {order.discountCode && <span>Code {order.discountCode}</span>}
         </div>
+        <p
+          aria-label="Your earnings"
+          className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-neutral-600"
+        >
+          <span>
+            MlimaLink fee ({PLATFORM_FEE_PERCENT}%) −
+            {formatMoney(order.platformFee)}
+          </span>
+          <span>
+            You receive{' '}
+            <span className="font-medium text-emerald-700">
+              {formatMoney(order.sellerEarnings)}
+            </span>
+          </span>
+        </p>
 
         <p className="mt-3 flex items-start gap-2 text-sm text-neutral-700">
           <MapPin size={16} className="mt-0.5 shrink-0 text-neutral-500" />

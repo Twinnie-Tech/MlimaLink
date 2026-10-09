@@ -43,6 +43,7 @@ import {
   validateShopData,
 } from '../utils/seller.helper';
 import { getStripe } from '../utils/stripe';
+import { assertNotSuspended } from '../utils/suspension';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -167,14 +168,15 @@ export class SellerAuthController {
 
       const found = await this.prisma.sellers.findUnique({
         where: { email },
-        select: { ...safeSellerSelect, password: true },
+        select: { ...safeSellerSelect, password: true, suspended: true },
       });
 
       if (!found || !(await bcrypt.compare(password, found.password))) {
         throw validationError('Invalid email or password!');
       }
+      assertNotSuspended(found);
 
-      const { password: _password, ...seller } = found;
+      const { password: _password, suspended: _suspended, ...seller } = found;
 
       await issueAuthCookies(
         res,
@@ -215,9 +217,9 @@ export class SellerAuthController {
       await rotateAuthSession(req, res, 'seller', async (id) => {
         const seller = await this.prisma.sellers.findUnique({
           where: { id },
-          select: { id: true },
+          select: { suspended: true },
         });
-        return seller ? 'seller' : null;
+        return seller && !seller.suspended ? 'seller' : null;
       });
 
       return res

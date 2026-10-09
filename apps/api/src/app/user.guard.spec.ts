@@ -47,8 +47,27 @@ describe('UserGuard', () => {
     };
 
     await expect(guard.canActivate(contextFor(req))).resolves.toBe(true);
-    expect(req.user).toBe(user);
+    expect(req.user).toEqual(user);
     expect(findUnique.mock.calls[0][0].where).toEqual({ id: 'u1' });
+  });
+
+  it('refuses a shopper an admin has suspended', async () => {
+    findUnique.mockResolvedValue({
+      id: 'u1',
+      name: 'Amina',
+      email: 'amina@example.com',
+      suspended: true,
+    });
+    const req: Record<string, unknown> = {
+      cookies: { accessToken: token({ userId: 'u1', role: 'user' }) },
+      headers: {},
+    };
+
+    await expect(guard.canActivate(contextFor(req))).rejects.toMatchObject({
+      statusCode: 401,
+      message: expect.stringMatching(/suspended/),
+    });
+    expect(req.user).toBeUndefined();
   });
 
   it('accepts a bearer token', async () => {

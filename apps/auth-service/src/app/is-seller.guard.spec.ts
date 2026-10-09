@@ -43,8 +43,27 @@ describe('IsSellerGuard', () => {
     };
 
     await expect(guard.canActivate(contextFor(req))).resolves.toBe(true);
-    expect(req.seller).toBe(seller);
+    expect(req.seller).toEqual(seller);
     expect(findUnique.mock.calls[0][0].select.password).toBeUndefined();
+  });
+
+  it('refuses a seller an admin has suspended', async () => {
+    findUnique.mockResolvedValue({ id: 's1', name: 'Amina', suspended: true });
+    const req: Record<string, unknown> = {
+      cookies: {
+        sellerAccessToken: signAccessToken(
+          { userId: 's1', role: 'seller' },
+          'seller',
+        ),
+      },
+      headers: {},
+    };
+
+    await expect(guard.canActivate(contextFor(req))).rejects.toMatchObject({
+      statusCode: 401,
+      message: expect.stringMatching(/suspended/),
+    });
+    expect(req.seller).toBeUndefined();
   });
 
   it("rejects a shopper's token even in the seller cookie", async () => {

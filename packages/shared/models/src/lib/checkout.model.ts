@@ -14,13 +14,21 @@ export interface DiscountCode {
   usedCount: number;
   /** Last day the code works, "YYYY-MM-DD" (UTC). */
   expiresAt?: string;
+  /** The products the code covers; absent means everything the shop sells. */
+  productIds?: string[];
   active: boolean;
   createdAt: string;
 }
 
 export type DiscountCodeInput = Pick<
   DiscountCode,
-  'code' | 'type' | 'value' | 'minSpend' | 'usageLimit' | 'expiresAt'
+  | 'code'
+  | 'type'
+  | 'value'
+  | 'minSpend'
+  | 'usageLimit'
+  | 'expiresAt'
+  | 'productIds'
 >;
 
 /** One cart line sent to check a code; prices are looked up on the server. */
@@ -40,11 +48,15 @@ export interface AppliedDiscount {
   amount: number;
   /** The covered lines by their index in the request, with what they cost. */
   lines: { index: number; total: number }[];
+  /** Names of the products the code is limited to; absent when it covers the whole shop. */
+  productNames?: string[];
 }
 
 export const DISCOUNT_CODE_PATTERN = /^[A-Z0-9]{4,16}$/;
 export const MAX_PERCENT_OFF = 90;
 export const MAX_CART_QUANTITY = 999;
+export const MAX_DISCOUNT_PRODUCTS = 100;
+const OBJECT_ID = /^[a-f0-9]{24}$/i;
 const MAX_AMOUNT = 10_000_000;
 const MAX_USAGE_LIMIT = 1_000_000;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -141,6 +153,23 @@ export function parseDiscountCodeInput(
     discount.expiresAt = day;
   }
 
+  if (input.productIds !== undefined && input.productIds !== null) {
+    const ids = input.productIds;
+    if (
+      !Array.isArray(ids) ||
+      !ids.every((id) => typeof id === 'string' && OBJECT_ID.test(id))
+    ) {
+      return { error: 'Some of the chosen products couldn’t be read.' };
+    }
+    const unique = [...new Set(ids as string[])];
+    if (unique.length > MAX_DISCOUNT_PRODUCTS) {
+      return {
+        error: `A code can cover up to ${MAX_DISCOUNT_PRODUCTS} products. Leave the choice empty to cover them all.`,
+      };
+    }
+    if (unique.length > 0) discount.productIds = unique;
+  }
+
   return { discount };
 }
 
@@ -180,6 +209,17 @@ export function describeDiscount(
     : `${usd.format(code.value)} off`;
 }
 
+/** What an applied code covers: "Mlima Boutique products", "Sneakers and Hat" or "selected Mlima Boutique products". */
+export function discountScope(
+  applied: Pick<AppliedDiscount, 'shopName' | 'productNames'>,
+): string {
+  const names = applied.productNames;
+  if (!names) return `${applied.shopName} products`;
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `selected ${applied.shopName} products`;
+}
+
 /**
  * What the code takes off the covered lines' subtotal. Zero when the minimum spend
  * isn't met; a fixed amount never takes off more than the lines cost.
@@ -195,6 +235,20 @@ export function discountAmount(
       ? (eligibleSubtotal * code.value) / 100
       : code.value;
   return roundMoney(Math.min(off, eligibleSubtotal));
+}
+
+/** MlimaLink's share of what shoppers pay for goods; the seller keeps the rest. Delivery fees go to riders. */
+export const PLATFORM_FEE_RATE = 0.1;
+export const PLATFORM_FEE_PERCENT = Math.round(PLATFORM_FEE_RATE * 100);
+
+/** How the goods part of an order (after discount, before delivery) splits between MlimaLink and the seller. */
+export function feeSplit(
+  subtotal: number,
+  discount = 0,
+): { platformFee: number; sellerEarnings: number } {
+  const goods = roundMoney(Math.max(subtotal - discount, 0));
+  const platformFee = roundMoney(goods * PLATFORM_FEE_RATE);
+  return { platformFee, sellerEarnings: roundMoney(goods - platformFee) };
 }
 
 /** Splits a discount across lines in proportion to what they cost; the parts add up exactly. */

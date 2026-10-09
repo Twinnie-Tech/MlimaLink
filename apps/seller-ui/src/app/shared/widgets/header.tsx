@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LogOut, Store } from 'lucide-react';
 import {
-  SELLER_QUERY_KEY,
   firstName,
   initials,
+  switchSeller,
   useSeller,
 } from '../hooks/use-seller';
 import { logoutSeller } from '../utils/seller-api';
@@ -21,8 +21,7 @@ export function Header() {
   const logoutMutation = useMutation({
     mutationFn: logoutSeller,
     onSuccess: async () => {
-      await queryClient.cancelQueries({ queryKey: SELLER_QUERY_KEY });
-      queryClient.setQueryData(SELLER_QUERY_KEY, null);
+      await switchSeller(queryClient, null);
       router.push('/login');
     },
   });

@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bike, Loader2, ShoppingCart } from 'lucide-react';
 import type { DeliveryAddress } from '@org/models';
 import { describeChoices, formatPrice } from '@org/models/catalog';
+import { PLATFORM_FEE_PERCENT } from '@org/models/checkout';
 import { DELIVERY_ZONES, parseDeliveryAddress } from '@org/models/delivery';
 import { useUser } from '../hooks/use-user';
 import { useShopStore } from '../store/shop-store';
@@ -388,6 +389,16 @@ export function CheckoutForm() {
                 </div>
               )}
             </dl>
+            <p
+              data-testid="checkout-fee-split"
+              className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-500"
+            >
+              Your total includes a {PLATFORM_FEE_PERCENT}% MlimaLink service
+              fee of {formatPrice(data.platformFee)}. The{' '}
+              {shops > 1 ? 'shops receive' : 'shop receives'}{' '}
+              {formatPrice(data.sellerEarnings)} and riders get the delivery
+              fee.
+            </p>
           </>
         )}
 

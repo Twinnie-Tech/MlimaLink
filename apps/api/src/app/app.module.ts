@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AllExceptionsFilter } from '@org/errors';
+import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DiscountCodesModule } from './discount-codes/discount-codes.module';
@@ -30,6 +31,7 @@ import { ShopsModule } from './shops/shops.module';
     ShopsModule,
     EventsModule,
     ReviewsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

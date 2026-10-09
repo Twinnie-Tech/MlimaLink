@@ -20,6 +20,7 @@ import {
 import { orderStatusLabel } from '@org/models/delivery';
 import { formatOpeningHours } from '@org/models/opening-hours';
 import { STATUS_TONE } from '../shared/dashboard/order-card';
+import { PLATFORM_FEE_PERCENT } from '@org/models/checkout';
 import { SHOP_ORDERS_KEY, listShopOrders } from '../shared/utils/orders-api';
 import { firstName } from '../shared/hooks/use-seller';
 import { useDashboardSeller } from '../shared/dashboard/seller-context';
@@ -133,9 +134,12 @@ export default function SellerDashboardPage() {
       retry: false,
     }).data ?? [];
   const toConfirm = orders.filter((order) => order.status === 'placed').length;
-  const revenue = orders
-    .filter((order) => order.status === 'delivered')
-    .reduce((sum, order) => sum + order.subtotal - order.discount, 0);
+  const delivered = orders.filter((order) => order.status === 'delivered');
+  const earnings = delivered.reduce(
+    (sum, order) => sum + order.sellerEarnings,
+    0,
+  );
+  const fees = delivered.reduce((sum, order) => sum + order.platformFee, 0);
 
   return (
     <>
@@ -155,9 +159,13 @@ export default function SellerDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={TrendingUp}
-          label="Total revenue"
-          value={formatMoney(revenue)}
-          hint={revenue > 0 ? 'From delivered orders' : 'No sales yet'}
+          label="Your earnings"
+          value={formatMoney(earnings)}
+          hint={
+            delivered.length > 0
+              ? `From delivered orders, after the ${formatMoney(fees)} MlimaLink fee (${PLATFORM_FEE_PERCENT}%)`
+              : 'No sales yet'
+          }
           tone="emerald"
         />
         <StatCard

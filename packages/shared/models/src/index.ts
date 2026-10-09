@@ -6,3 +6,4 @@ export * from './lib/service.model.js';
 export * from './lib/delivery.model.js';
 export * from './lib/shop.model.js';
 export * from './lib/review.model.js';
+export * from './lib/admin.model.js';

@@ -285,6 +285,28 @@ describe('SellerAuthController', () => {
       expect(errorFrom(next).message).toBe('Invalid email or password!');
       expect(res.cookie).not.toHaveBeenCalled();
     });
+
+    it('refuses a suspended seller', async () => {
+      sellers.findUnique.mockResolvedValue({
+        ...savedSeller,
+        suspended: true,
+        password: await bcrypt.hash('Secret123!', 4),
+      });
+      const res = mockRes();
+      const next = vi.fn();
+
+      await controller.loginSeller(
+        { email: sellerDetails.email, password: 'Secret123!' } as LoginUserDto,
+        res as unknown as Response,
+        next as NextFunction,
+      );
+
+      expect(errorFrom(next)).toMatchObject({
+        statusCode: 403,
+        message: expect.stringMatching(/suspended/),
+      });
+      expect(res.cookie).not.toHaveBeenCalled();
+    });
   });
 
   describe('refresh-token/seller', () => {

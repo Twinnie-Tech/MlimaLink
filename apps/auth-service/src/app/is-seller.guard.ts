@@ -7,6 +7,7 @@ import {
   verifyToken,
 } from '../utils/auth-tokens';
 import { safeSellerSelect, type SafeSeller } from '../utils/seller.helper';
+import { SUSPENDED_MESSAGE } from '../utils/suspension';
 import { PrismaService } from './prisma.service';
 
 export type SellerRequest = Request & { seller: SafeSeller };
@@ -25,13 +26,19 @@ export class IsSellerGuard implements CanActivate {
       'seller',
     );
 
-    const seller = await this.prisma.sellers.findUnique({
+    const found = await this.prisma.sellers.findUnique({
       where: { id: payload.userId },
-      select: safeSellerSelect,
+      select: { ...safeSellerSelect, suspended: true },
     });
 
-    if (!seller) {
+    if (!found) {
       throw unauthorized('Account not found!');
+    }
+
+    const { suspended, ...seller } = found;
+    // 401 rather than 403 so the app treats it like any other ended session.
+    if (suspended) {
+      throw unauthorized(SUSPENDED_MESSAGE);
     }
 
     req.seller = seller;

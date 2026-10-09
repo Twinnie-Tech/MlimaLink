@@ -52,7 +52,11 @@ export class SellerDiscountCodesController {
     );
     return {
       success: true,
-      message: `${discount.code} is live: ${describeDiscount(discount)} ${req.shop.name} products.`,
+      message: `${discount.code} is live: ${describeDiscount(discount)} ${
+        discount.productIds
+          ? `${discount.productIds.length} chosen ${discount.productIds.length === 1 ? 'product' : 'products'}`
+          : `${req.shop.name} products`
+      }.`,
       data: discount,
     };
   }
