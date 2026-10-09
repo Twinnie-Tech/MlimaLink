@@ -29,6 +29,7 @@ function codeRecord(overrides: Record<string, unknown> = {}) {
 
 const shoe = {
   id: SHOE_ID,
+  name: 'Sneakers',
   price: 45,
   salePrice: 40,
   options: [
@@ -47,6 +48,7 @@ const shoe = {
 };
 const hat = {
   id: HAT_ID,
+  name: 'Hat',
   price: 20,
   salePrice: null,
   options: [],
@@ -61,7 +63,7 @@ describe('DiscountCodesService', () => {
     updateMany: vi.fn(),
     deleteMany: vi.fn(),
   };
-  const products = { findMany: vi.fn() };
+  const products = { findMany: vi.fn(), count: vi.fn() };
   const service = new DiscountCodesService({
     discount_codes,
     products,
@@ -69,7 +71,7 @@ describe('DiscountCodesService', () => {
 
   beforeEach(() => {
     Object.values(discount_codes).forEach((mock) => mock.mockReset());
-    products.findMany.mockReset();
+    Object.values(products).forEach((mock) => mock.mockReset());
     discount_codes.findUnique.mockResolvedValue(codeRecord());
     products.findMany.mockResolvedValue([shoe, hat]);
   });
@@ -159,6 +161,79 @@ describe('DiscountCodesService', () => {
       );
     });
 
+    describe('a code limited to chosen products', () => {
+      beforeEach(() => {
+        discount_codes.findUnique.mockResolvedValue(
+          codeRecord({ productIds: [HAT_ID] }),
+        );
+        products.findMany.mockResolvedValue([hat]);
+      });
+
+      it('takes money off only those products', async () => {
+        const applied = await service.apply(
+          'HARVEST10',
+          [
+            { productId: SHOE_ID, choices: { Size: '44' }, quantity: 2 },
+            { productId: HAT_ID, quantity: 3 },
+          ],
+          now,
+        );
+
+        expect(applied).toMatchObject({
+          amount: 6,
+          lines: [{ index: 1, total: 60 }],
+          productNames: ['Hat'],
+        });
+        expect(products.findMany.mock.calls[0][0].where).toEqual({
+          id: { in: [HAT_ID] },
+          shopId: SHOP_ID,
+        });
+      });
+
+      it('names the products when none of them are in the cart', async () => {
+        await expect(
+          service.apply(
+            'HARVEST10',
+            [{ productId: SHOE_ID, choices: { Size: '44' }, quantity: 1 }],
+            now,
+          ),
+        ).rejects.toMatchObject({
+          statusCode: 400,
+          message:
+            'This code is only for Hat from Mlima Boutique. Add it to your cart to use it.',
+        });
+      });
+
+      it('counts the minimum spend on those products alone', async () => {
+        discount_codes.findUnique.mockResolvedValue(
+          codeRecord({ productIds: [HAT_ID], minSpend: 50 }),
+        );
+        await expect(
+          service.apply(
+            'HARVEST10',
+            [
+              { productId: SHOE_ID, choices: { Size: '44' }, quantity: 2 },
+              { productId: HAT_ID, quantity: 1 },
+            ],
+            now,
+          ),
+        ).rejects.toMatchObject({
+          message:
+            'Spend $50.00 on Hat to use this code. You have $20.00 so far.',
+        });
+      });
+
+      it('explains when its products are gone', async () => {
+        products.findMany.mockResolvedValue([]);
+        await expect(
+          service.apply('HARVEST10', [{ productId: HAT_ID, quantity: 1 }], now),
+        ).rejects.toMatchObject({
+          message:
+            'The products this code was for are no longer sold by Mlima Boutique.',
+        });
+      });
+    });
+
     it('skips lines whose options no longer match a variant', async () => {
       products.findMany.mockResolvedValue([shoe]);
       await expect(
@@ -203,6 +278,34 @@ describe('DiscountCodesService', () => {
       statusCode: 409,
       message: 'That code is already taken. Try another.',
     });
+  });
+
+  it('only limits a code to products from the seller’s own shop', async () => {
+    products.count.mockResolvedValue(1);
+    await expect(
+      service.create(SHOP_ID, {
+        code: 'SHOES15',
+        type: 'percentage',
+        value: 15,
+        productIds: [SHOE_ID, HAT_ID],
+      }),
+    ).rejects.toMatchObject({ statusCode: 400 });
+    expect(products.count).toHaveBeenCalledWith({
+      where: { id: { in: [SHOE_ID, HAT_ID] }, shopId: SHOP_ID },
+    });
+    expect(discount_codes.create).not.toHaveBeenCalled();
+
+    products.count.mockResolvedValue(2);
+    discount_codes.create.mockResolvedValue(
+      codeRecord({ code: 'SHOES15', productIds: [SHOE_ID, HAT_ID] }),
+    );
+    const created = await service.create(SHOP_ID, {
+      code: 'SHOES15',
+      type: 'percentage',
+      value: 15,
+      productIds: [SHOE_ID, HAT_ID],
+    });
+    expect(created.productIds).toEqual([SHOE_ID, HAT_ID]);
   });
 
   it('only changes and deletes the shop’s own codes', async () => {

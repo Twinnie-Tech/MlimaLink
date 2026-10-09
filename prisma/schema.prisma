@@ -29,35 +29,53 @@ model images {
 
 // Models will be added here (e.g. User for auth-service)
 model users {
-  id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String         @unique
-  password     String?
-  role         String         @default("user")
-  phone_number String?
-  country      String?
-  following    String[]
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  email           String            @unique
+  password        String?
+  role            String            @default("user")
+  phone_number    String?
+  country         String?
+  following       String[]
+  /// Set by an admin. A suspended shopper can't log in and their sessions stop working.
+  suspended       Boolean           @default(false)
   /// At most one image; uploading a new avatar replaces the old one.
   avatar          images[]
   shop_reviews    shop_reviews[]
   product_reviews product_reviews[]
+  conversations   conversations[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 }
 
 model sellers {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String   @unique
-  phone_number String
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String          @unique
+  phone_number  String
   /// ISO 3166-1 alpha-2 code, e.g. "KE".
-  country      String
-  password     String
+  country       String
+  password      String
   /// Stripe Connect account id, set once the seller starts bank onboarding.
-  stripeId     String?
-  shop         shops?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  stripeId      String?
+  /// Set by an admin. A suspended seller can't log in and their sessions stop working.
+  suspended     Boolean         @default(false)
+  shop          shops?
+  conversations conversations[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+/// Someone who runs MlimaLink. There is no sign-up: accounts are created with
+/// `npm run admin:create`, and admins log in to admin-ui through auth-service.
+model admins {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String    @unique
+  password    String
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 /// Hours for one open day. Validated by parseOpeningHours in @org/models.
@@ -101,6 +119,7 @@ model shops {
   products       products[]
   discountCodes  discount_codes[]
   serviceProfile service_profiles?
+  conversations  conversations[]
   /// Town riders collect orders from, one of DELIVERY_ZONES in @org/models.
   deliveryZone   String?
   /// USD charged to shoppers per order; DEFAULT_DELIVERY_FEE when unset.
@@ -236,6 +255,8 @@ model discount_codes {
   /// Last day the code works, "YYYY-MM-DD" (UTC).
   expiresAt  String?
   active     Boolean  @default(true)
+  /// The shop products the code covers; empty means all of them.
+  productIds String[] @db.ObjectId
   shopId     String   @db.ObjectId
   shop       shops    @relation(fields: [shopId], references: [id])
   createdAt  DateTime @default(now())
@@ -349,33 +370,39 @@ type order_item {
 /// One shop's part of a checkout. The shop name and prices are copied, so shopId and
 /// userId are plain ids like service_requests.
 model orders {
-  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
   /// Short reference shown to people, e.g. "ML-7Q2K9D".
-  number       String           @unique
-  shopId       String           @db.ObjectId
-  shopName     String
-  userId       String           @db.ObjectId
-  buyerName    String
-  buyerEmail   String
-  address      delivery_address
-  items        order_item[]
-  subtotal     Float
-  discount     Float
-  discountCode String?
-  deliveryFee  Float
-  total        Float
+  number         String           @unique
+  shopId         String           @db.ObjectId
+  shopName       String
+  userId         String           @db.ObjectId
+  buyerName      String
+  buyerEmail     String
+  address        delivery_address
+  items          order_item[]
+  subtotal       Float
+  discount       Float
+  discountCode   String?
+  deliveryFee    Float
+  total          Float
   /// Due when ordering, including the delivery fee.
-  payNow       Float
-  onDelivery   Float
+  payNow         Float
+  onDelivery     Float
+  /// MlimaLink's cut of subtotal − discount at the rate when ordered. Unset on older
+  /// orders, which use PLATFORM_FEE_RATE.
+  platformFee    Float?
+  /// subtotal − discount − platformFee: what the shop keeps.
+  sellerEarnings Float?
   /// "placed", "confirmed", "out_for_delivery", "delivered" or "cancelled"
-  status       String           @default("placed")
+  status         String           @default("placed")
   /// Four digits the shopper gives the rider to prove the order arrived.
-  deliveryCode String
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  deliveryCode   String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@index([shopId, createdAt])
   @@index([userId, createdAt])
+  @@index([createdAt])
 }
 
 type geo_point {
@@ -484,4 +511,66 @@ model shop_analytics {
   lastVisitedAt DateTime
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+/// A chat in chatting-service. "shop" chats are between a shopper and a shop (its seller
+/// replies); "support" chats are between a shopper or seller and MlimaLink's admins, any
+/// of whom can reply.
+model conversations {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  /// "shop:<shopId>:<userId>", "support:user:<userId>" or "support:seller:<sellerId>".
+  /// One chat per pair, and unique even though userId, sellerId and shopId are optional.
+  key           String          @unique
+  /// "shop" or "support"
+  kind          String
+  userId        String?         @db.ObjectId
+  user          users?          @relation(fields: [userId], references: [id])
+  sellerId      String?         @db.ObjectId
+  seller        sellers?        @relation(fields: [sellerId], references: [id])
+  shopId        String?         @db.ObjectId
+  shop          shops?          @relation(fields: [shopId], references: [id])
+  /// Start of the latest message, for chat lists.
+  lastMessage   String?
+  lastMessageAt DateTime?
+  messages      chat_messages[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([userId, updatedAt])
+  @@index([sellerId, updatedAt])
+  @@index([kind, updatedAt])
+}
+
+/// One chat message. Written by chatting-service from the chat_messages topic; the id is
+/// chosen when the message is sent, so a message Kafka delivers twice is stored once.
+model chat_messages {
+  id             String        @id @map("_id") @db.ObjectId
+  conversationId String        @db.ObjectId
+  conversation   conversations @relation(fields: [conversationId], references: [id])
+  /// "user", "seller" or "admin"
+  senderRole     String
+  senderId       String        @db.ObjectId
+  /// The sender's name when they sent it.
+  senderName     String
+  body           String
+  createdAt      DateTime
+
+  @@index([conversationId, createdAt])
+}
+
+/// A log entry from the logs topic, stored by logger-service. Entries older than
+/// LOG_RETENTION_DAYS are deleted.
+model platform_logs {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  /// "debug", "info", "warn" or "error"
+  level     String
+  message   String
+  /// The service that wrote it, e.g. "chatting-service".
+  source    String
+  meta      Json?
+  timestamp DateTime
+
+  @@index([timestamp])
+  @@index([level, timestamp])
+  @@index([source, timestamp])
 }

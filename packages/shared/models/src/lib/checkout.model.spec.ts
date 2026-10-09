@@ -2,6 +2,7 @@ import {
   allocateDiscount,
   describeDiscount,
   discountAmount,
+  discountScope,
   discountStatus,
   discountUnavailable,
   normaliseCode,
@@ -56,6 +57,41 @@ describe('parseDiscountCodeInput', () => {
       /must be a date/,
     );
     expect(errorOf({ ...base, expiresAt: '2026-09-30' })).toBeNull();
+  });
+});
+
+describe('codes limited to chosen products', () => {
+  const base = { code: 'SHOES15', type: 'percentage', value: 15 };
+  const SHOE = '66f0000000000000000000aa';
+  const HAT = '66f0000000000000000000bb';
+
+  it('keeps each chosen product once', () => {
+    expect(
+      parseDiscountCodeInput({ ...base, productIds: [SHOE, HAT, SHOE] }, now),
+    ).toEqual({ discount: { ...base, productIds: [SHOE, HAT] } });
+  });
+
+  it('treats an empty choice as the whole shop', () => {
+    expect(parseDiscountCodeInput({ ...base, productIds: [] }, now)).toEqual({
+      discount: base,
+    });
+  });
+
+  it('rejects ids that are not products', () => {
+    expect(errorOf({ ...base, productIds: ['3'] })).toMatch(/couldn’t be read/);
+    expect(errorOf({ ...base, productIds: SHOE })).toMatch(/couldn’t be read/);
+  });
+
+  it('says what an applied code covers', () => {
+    const shopName = 'Mlima Boutique';
+    expect(discountScope({ shopName })).toBe('Mlima Boutique products');
+    expect(discountScope({ shopName, productNames: ['Hat'] })).toBe('Hat');
+    expect(discountScope({ shopName, productNames: ['Sneakers', 'Hat'] })).toBe(
+      'Sneakers and Hat',
+    );
+    expect(
+      discountScope({ shopName, productNames: ['Sneakers', 'Hat', 'Scarf'] }),
+    ).toBe('selected Mlima Boutique products');
   });
 });
 

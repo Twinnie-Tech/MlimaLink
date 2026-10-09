@@ -1,13 +1,17 @@
 import { fireEvent, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AvailableRider, Order } from '@org/models';
+import DashboardLayout from '../src/app/dashboard/layout';
 import OrdersPage from '../src/app/dashboard/orders/page';
+import PaymentsPage from '../src/app/dashboard/payments/page';
 import {
   fill,
   installFetchMock,
   renderPage,
   reply,
+  seller,
   sentBody,
+  shop,
 } from './test-utils';
 
 vi.mock('next/navigation', () => ({
@@ -47,6 +51,8 @@ const order = (overrides: Partial<Order> = {}): Order => ({
   total: 23,
   payNow: 23,
   onDelivery: 0,
+  platformFee: 2,
+  sellerEarnings: 18,
   status: 'placed',
   createdAt: '2026-09-29T09:00:00.000Z',
   updatedAt: '2026-09-29T09:00:00.000Z',
@@ -301,4 +307,30 @@ describe('Orders', () => {
       screen.queryByRole('article', { name: 'Order ML-AAAAAA' }),
     ).toBeNull();
   });
+});
+
+it('shows earnings after the MlimaLink fee on the payments page', async () => {
+  reply('GET /api/auth/logged-in-seller', 200, {
+    success: true,
+    seller: { ...seller, shop },
+  });
+  orders(
+    order({ status: 'delivered' }),
+    order({ id: 'o2', number: 'ML-AAAAAA', status: 'confirmed' }),
+    order({ id: 'o3', number: 'ML-BBBBBB', status: 'cancelled' }),
+  );
+  renderPage(
+    <DashboardLayout>
+      <PaymentsPage />
+    </DashboardLayout>,
+  );
+
+  const table = await screen.findByRole('table', { name: 'Transactions' });
+  expect(within(table).getAllByRole('row')).toHaveLength(3);
+  expect(within(table).getByText('Fee (10%)')).toBeTruthy();
+  expect(within(table).getAllByText('−$2.00')).toHaveLength(2);
+  expect(within(table).queryByText('ML-BBBBBB')).toBeNull();
+  // One delivered order earns $18; the confirmed one is still pending.
+  expect(screen.getByText('Earned').parentElement?.parentElement?.textContent).toContain('$18.00');
+  expect(screen.getByText('Pending').parentElement?.parentElement?.textContent).toContain('$18.00');
 });

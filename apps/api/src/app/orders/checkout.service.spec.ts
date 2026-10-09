@@ -128,6 +128,8 @@ describe('CheckoutService', () => {
         // Half of the shoes now, plus the delivery fee.
         payNow: 55,
         onDelivery: 50,
+        platformFee: 10,
+        sellerEarnings: 90,
       });
       expect(chai).toMatchObject({
         shopName: 'Chai Point',
@@ -136,6 +138,8 @@ describe('CheckoutService', () => {
         total: 18,
         payNow: 18,
         onDelivery: 0,
+        platformFee: 1.5,
+        sellerEarnings: 13.5,
       });
       expect(quote).toMatchObject({
         subtotal: 115,
@@ -143,6 +147,8 @@ describe('CheckoutService', () => {
         total: 123,
         payNow: 73,
         onDelivery: 50,
+        platformFee: 11.5,
+        sellerEarnings: 103.5,
       });
       expect(kicks.items[0]).toMatchObject({
         name: 'Leather sneakers',

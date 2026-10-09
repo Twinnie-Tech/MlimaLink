@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { AppliedDiscount, ApiResponse } from '@org/models';
-import { describeDiscount } from '@org/models/checkout';
+import { describeDiscount, discountScope } from '@org/models/checkout';
 import { DiscountCodesService, parseCartItems } from './discount-codes.service';
 
 @ApiTags('discount codes')
@@ -23,7 +23,7 @@ export class DiscountCodesController {
     const applied = await this.discountCodes.apply(code, parseCartItems(items));
     return {
       success: true,
-      message: `${applied.code} applied: ${describeDiscount(applied)} ${applied.shopName} products.`,
+      message: `${applied.code} applied: ${describeDiscount(applied)} ${discountScope(applied)}.`,
       data: applied,
     };
   }

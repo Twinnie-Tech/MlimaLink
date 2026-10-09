@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LogOut, Store } from 'lucide-react';
-import { SELLER_QUERY_KEY } from '../hooks/use-seller';
+import { switchSeller } from '../hooks/use-seller';
 import { logoutSeller } from '../utils/seller-api';
 import { ThemeToggle } from '../widgets/theme-toggle';
 import { DASHBOARD_HOME, NAV_SECTIONS, type NavItem } from './nav';
@@ -58,8 +58,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const logoutMutation = useMutation({
     mutationFn: logoutSeller,
     onSuccess: async () => {
-      await queryClient.cancelQueries({ queryKey: SELLER_QUERY_KEY });
-      queryClient.setQueryData(SELLER_QUERY_KEY, null);
+      await switchSeller(queryClient, null);
       router.push('/login');
     },
   });

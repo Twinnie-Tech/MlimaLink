@@ -8,6 +8,7 @@ import {
   safeUserSelect,
   verifyToken,
 } from '../utils/auth-tokens';
+import { SUSPENDED_MESSAGE } from '../utils/suspension';
 import { PrismaService } from './prisma.service';
 
 export type SafeUser = {
@@ -36,13 +37,19 @@ export class IsAuthenticatedGuard implements CanActivate {
       'user',
     );
 
-    const user = await this.prisma.users.findUnique({
+    const found = await this.prisma.users.findUnique({
       where: { id: payload.userId },
-      select: safeUserSelect,
+      select: { ...safeUserSelect, suspended: true },
     });
 
-    if (!user) {
+    if (!found) {
       throw unauthorized('Account not found!');
+    }
+
+    const { suspended, ...user } = found;
+    // 401 rather than 403 so the app treats it like any other ended session.
+    if (suspended) {
+      throw unauthorized(SUSPENDED_MESSAGE);
     }
 
     // The stored role wins over the token's, so a role change applies immediately.

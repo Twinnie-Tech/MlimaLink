@@ -47,8 +47,26 @@ describe('SellerGuard', () => {
     };
 
     await expect(guard.canActivate(contextFor(req))).resolves.toBe(true);
-    expect(req.shop).toBe(shop);
+    expect(req.shop).toEqual(shop);
     expect(findUnique.mock.calls[0][0].where).toEqual({ sellerId: 's1' });
+  });
+
+  it('refuses a seller an admin has suspended', async () => {
+    findUnique.mockResolvedValue({
+      id: 'shop1',
+      name: 'Mlima Boutique',
+      seller: { suspended: true },
+    });
+    const req: Record<string, unknown> = {
+      cookies: { sellerAccessToken: token({ userId: 's1', role: 'seller' }) },
+      headers: {},
+    };
+
+    await expect(guard.canActivate(contextFor(req))).rejects.toMatchObject({
+      statusCode: 401,
+      message: expect.stringMatching(/suspended/),
+    });
+    expect(req.shop).toBeUndefined();
   });
 
   it('asks sellers without a shop to set one up', async () => {

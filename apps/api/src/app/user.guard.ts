@@ -9,6 +9,9 @@ export const ACCESS_TOKEN_COOKIE = 'accessToken';
 const USER_AUDIENCE = 'user';
 const TOKEN_ISSUER = 'mlimalink-auth';
 
+export const SUSPENDED_MESSAGE =
+  'This account has been suspended. Please contact MlimaLink support.';
+
 export type SignedInUser = { id: string; name: string; email: string };
 export type UserRequest = Request & { user: SignedInUser };
 
@@ -65,12 +68,16 @@ export class UserGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<UserRequest>();
     const userId = verifyUserAccessToken(readToken(req));
 
-    const user = await this.prisma.users.findUnique({
+    const found = await this.prisma.users.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, suspended: true },
     });
-    if (!user) {
+    if (!found) {
       throw unauthorized('Please log in to continue.');
+    }
+    const { suspended, ...user } = found;
+    if (suspended) {
+      throw unauthorized(SUSPENDED_MESSAGE);
     }
 
     req.user = user;

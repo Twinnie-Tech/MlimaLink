@@ -24,11 +24,14 @@ import {
   inputClassName,
   primaryButtonClassName,
 } from '../../shared/dashboard/ui';
-import { deleteProduct, listMyProducts } from '../../shared/utils/products-api';
+import {
+  MY_PRODUCTS_KEY as PRODUCTS_KEY,
+  deleteProduct,
+  listMyProducts,
+} from '../../shared/utils/products-api';
 import { AuthRequestError } from '../../shared/utils/seller-api';
 
 const LOW_STOCK = 5;
-const PRODUCTS_KEY = ['seller-products'];
 
 type StockFilter = 'all' | 'in' | 'low' | 'out';
 

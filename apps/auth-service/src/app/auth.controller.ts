@@ -36,6 +36,7 @@ import {
   issueAuthCookies,
   rotateAuthSession,
 } from '../utils/refresh-sessions';
+import { assertNotSuspended } from '../utils/suspension';
 import {
   IsAuthenticatedGuard,
   type AuthenticatedRequest,
@@ -179,6 +180,7 @@ export class AuthController {
       if (!isPasswordValid) {
         throw validationError('Invalid email or password!');
       }
+      assertNotSuspended(user);
 
       await issueAuthCookies(
         res,
@@ -226,9 +228,9 @@ export class AuthController {
       await rotateAuthSession(req, res, 'user', async (id) => {
         const user = await this.prisma.users.findUnique({
           where: { id },
-          select: { role: true },
+          select: { role: true, suspended: true },
         });
-        return user?.role ?? null;
+        return user && !user.suspended ? user.role : null;
       });
 
       return res

@@ -26,6 +26,9 @@ export const DELIVERY_ZONES = [
 
 export type DeliveryZone = (typeof DELIVERY_ZONES)[number];
 
+/** ISO 3166-1 alpha-2 code of the country every delivery zone is in. */
+export const DELIVERY_COUNTRY = 'KE';
+
 export type VehicleType = 'motorbike' | 'bicycle' | 'car' | 'van' | 'on_foot';
 
 export const VEHICLE_TYPES: { id: VehicleType; label: string }[] = [
@@ -165,6 +168,10 @@ export interface Order {
   payNow: number;
   /** Collected when the order arrives. */
   onDelivery: number;
+  /** MlimaLink's share of subtotal − discount; see PLATFORM_FEE_RATE. */
+  platformFee: number;
+  /** What the shop keeps: subtotal − discount − platformFee. */
+  sellerEarnings: number;
   status: OrderStatus;
   /** The shopper gives this to the rider on arrival. Only in the shopper's own view. */
   deliveryCode?: string;
@@ -199,6 +206,8 @@ export interface CheckoutGroup {
   total: number;
   payNow: number;
   onDelivery: number;
+  platformFee: number;
+  sellerEarnings: number;
 }
 
 export interface CheckoutQuote {
@@ -212,6 +221,9 @@ export interface CheckoutQuote {
   total: number;
   payNow: number;
   onDelivery: number;
+  /** Included in total, not added to it. */
+  platformFee: number;
+  sellerEarnings: number;
 }
 
 /** Where a shop sends parcels from and what it charges shoppers for delivery. */

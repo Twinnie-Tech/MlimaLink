@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DiscountCode } from '@org/models';
+import type { DiscountCode, Product } from '@org/models';
 import DashboardLayout from '../src/app/dashboard/layout';
 import DiscountCodesPage from '../src/app/dashboard/discount-codes/page';
 import {
@@ -17,6 +17,9 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   usePathname: () => '/dashboard/discount-codes',
 }));
+
+const SNEAKERS_ID = '66f0000000000000000000aa';
+const HAT_ID = '66f0000000000000000000bb';
 
 const harvest: DiscountCode = {
   id: 'd1',
@@ -37,9 +40,15 @@ const summer: DiscountCode = {
   value: 5,
   usedCount: 12,
   expiresAt: '2020-01-31',
+  productIds: [SNEAKERS_ID, HAT_ID],
   active: true,
   createdAt: '2019-12-01T08:00:00.000Z',
 };
+
+const myProducts = [
+  { id: SNEAKERS_ID, name: 'Sneakers', price: 45, salePrice: 40 },
+  { id: HAT_ID, name: 'Hat', price: 20 },
+] as Product[];
 
 beforeEach(() => {
   installFetchMock();
@@ -47,6 +56,7 @@ beforeEach(() => {
     success: true,
     seller: { ...seller, shop },
   });
+  reply('GET /api/seller/products', 200, { success: true, data: myProducts });
 });
 
 function renderCodes(codes: DiscountCode[] = []) {
@@ -69,12 +79,14 @@ describe('Discount codes', () => {
 
     const row = await codeRow('HARVEST10');
     expect(row.textContent).toContain(
-      '10% off · min. spend $20.00 · 3 of 50 used · ends 31 Oct 2099',
+      '10% off all products · min. spend $20.00 · 3 of 50 used · ends 31 Oct 2099',
     );
     expect(within(row).getByText('active')).toBeTruthy();
 
     const expired = await codeRow('SUMMER5');
-    expect(expired.textContent).toContain('$5.00 off · 12 used');
+    expect(expired.textContent).toContain(
+      '$5.00 off 2 products: Sneakers, Hat · 12 used',
+    );
     expect(within(expired).getByText('expired')).toBeTruthy();
     expect(within(expired).queryByRole('button', { name: /Pause/ })).toBeNull();
   });
@@ -153,6 +165,50 @@ describe('Discount codes', () => {
     });
     expect(await codeRow('HARVEST10')).toBeTruthy();
     expect((screen.getByLabelText('Code') as HTMLInputElement).value).toBe('');
+  });
+
+  it('limits a code to the products the seller chooses', async () => {
+    reply('POST /api/seller/discount-codes', 200, {
+      success: true,
+      message: 'SHOES15 is live: 15% off 1 chosen product.',
+      data: {
+        ...harvest,
+        code: 'SHOES15',
+        value: 15,
+        productIds: [SNEAKERS_ID],
+      },
+    });
+    renderCodes();
+
+    await screen.findByText('No discount codes yet');
+    fill('Code', 'SHOES15');
+    fill('Discount (%)', '15');
+    fireEvent.click(screen.getByLabelText('Chosen products'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create code' }));
+    expect((await screen.findByRole('alert')).textContent).toBe(
+      'Choose at least one product, or let the code cover all your products.',
+    );
+
+    const list = await screen.findByRole('list', {
+      name: 'Products this code covers',
+    });
+    fireEvent.click(within(list).getByLabelText(/Sneakers/));
+    expect(screen.getByText('1 of 2 chosen')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Create code' }));
+
+    expect(
+      await screen.findByText('SHOES15 is live: 15% off 1 chosen product.'),
+    ).toBeTruthy();
+    expect(sentBody('POST /api/seller/discount-codes')).toEqual({
+      code: 'SHOES15',
+      type: 'percentage',
+      value: 15,
+      productIds: [SNEAKERS_ID],
+    });
+    expect((await codeRow('SHOES15')).textContent).toContain(
+      '15% off only Sneakers',
+    );
   });
 
   it('rejects codes with spaces or symbols before sending them', async () => {

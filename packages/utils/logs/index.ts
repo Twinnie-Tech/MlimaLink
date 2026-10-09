@@ -3,7 +3,11 @@ import { getProducer } from '../kafka/index.js';
 /** Topic every service publishes its logs to. */
 export const LOGS_TOPIC = 'logs';
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
+export type LogLevel = (typeof LOG_LEVELS)[number];
+
+const MAX_MESSAGE_LENGTH = 10_000;
+const MAX_SOURCE_LENGTH = 100;
 
 export interface LogEntry {
   level: LogLevel;
@@ -27,6 +31,49 @@ export function createLogEntry(
     source,
     timestamp: new Date().toISOString(),
     ...(meta && { meta }),
+  };
+}
+
+export function isLogLevel(value: unknown): value is LogLevel {
+  return LOG_LEVELS.includes(value as LogLevel);
+}
+
+/**
+ * Reads a message from the logs topic; null when it isn't a valid entry. Overlong
+ * messages are cut short rather than dropped, so a noisy service still shows up.
+ */
+export function parseLogEntry(raw: string | undefined): LogEntry | null {
+  if (!raw) return null;
+  let data: unknown;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (!data || typeof data !== 'object') return null;
+  const { level, message, source, timestamp, meta } = data as Record<
+    string,
+    unknown
+  >;
+  if (!isLogLevel(level) || typeof message !== 'string') return null;
+  if (
+    typeof source !== 'string' ||
+    !source.trim() ||
+    source.length > MAX_SOURCE_LENGTH
+  ) {
+    return null;
+  }
+  if (typeof timestamp !== 'string' || Number.isNaN(Date.parse(timestamp))) {
+    return null;
+  }
+  const hasMeta =
+    meta !== null && typeof meta === 'object' && !Array.isArray(meta);
+  return {
+    level,
+    message: message.slice(0, MAX_MESSAGE_LENGTH),
+    source: source.trim(),
+    timestamp: new Date(timestamp).toISOString(),
+    ...(hasMeta && { meta: meta as Record<string, unknown> }),
   };
 }
 

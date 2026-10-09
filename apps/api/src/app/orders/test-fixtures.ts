@@ -48,6 +48,8 @@ export const orderRecord = (overrides: Record<string, unknown> = {}) => ({
   total: 105,
   payNow: 55,
   onDelivery: 50,
+  platformFee: 10,
+  sellerEarnings: 90,
   status: 'confirmed',
   deliveryCode: '4821',
   createdAt: new Date('2026-09-30T08:00:00Z'),

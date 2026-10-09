@@ -1,9 +1,22 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { getLoggedInSeller } from '../utils/seller-api';
+import { useQuery, type QueryClient } from '@tanstack/react-query';
+import { getLoggedInSeller, type Seller } from '../utils/seller-api';
 
 export const SELLER_QUERY_KEY = ['seller'] as const;
+
+/**
+ * Records who is signed in after a login or logout. Orders, products and stats are cached
+ * under keys that don't name the seller, so everything cached for the previous one is dropped.
+ */
+export async function switchSeller(
+  queryClient: QueryClient,
+  seller: Seller | null,
+) {
+  await queryClient.cancelQueries();
+  queryClient.removeQueries();
+  queryClient.setQueryData(SELLER_QUERY_KEY, seller);
+}
 
 /** The signed-in seller (or null), shared by every component through the query cache. */
 export function useSeller() {

@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { Loader2, TicketPercent, X } from 'lucide-react';
 import type { AppliedDiscount } from '@org/models';
-import { describeDiscount } from '@org/models/checkout';
+import { describeDiscount, discountScope } from '@org/models/checkout';
 import { formatPrice } from '../store/shop-store';
 
 /** Code entry for the order summary, or the applied code with a way to remove it. */
@@ -56,7 +56,7 @@ export function DiscountCodeBox({
               {applied && (
                 <span className="text-neutral-500">
                   {' '}
-                  · {describeDiscount(applied)} {applied.shopName}
+                  · {describeDiscount(applied)} {discountScope(applied)}
                 </span>
               )}
             </span>

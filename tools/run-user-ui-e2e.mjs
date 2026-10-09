@@ -81,6 +81,7 @@ start(process.execPath, ['dist/main.js'], 'apps/api', {
   SELLER_ACCESS_TOKEN_SECRET:
     process.env.SELLER_ACCESS_TOKEN_SECRET ?? e2eSecret,
   RIDER_ACCESS_TOKEN_SECRET: process.env.RIDER_ACCESS_TOKEN_SECRET ?? e2eSecret,
+  ADMIN_ACCESS_TOKEN_SECRET: process.env.ADMIN_ACCESS_TOKEN_SECRET ?? e2eSecret,
 });
 start(process.execPath, ['dist/main.js'], 'apps/api-gateway', {
   HOST: '0.0.0.0',

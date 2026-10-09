@@ -6,6 +6,8 @@ import { requestJson, withSession } from './seller-api';
 
 const PRODUCTS_URL = '/api/seller/products';
 
+export const MY_PRODUCTS_KEY = ['seller-products'];
+
 export async function listMyProducts(): Promise<Product[]> {
   const response = await withSession(() =>
     requestJson<ApiResponse<Product[]>>('GET', PRODUCTS_URL),

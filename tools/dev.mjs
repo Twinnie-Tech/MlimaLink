@@ -1,5 +1,5 @@
 /**
- * Starts API, auth-service, API Gateway, user-ui and seller-ui (Next.js) for local development.
+ * Starts API, auth-service, API Gateway, user-ui, seller-ui and admin-ui (Next.js) for local development.
  * Usage: node tools/dev.mjs  (or npm run dev)
  */
 import { spawn } from 'child_process';
@@ -17,6 +17,7 @@ const gatewayMain = path.join(root, 'apps/api-gateway/dist/main.js');
 const nextBin = path.join(root, 'node_modules/next/dist/bin/next');
 const userUiDir = path.join(root, 'apps/user-ui');
 const sellerUiDir = path.join(root, 'apps/seller-ui');
+const adminUiDir = path.join(root, 'apps/admin-ui');
 
 for (const file of [apiMain, authMain, gatewayMain, nextBin]) {
   if (!existsSync(file)) {
@@ -61,9 +62,12 @@ function shutdown(code = 0) {
 process.on('SIGINT', () => shutdown(0));
 process.on('SIGTERM', () => shutdown(0));
 
-console.log('Starting API, auth-service, Gateway, user-ui and seller-ui...');
+console.log(
+  'Starting API, auth-service, Gateway, user-ui, seller-ui and admin-ui...',
+);
 start('api', [apiMain], '\x1b[34m');
 start('auth', [authMain], '\x1b[36m');
 start('gateway', [gatewayMain], '\x1b[35m');
 start('user-ui', [nextBin, 'dev', userUiDir, '--port', '4200'], '\x1b[32m');
 start('seller-ui', [nextBin, 'dev', sellerUiDir, '--port', '4300'], '\x1b[33m');
+start('admin-ui', [nextBin, 'dev', adminUiDir, '--port', '4400'], '\x1b[31m');

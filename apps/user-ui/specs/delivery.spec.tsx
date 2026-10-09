@@ -86,6 +86,8 @@ const quote: CheckoutQuote = {
       total: 23,
       payNow: 23,
       onDelivery: 0,
+      platformFee: 2,
+      sellerEarnings: 18,
     },
   ],
   subtotal: 20,
@@ -94,6 +96,8 @@ const quote: CheckoutQuote = {
   total: 23,
   payNow: 23,
   onDelivery: 0,
+  platformFee: 2,
+  sellerEarnings: 18,
 };
 
 const address = {
@@ -118,6 +122,8 @@ const order = (overrides: Partial<Order> = {}): Order => ({
   total: 23,
   payNow: 23,
   onDelivery: 0,
+  platformFee: 2,
+  sellerEarnings: 18,
   status: 'placed',
   deliveryCode: '4821',
   createdAt: '2026-09-29T09:00:00.000Z',

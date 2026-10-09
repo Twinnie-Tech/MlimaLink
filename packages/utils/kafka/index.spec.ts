@@ -7,8 +7,13 @@ vi.mock('kafkajs', () => ({
   Partitioners: { DefaultPartitioner: () => () => 0 },
 }));
 
-const { disconnectProducer, getProducer, kafkaConfigFromEnv } =
-  await import('./index.js');
+const {
+  disconnectProducer,
+  ensureTopic,
+  getProducer,
+  kafkaConfigFromEnv,
+  topicSettingsFromEnv,
+} = await import('./index.js');
 
 describe('kafkaConfigFromEnv', () => {
   it('connects to a local broker without auth by default', () => {
@@ -107,5 +112,88 @@ describe('getProducer', () => {
     await disconnectProducer();
 
     expect(producer.disconnect).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('topicSettingsFromEnv', () => {
+  it('uses one replica locally and three on a cloud cluster', () => {
+    expect(topicSettingsFromEnv({})).toEqual({
+      numPartitions: 6,
+      replicationFactor: 1,
+    });
+    expect(
+      topicSettingsFromEnv({
+        KAFKA_API_KEY: 'key',
+        KAFKA_API_SECRET: 'secret',
+      }),
+    ).toEqual({ numPartitions: 6, replicationFactor: 3 });
+  });
+
+  it('lets the environment override both, ignoring nonsense', () => {
+    expect(
+      topicSettingsFromEnv({
+        KAFKA_TOPIC_PARTITIONS: '12',
+        KAFKA_REPLICATION_FACTOR: '2',
+      }),
+    ).toEqual({ numPartitions: 12, replicationFactor: 2 });
+    expect(
+      topicSettingsFromEnv({
+        KAFKA_TOPIC_PARTITIONS: '-1',
+        KAFKA_REPLICATION_FACTOR: 'three',
+      }),
+    ).toEqual({ numPartitions: 6, replicationFactor: 1 });
+  });
+});
+
+describe('ensureTopic', () => {
+  const admin = {
+    connect: vi.fn(),
+    listTopics: vi.fn(),
+    createTopics: vi.fn(),
+    disconnect: vi.fn(),
+  };
+  const kafka = { admin: () => admin } as never;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    admin.disconnect.mockResolvedValue(undefined);
+    vi.stubEnv('KAFKA_USERNAME', '');
+    vi.stubEnv('KAFKA_API_KEY', '');
+    vi.stubEnv('KAFKA_TOPIC_PARTITIONS', '');
+    vi.stubEnv('KAFKA_REPLICATION_FACTOR', '');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('creates the topic only when it’s missing', async () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    admin.listTopics.mockResolvedValueOnce(['chat_messages']);
+    await ensureTopic(kafka, 'chat_messages');
+    expect(admin.createTopics).not.toHaveBeenCalled();
+
+    admin.listTopics.mockResolvedValueOnce([]);
+    await ensureTopic(kafka, 'chat_messages');
+    expect(admin.createTopics).toHaveBeenCalledWith({
+      topics: [
+        { topic: 'chat_messages', numPartitions: 6, replicationFactor: 1 },
+      ],
+      waitForLeaders: true,
+    });
+    expect(admin.disconnect).toHaveBeenCalledTimes(2);
+    log.mockRestore();
+  });
+
+  it('warns instead of throwing when the topic can’t be created', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    admin.listTopics.mockResolvedValueOnce([]);
+    admin.createTopics.mockRejectedValueOnce(new Error('not authorized'));
+
+    await expect(ensureTopic(kafka, 'logs')).resolves.toBeUndefined();
+    expect(warn).toHaveBeenCalledWith(
+      "Couldn't make sure the logs topic exists: not authorized",
+    );
+    warn.mockRestore();
   });
 });

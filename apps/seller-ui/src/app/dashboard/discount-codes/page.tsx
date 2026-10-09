@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -37,6 +37,10 @@ import {
   listMyDiscountCodes,
   setDiscountCodeActive,
 } from '../../shared/utils/discount-codes-api';
+import {
+  MY_PRODUCTS_KEY,
+  listMyProducts,
+} from '../../shared/utils/products-api';
 import { AuthRequestError } from '../../shared/utils/seller-api';
 
 const CODES_KEY = ['seller-discount-codes'];
@@ -79,7 +83,21 @@ function usage(code: DiscountCode) {
     : `${code.usedCount} used`;
 }
 
-function toInput(form: DiscountForm): Record<string, unknown> {
+/** "all products", "only Sneakers" or "3 products: Sneakers, Hat, Scarf". */
+function coverage(code: DiscountCode, names: Map<string, string>) {
+  if (!code.productIds) return 'all products';
+  const known = code.productIds.flatMap((id) => names.get(id) ?? []);
+  if (known.length === 0) {
+    return `${code.productIds.length} chosen ${code.productIds.length === 1 ? 'product' : 'products'}`;
+  }
+  if (known.length === 1) return `only ${known[0]}`;
+  return `${known.length} products: ${known.join(', ')}`;
+}
+
+function toInput(
+  form: DiscountForm,
+  productIds: string[] | null,
+): Record<string, unknown> {
   return {
     code: form.code,
     type: form.type,
@@ -87,6 +105,7 @@ function toInput(form: DiscountForm): Record<string, unknown> {
     ...(form.minSpend && { minSpend: Number(form.minSpend) }),
     ...(form.usageLimit && { usageLimit: Number(form.usageLimit) }),
     ...(form.expiresAt && { expiresAt: form.expiresAt }),
+    ...(productIds && { productIds }),
   };
 }
 
@@ -95,6 +114,8 @@ export default function DiscountCodesPage() {
   const [created, setCreated] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  /** The products a new code is limited to, or null for all of them. */
+  const [chosen, setChosen] = useState<string[] | null>(null);
   const {
     register,
     handleSubmit,
@@ -126,6 +147,24 @@ export default function DiscountCodesPage() {
   const codes = isMissingRoute(loadError) ? [] : data;
   const error = isMissingRoute(loadError) ? null : loadError;
 
+  const products = useQuery({
+    queryKey: MY_PRODUCTS_KEY,
+    queryFn: listMyProducts,
+  });
+  const productNames = useMemo(
+    () =>
+      new Map(
+        (products.data ?? []).map((product) => [product.id, product.name]),
+      ),
+    [products.data],
+  );
+  const toggleProduct = (id: string) =>
+    setChosen((current) =>
+      current?.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...(current ?? []), id],
+    );
+
   const replaceCode = (next: DiscountCode) =>
     queryClient.setQueryData<DiscountCode[]>(CODES_KEY, (current) =>
       current?.map((code) => (code.id === next.id ? next : code)),
@@ -140,6 +179,7 @@ export default function DiscountCodesPage() {
       ]);
       setCreated(response.message ?? `${response.data.code} is live.`);
       reset();
+      setChosen(null);
     },
   });
 
@@ -161,7 +201,13 @@ export default function DiscountCodesPage() {
 
   const onSubmit = (form: DiscountForm) => {
     setCreated(null);
-    const parsed = parseDiscountCodeInput(toInput(form));
+    if (chosen?.length === 0) {
+      setFormError(
+        'Choose at least one product, or let the code cover all your products.',
+      );
+      return;
+    }
+    const parsed = parseDiscountCodeInput(toInput(form, chosen));
     if ('error' in parsed) {
       setFormError(parsed.error);
       return;
@@ -172,6 +218,7 @@ export default function DiscountCodesPage() {
 
   const startOver = () => {
     reset();
+    setChosen(null);
     setCreated(null);
     setFormError(null);
     createMutation.reset();
@@ -372,6 +419,97 @@ export default function DiscountCodesPage() {
                   />
                 </Field>
               </div>
+
+              <fieldset>
+                <legend className="mb-1.5 block text-sm font-medium text-neutral-700">
+                  Applies to
+                </legend>
+                <div className="grid grid-cols-2 gap-3">
+                  {(
+                    [
+                      [false, 'All products'],
+                      [true, 'Chosen products'],
+                    ] as const
+                  ).map(([limited, label]) => (
+                    <label
+                      key={label}
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3.5 py-2.5 text-sm transition ${
+                        (chosen !== null) === limited
+                          ? 'border-blue-500 bg-blue-500/10 text-neutral-900'
+                          : 'border-neutral-200 text-neutral-700 hover:border-neutral-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="appliesTo"
+                        checked={(chosen !== null) === limited}
+                        onChange={() => setChosen(limited ? [] : null)}
+                        className="accent-blue-500"
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+
+                {chosen !== null && (
+                  <div className="mt-3 rounded-lg border border-neutral-200">
+                    {products.isPending ? (
+                      <p
+                        role="status"
+                        className="flex items-center gap-2 px-3.5 py-3 text-sm text-neutral-500"
+                      >
+                        <Loader2 size={16} className="animate-spin" />
+                        Loading your products…
+                      </p>
+                    ) : products.error ? (
+                      <p
+                        role="alert"
+                        className="px-3.5 py-3 text-sm text-rose-700"
+                      >
+                        {errorMessage(
+                          products.error,
+                          'Could not load your products.',
+                        )}
+                      </p>
+                    ) : products.data.length === 0 ? (
+                      <p className="px-3.5 py-3 text-sm text-neutral-500">
+                        You haven&apos;t added any products yet.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="border-b border-neutral-200 px-3.5 py-2 text-xs text-neutral-500">
+                          {chosen.length} of {products.data.length} chosen
+                        </p>
+                        <ul
+                          aria-label="Products this code covers"
+                          className="max-h-60 divide-y divide-neutral-100 overflow-y-auto"
+                        >
+                          {products.data.map((product) => (
+                            <li key={product.id}>
+                              <label className="flex cursor-pointer items-center gap-3 px-3.5 py-2.5 text-sm hover:bg-neutral-50 dark:hover:bg-white/5">
+                                <input
+                                  type="checkbox"
+                                  checked={chosen.includes(product.id)}
+                                  onChange={() => toggleProduct(product.id)}
+                                  className="h-4 w-4 accent-blue-500"
+                                />
+                                <span className="min-w-0 flex-1 truncate text-neutral-900">
+                                  {product.name}
+                                </span>
+                                <span className="text-xs text-neutral-500">
+                                  {formatMoney(
+                                    product.salePrice ?? product.price,
+                                  )}
+                                </span>
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                )}
+              </fieldset>
             </div>
 
             {submitError && (
@@ -468,7 +606,7 @@ export default function DiscountCodesPage() {
                 const status = discountStatus(code);
                 const canToggle = status === 'active' || status === 'paused';
                 const details = [
-                  describeDiscount(code),
+                  `${describeDiscount(code)} ${coverage(code, productNames)}`,
                   code.minSpend && `min. spend ${formatMoney(code.minSpend)}`,
                   usage(code),
                   code.expiresAt && `ends ${endsOn(code.expiresAt)}`,

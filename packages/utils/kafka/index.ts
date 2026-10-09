@@ -86,6 +86,59 @@ export function getProducer(): Promise<Producer> {
   return producer;
 }
 
+const DEFAULT_TOPIC_PARTITIONS = 6;
+
+/**
+ * Settings for topics a service creates:
+ * - KAFKA_TOPIC_PARTITIONS: defaults to 6, the most consumers one group can spread across
+ * - KAFKA_REPLICATION_FACTOR: defaults to 3 on a cloud cluster (credentials set), which
+ *   Confluent Cloud requires (it drops the connection otherwise), and 1 for a local broker
+ */
+export function topicSettingsFromEnv(env: Env = process.env): {
+  numPartitions: number;
+  replicationFactor: number;
+} {
+  const positive = (value: string | undefined, fallback: number) => {
+    const number = Number(value);
+    return Number.isInteger(number) && number > 0 ? number : fallback;
+  };
+  const isCloud = Boolean(
+    (env.KAFKA_USERNAME ?? env.KAFKA_API_KEY)?.trim() &&
+    (env.KAFKA_PASSWORD ?? env.KAFKA_API_SECRET),
+  );
+  return {
+    numPartitions: positive(
+      env.KAFKA_TOPIC_PARTITIONS,
+      DEFAULT_TOPIC_PARTITIONS,
+    ),
+    replicationFactor: positive(env.KAFKA_REPLICATION_FACTOR, isCloud ? 3 : 1),
+  };
+}
+
+/**
+ * Creates the topic when it's missing and the cluster allows it; Confluent Cloud doesn't
+ * create topics on first use. Never throws: a consumer can still start on an existing topic
+ * when the service isn't allowed to create topics.
+ */
+export async function ensureTopic(kafka: Kafka, topic: string): Promise<void> {
+  const admin = kafka.admin();
+  try {
+    await admin.connect();
+    if ((await admin.listTopics()).includes(topic)) return;
+    await admin.createTopics({
+      topics: [{ topic, ...topicSettingsFromEnv() }],
+      waitForLeaders: true,
+    });
+    console.log(`Created the ${topic} topic.`);
+  } catch (error) {
+    console.warn(
+      `Couldn't make sure the ${topic} topic exists: ${error instanceof Error ? error.message : error}`,
+    );
+  } finally {
+    await admin.disconnect().catch(() => undefined);
+  }
+}
+
 /** Call on shutdown so buffered messages are flushed. */
 export async function disconnectProducer(): Promise<void> {
   const current = producer;

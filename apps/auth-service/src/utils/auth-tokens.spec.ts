@@ -221,10 +221,10 @@ describe('auth tokens', () => {
       vi.stubEnv('SELLER_ACCESS_TOKEN_SECRET', 'access-secret');
 
       expect(() => getTokenSecrets('seller')).toThrow(
-        'Shopper, seller and rider token secrets must all be different',
+        'Shopper, seller, rider and admin token secrets must all be different',
       );
       expect(() => getTokenSecrets('user')).toThrow(
-        'Shopper, seller and rider token secrets must all be different',
+        'Shopper, seller, rider and admin token secrets must all be different',
       );
     });
 
@@ -233,10 +233,19 @@ describe('auth tokens', () => {
       vi.stubEnv('RIDER_REFRESH_TOKEN_SECRET', 'seller-refresh-secret');
 
       expect(() => getTokenSecrets('rider')).toThrow(
-        'Shopper, seller and rider token secrets must all be different',
+        'Shopper, seller, rider and admin token secrets must all be different',
       );
       expect(() => getTokenSecrets('seller')).toThrow(
-        'Shopper, seller and rider token secrets must all be different',
+        'Shopper, seller, rider and admin token secrets must all be different',
+      );
+    });
+
+    it('refuses an admin secret shared with another account', () => {
+      vi.stubEnv('ADMIN_ACCESS_TOKEN_SECRET', 'access-secret');
+      vi.stubEnv('ADMIN_REFRESH_TOKEN_SECRET', 'admin-refresh-secret');
+
+      expect(() => getTokenSecrets('admin')).toThrow(
+        'Shopper, seller, rider and admin token secrets must all be different',
       );
     });
 
@@ -269,6 +278,28 @@ describe('auth tokens', () => {
       ),
     );
     expectUnauthorized(() => verifyToken(rider, 'access', 'seller'));
+  });
+
+  it('accepts only admin tokens on admin routes', () => {
+    vi.stubEnv('ADMIN_ACCESS_TOKEN_SECRET', 'admin-access-secret');
+    vi.stubEnv('ADMIN_REFRESH_TOKEN_SECRET', 'admin-refresh-secret');
+
+    const admin = signAccessToken({ userId: 'a1', role: 'admin' }, 'admin');
+    expect(verifyToken(admin, 'access', 'admin')).toMatchObject({
+      userId: 'a1',
+      aud: 'admin',
+    });
+    expectUnauthorized(() =>
+      verifyToken(
+        signAccessToken({ userId: 's1', role: 'seller' }, 'seller'),
+        'access',
+        'admin',
+      ),
+    );
+    expectUnauthorized(() => verifyToken(admin, 'access', 'seller'));
+    expect(TOKEN_POLICIES.admin.refreshTtlSeconds).toBeLessThan(
+      TOKEN_POLICIES.seller.refreshTtlSeconds,
+    );
   });
 
   it('uses session cookies when remember me is off', () => {

@@ -3,6 +3,7 @@ import type { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { forbidden, unauthorized } from '@org/errors';
 import { PrismaService } from './prisma.service';
+import { SUSPENDED_MESSAGE } from './user.guard';
 
 /** Set by auth-service; these must match its seller cookie, audience and issuer. */
 export const SELLER_ACCESS_TOKEN_COOKIE = 'sellerAccessToken';
@@ -56,12 +57,16 @@ export class SellerGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<SellerRequest>();
     const sellerId = verifySellerAccessToken(readToken(req));
 
-    const shop = await this.prisma.shops.findUnique({
+    const found = await this.prisma.shops.findUnique({
       where: { sellerId },
-      select: { id: true, name: true },
+      select: { id: true, name: true, seller: { select: { suspended: true } } },
     });
-    if (!shop) {
+    if (!found) {
       throw forbidden('Set up your shop before adding products.');
+    }
+    const { seller, ...shop } = found;
+    if (seller?.suspended) {
+      throw unauthorized(SUSPENDED_MESSAGE);
     }
 
     req.shop = shop;

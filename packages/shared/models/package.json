@@ -41,6 +41,11 @@
       "import": "./src/lib/review.model.ts",
       "default": "./src/lib/review.model.ts"
     },
+    "./admin": {
+      "types": "./src/lib/admin.model.ts",
+      "import": "./src/lib/admin.model.ts",
+      "default": "./src/lib/admin.model.ts"
+    },
     "./package.json": "./package.json"
   },
   "nx": {
