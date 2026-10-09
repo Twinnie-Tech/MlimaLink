@@ -42,6 +42,8 @@ afterEach(async () => {
 /** Opens a socket and collects what the server sends. */
 function connect(path = '/api/chat/ws?as=user', origin = ORIGIN) {
   const ws = new WebSocket(`${baseUrl}${path}`, { headers: { origin } });
+  // A reset during teardown would otherwise surface as an uncaught error.
+  ws.on('error', () => undefined);
   const received: Array<Record<string, unknown>> = [];
   const waiters: Array<() => void> = [];
   ws.on('message', (data) => {
@@ -142,6 +144,7 @@ describe('attachChatSockets', () => {
     );
 
     expect(code).toBe(SESSION_EXPIRED_CODE);
-    expect(hub.size).toBe(0);
+    // The server's own close handler can run just after the client sees the close.
+    await vi.waitFor(() => expect(hub.size).toBe(0));
   });
 });
