@@ -1,264 +1,485 @@
-# Nx React Repository
+# MlimaLink
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+MlimaLink is a marketplace platform built as an [Nx](https://nx.dev) monorepo. Shoppers browse and buy from shops, sellers run their shops and services, riders deliver orders, and admins oversee the whole platform. Supporting services handle analytics, chat and logs over Kafka.
 
-✨ A repository showcasing key [Nx](https://nx.dev) features for React monorepos ✨
+- **Frontends:** Next.js 16, React 19, TanStack Query v5, Tailwind CSS v4
+- **Backend:** NestJS 11 (API, auth, gateway) and Express 5 services
+- **Data:** MongoDB through Prisma 6, with Redis for sessions
+- **Messaging:** Kafka through kafkajs (Confluent Cloud or a local broker)
+- **Testing:** Vitest and Jest for unit tests, Playwright for end-to-end tests
 
-## Finish your Nx platform setup
+---
 
-🚀 [Finish setting up your workspace](https://cloud.nx.app/connect/0PVQQK5Mct) to get faster builds with remote caching, distributed task execution, and self-healing CI. [Learn more about Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud).
+## Contents
 
-## 📦 Project Overview
+- [Architecture](#architecture)
+- [Applications and ports](#applications-and-ports)
+- [Shared packages](#shared-packages)
+- [Getting started](#getting-started)
+- [Running the platform](#running-the-platform)
+- [Environment variables](#environment-variables)
+- [Accounts and authentication](#accounts-and-authentication)
+- [Kafka topics](#kafka-topics)
+- [Chat service](#chat-service)
+- [Logger service](#logger-service)
+- [Database (Prisma)](#database-prisma)
+- [Testing and quality checks](#testing-and-quality-checks)
+- [Continuous integration](#continuous-integration)
+- [Project structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
 
-This repository demonstrates a production-ready React monorepo with:
+---
 
-- **2 Applications**
+## Architecture
 
-  - `user-ui` - Next.js e-commerce application with product listings and detail views
-  - `api` - Backend API serving product data
+```
+  user-ui :4200      seller-ui :4300      admin-ui :4400
+        \                 |                  /
+         \     Next.js rewrites /api/*      /
+          '--------------+------------------'
+                         |
+                 API Gateway :3000
+     ,-----------+-------+--------+-------------,
+     |           |                |             |
+ /api/auth   /api/chat (+WS)   /api/logs      /api/*
+     |           |                |             |
+ auth-service  chatting-service  logger-service  api
+   :3334         :3336            :3337         :3333
+     |           |                |             |
+     '-----------+------ MongoDB -+-------------'
+                 |                |
+                 '----- Kafka ----'----- kafka-service :3335
+```
 
-- **7 Libraries**
+- **The browser only talks to its own UI.** Each Next.js app rewrites `/api/*` to the API gateway, so cookies and requests stay on one origin.
+- **The gateway routes by path:**
+  - `/api/auth` goes to auth-service.
+  - `/api/chat`, including the WebSocket upgrade, goes to chatting-service.
+  - `/api/logs` goes to logger-service.
+  - Every other `/api` path goes to the main API.
+- **Kafka connects the services:**
+  - The API publishes shopper activity to `user_events`, and kafka-service turns it into analytics.
+  - chatting-service carries every chat message over `chat_messages`.
+  - Services publish logs to `logs`, and logger-service stores them.
 
-  - `@org/shop-feature-products` - Product listing feature (React)
-  - `@org/shop-feature-product-detail` - Product detail feature (React)
-  - `@org/shop-data` - Data access layer for shop features
-  - `@org/shop-shared-ui` - Shared UI components
-  - `@org/models` - Shared data models
-  - `@org/api-products` - API product service library
-  - `@org/shared-test-utils` - Shared testing utilities
+---
 
-- **E2E Testing**
-  - `user-ui-e2e` - Playwright tests for the user-ui application
+## Applications and ports
 
-## 🚀 Quick Start
+| App                      | Port | Stack        | What it does                                                                                |
+| ------------------------ | ---- | ------------ | ------------------------------------------------------------------------------------------- |
+| `user-ui`                | 4200 | Next.js      | Shop front: products, offers, reviews, cart, checkout, delivery tracking                    |
+| `seller-ui`              | 4300 | Next.js      | Seller dashboard: products, orders, payments, discount codes, service profile               |
+| `admin-ui`               | 4400 | Next.js      | Admin dashboard: users, sellers, products, events, orders, payments, logs, management       |
+| `api-gateway`            | 3000 | NestJS       | Single entry point; proxies to the services below                                           |
+| `api`                    | 3333 | NestJS       | Catalog, reviews, discount codes, checkout, orders, delivery, admin endpoints               |
+| `auth-service`           | 3334 | NestJS       | Sign-up, login, refresh, logout and password reset for shoppers, sellers, riders and admins |
+| `kafka-service`          | 3335 | Express      | Consumes `user_events` and keeps user, product and shop analytics up to date                |
+| `chatting-service`       | 3336 | Express + ws | Shopper–shop chats and support chats, carried over Kafka and delivered live over WebSockets |
+| `logger-service`         | 3337 | Express      | Stores everything published to the `logs` topic and serves it to admins                     |
+| `recommendation-service` | 3338 | Express      | Starter service for product recommendations (health check only for now)                     |
+| `user-ui-e2e`            | —    | Playwright   | End-to-end tests for user-ui                                                                |
+| `api-gateway-e2e`        | —    | Jest         | End-to-end tests for the gateway                                                            |
+
+Every Express service answers `GET /api` with `{ "service": "<name>", "status": "ok" }`.
+
+### Platform fee
+
+Each order is split **10% to the platform and 90% to the seller**. Checkout shows the split, and so do the seller's orders, payments and dashboard pages.
+
+---
+
+## Shared packages
+
+| Package                            | Path                                   | Purpose                                                                   |
+| ---------------------------------- | -------------------------------------- | ------------------------------------------------------------------------- |
+| `@org/models`                      | `packages/shared/models`               | Shared types and helpers (`/admin`, `/catalog`, `/checkout`, `/delivery`) |
+| `@org/errors`                      | `packages/shared/errors`               | Shared HTTP error helpers                                                 |
+| `@org/shared-test-utils`           | `packages/shared/test-utils`           | Testing utilities                                                         |
+| `@org/utils`                       | `packages/utils`                       | Kafka client, topics and token checks (see below)                         |
+| `@org/shop-data`                   | `packages/shop/data`                   | Data access for shop features                                             |
+| `@org/shop-feature-products`       | `packages/shop/feature-products`       | Product listing feature                                                   |
+| `@org/shop-feature-product-detail` | `packages/shop/feature-product-detail` | Product detail feature                                                    |
+| `@org/shop-shared-ui`              | `packages/shop/shared-ui`              | Shared shop UI components                                                 |
+| `@org/api-products`                | `packages/api/products`                | Product service library                                                   |
+
+`@org/utils` has four entry points:
+
+- **`@org/utils/kafka`:**
+  - `getKafka()`, `getProducer()` and `disconnectProducer()`.
+  - `kafkaConfigFromEnv()` builds the connection settings.
+  - `ensureTopic()` creates a missing topic with settings Confluent Cloud accepts.
+- **`@org/utils/events`:** the `user_events` topic, `parseUserEvent()` and `sendUserEvents()`.
+- **`@org/utils/logs`:** the `logs` topic, `createLogEntry()`, `sendLog()` and `parseLogEntry()`.
+- **`@org/utils/auth`:** `verifyAccessToken()`, `readAccessToken()` and `readCookie()`, for checking auth-service tokens in other services.
+
+---
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 22 or later (CI uses Node 24) and npm
+- A MongoDB database (e.g. MongoDB Atlas)
+- Redis (sessions and refresh tokens)
+- Kafka: Confluent Cloud or a local broker on `localhost:9092`
+- Gmail SMTP credentials (an App Password) for emails
+- An ImageKit account for product photos
+
+### Setup
 
 ```bash
-# Clone the repository
-git clone <your-fork-url>
-cd <your-repository-name>
-
-# Install dependencies
+git clone https://github.com/Twinnie-Tech/MlimaLink.git
+cd MlimaLink
 npm install
 
-# Serve the Next.js user-ui application on http://localhost:4200
-# (/api requests are proxied to the API gateway on port 3000)
-npx nx run @org/user-ui:dev
+# Create your environment file, then fill it in (see "Environment variables")
+cp .env.example .env
 
-# ...or build the backend and start API, gateway and user-ui together
+# Generate the Prisma client and create collections and indexes
+npx prisma generate
+npx prisma db push
+
+# Create your first admin account (there is no admin sign-up)
+npm run admin:create -- --email admin@example.com --name "Admin"
+```
+
+`admin:create` asks for the password. To skip the prompt in scripts, set `ADMIN_PASSWORD` instead.
+
+---
+
+## Running the platform
+
+### Everything for day-to-day work
+
+```bash
 npm run dev
-
-# ...or you can serve the API separately
-npx nx run @org/api:serve
-
-# Build all projects
-npx nx run-many -t build
-
-# Run tests
-npx nx run-many -t test
-
-# Lint all projects
-npx nx run-many -t lint
-
-# Run e2e tests
-npx nx run @org/user-ui-e2e:e2e
-
-# Run tasks in parallel
-
-npx nx run-many -t lint test build e2e --parallel=3
-
-# Visualize the project graph
-npx nx graph
 ```
 
-## ⭐ Featured Nx Capabilities
+This builds the API, gateway and auth-service, then starts them along with user-ui (4200), seller-ui (4300) and admin-ui (4400). It does not start the Kafka services; start those separately when you need them.
 
-This repository showcases several powerful Nx features:
-
-### 1. 🔒 Module Boundaries
-
-Enforces architectural constraints using tags. Each project has specific dependencies it can use:
-
-- `scope:shared` - Can be used by all projects
-- `scope:shop` - Shop-specific libraries
-- `scope:api` - API-specific libraries
-- `type:feature` - Feature libraries
-- `type:data` - Data access libraries
-- `type:ui` - UI component libraries
-
-**Try it out:**
+### One app at a time
 
 ```bash
-# See the current project graph and boundaries
-npx nx graph
-
-# View a specific project's details
-npx nx show project @org/user-ui --web
+npm run serve:api              # api               http://localhost:3333/api
+npm run serve:auth             # auth-service      http://localhost:3334/api
+npm run serve:gateway          # api-gateway       http://localhost:3000
+npm run serve:kafka            # kafka-service     http://localhost:3335/api
+npm run serve:chat             # chatting-service  http://localhost:3336/api
+npm run serve:logger           # logger-service    http://localhost:3337/api
+npm run serve:recommendation   # recommendation    http://localhost:3338/api
+npm run serve:user-ui          # user-ui           http://localhost:4200
+npm run serve:seller-ui        # seller-ui         http://localhost:4300
+npm run serve:admin-ui         # admin-ui          http://localhost:4400
 ```
 
-[Learn more about module boundaries →](https://nx.dev/docs/features/enforce-module-boundaries)
+A full local stack is the gateway, api, auth, the three UIs, plus kafka, chat and logger if you're working on analytics, chat or logs.
 
-### 2. 🎭 Playwright E2E Testing
+---
 
-End-to-end testing with Playwright is pre-configured:
+## Environment variables
+
+Every service reads the root `.env`. `.env.example` lists the variables, and this section explains them.
+
+### Database and cache
+
+| Variable            | Description                                           |
+| ------------------- | ----------------------------------------------------- |
+| `DATABASE_URL`      | MongoDB connection string (Prisma)                    |
+| `DATABASE_USER`     | Database user                                         |
+| `DATABASE_PASSWORD` | Database password                                     |
+| `REDIS_URL`         | Redis URL, e.g. `rediss://default:PASSWORD@HOST:6379` |
+
+### Servers and URLs
+
+| Variable                                     | Default                 | Description                                                  |
+| -------------------------------------------- | ----------------------- | ------------------------------------------------------------ |
+| `NODE_ENV`                                   | `development`           |                                                              |
+| `HOST`                                       | `0.0.0.0`               | Interface the Nest apps listen on                            |
+| `CORS_ORIGIN`                                | `http://localhost:4200` | Comma-separated origins allowed by the gateway, api and auth |
+| `GATEWAY_PORT`                               | `3000`                  |                                                              |
+| `API_PORT` / `API_URL`                       | `3333`                  | `API_URL` overrides the gateway's API target                 |
+| `AUTH_PORT` / `AUTH_SERVICE_URL`             | `3334`                  | `AUTH_SERVICE_URL` overrides the gateway's auth target       |
+| `KAFKA_SERVICE_PORT`                         | `3335`                  |                                                              |
+| `CHAT_SERVICE_PORT` / `CHAT_SERVICE_URL`     | `3336`                  | `CHAT_SERVICE_URL` overrides the gateway's chat target       |
+| `LOGGER_SERVICE_PORT` / `LOGGER_SERVICE_URL` | `3337`                  | `LOGGER_SERVICE_URL` overrides the gateway's logs target     |
+| `RECOMMENDATION_SERVICE_PORT`                | `3338`                  |                                                              |
+| `API_GATEWAY_URL`                            | `http://127.0.0.1:3000` | Where the Next.js apps send `/api/*`                         |
+| `USER_UI_URL`                                | `http://localhost:4200` | Linked from emails                                           |
+| `SELLER_UI_URL`                              | `http://localhost:4300` | Linked from emails                                           |
+| `NEXT_PUBLIC_SHOP_URL`                       | `http://localhost:4200` | Product and shop links in seller-ui and admin-ui             |
+| `NEXT_PUBLIC_SELLER_UI_URL`                  | `http://localhost:4300` | "Become a seller" link in user-ui                            |
+| `RESET_PASSWORD_URL`                         |                         | Password-reset link sent by auth-service                     |
+
+### Auth secrets
+
+The eight JWT secrets below must all be **different**, long random values. Generate each one with:
 
 ```bash
-# Run e2e tests
-npx nx run @org/user-ui-e2e:e2e
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 ```
 
-[Learn more about E2E testing →](https://nx.dev/docs/technologies/test-tools/playwright)
+| Variable                                                    | Account  |
+| ----------------------------------------------------------- | -------- |
+| `ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`               | Shoppers |
+| `SELLER_ACCESS_TOKEN_SECRET`, `SELLER_REFRESH_TOKEN_SECRET` | Sellers  |
+| `RIDER_ACCESS_TOKEN_SECRET`, `RIDER_REFRESH_TOKEN_SECRET`   | Riders   |
+| `ADMIN_ACCESS_TOKEN_SECRET`, `ADMIN_REFRESH_TOKEN_SECRET`   | Admins   |
 
-### 3. ⚡ Vitest for Unit Testing
+chatting-service and logger-service also need the access-token secrets to check sessions.
 
-Fast unit testing with Vitest for React libraries:
+### Kafka
+
+| Variable                            | Default               | Description                                                       |
+| ----------------------------------- | --------------------- | ----------------------------------------------------------------- |
+| `KAFKA_BROKERS`                     | `localhost:9092`      | Comma-separated `host:port` list                                  |
+| `KAFKA_CLIENT_ID`                   | `mlimalink`           | Name shown to the brokers                                         |
+| `KAFKA_USERNAME` / `KAFKA_PASSWORD` |                       | SASL credentials (`KAFKA_API_KEY` / `KAFKA_API_SECRET` also work) |
+| `KAFKA_SSL`                         | on with credentials   | `true` / `false`                                                  |
+| `KAFKA_SASL_MECHANISM`              | `plain`               | `plain`, `scram-sha-256` or `scram-sha-512`                       |
+| `KAFKA_TOPIC_PARTITIONS`            | `6`                   | Partitions for topics the services create                         |
+| `KAFKA_REPLICATION_FACTOR`          | `3` cloud / `1` local | Confluent Cloud requires 3                                        |
+
+### Chat and logs
+
+| Variable               | Default                    | Description                                                |
+| ---------------------- | -------------------------- | ---------------------------------------------------------- |
+| `CHAT_ALLOWED_ORIGINS` | the three local UI origins | Browser origins allowed to open chat WebSockets            |
+| `CHAT_INSTANCE_ID`     | `<hostname>-<pid>`         | Stable name per chat instance, so it keeps its Kafka group |
+| `LOG_RETENTION_DAYS`   | `7`                        | How long logger-service keeps logs                         |
+
+### Email, images and payments
+
+| Variable                                        | Description                                      |
+| ----------------------------------------------- | ------------------------------------------------ |
+| `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`           | SMTP login and sender (use a Gmail App Password) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SERVICE`        | Optional SMTP server settings                    |
+| `GMAIL_USER`, `GMAIL_PASS`                      | Gmail fallback credentials                       |
+| `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT` | Product photo uploads                            |
+| `STRIPE_SECRET_KEY`                             | Stripe Connect onboarding for seller payouts     |
+| `APP_TIMEZONE`                                  | Time zone used by auth-service                   |
+
+---
+
+## Accounts and authentication
+
+There are four separate account types: **shoppers, sellers, riders and admins**. They don't share anything:
+
+- Each type has its own token secrets, cookies, token audience and session lifetime, so a token issued for one account type is never accepted as another.
+- Because cookies are shared by every port on a host, each type uses a different cookie name. That lets one browser stay signed in to user-ui, seller-ui and admin-ui at the same time.
+
+| Account | Access cookie       | Access token | Idle session |
+| ------- | ------------------- | ------------ | ------------ |
+| Shopper | `accessToken`       | 15 min       | 7 days       |
+| Seller  | `sellerAccessToken` | 15 min       | 1 day        |
+| Rider   | `riderAccessToken`  | 15 min       | 7 days       |
+| Admin   | `adminAccessToken`  | 10 min       | 8 hours      |
+
+An admin can **suspend** a shopper or seller. A suspended account can't log in, and its existing sessions stop working.
+
+Admins log in to admin-ui at `/login`. Accounts are created only with `npm run admin:create`.
+
+---
+
+## Kafka topics
+
+| Topic           | Key             | Producer                | Consumer (group)                                                                                   |
+| --------------- | --------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
+| `user_events`   | user id         | api                     | kafka-service (`user-events-group`) → user, product and shop analytics                             |
+| `chat_messages` | conversation id | chatting-service        | chatting-service: `chat-persistence-group` (stores) and `chat-delivery-<instance>` (live delivery) |
+| `logs`          | source service  | any service (`sendLog`) | logger-service (`logger-service-group`) → MongoDB                                                  |
+
+The services create missing topics on startup when the cluster allows it.
+
+---
+
+## Chat service
+
+`chatting-service` handles three kinds of chat:
+
+- A **shopper and a shop**. The shopper starts the chat and the shop's seller replies.
+- **Support chats** started by a shopper or a seller. Every admin sees them and any admin can reply.
+- **Support chats started by an admin** with any shopper or seller.
+
+### How it scales
+
+1. A message is published to `chat_messages`, keyed by conversation, so each chat stays in order.
+2. One consumer group, shared by every instance, saves it to MongoDB. A message Kafka delivers twice is stored once, because its id is chosen before it's sent.
+3. Every instance also reads the topic in its own group and pushes the message to the WebSockets connected to it. You can run as many instances as you need.
+
+### Choosing the account
+
+Every request needs `?as=user`, `?as=seller` or `?as=admin`. The service reads that account's cookie, or an `Authorization: Bearer <token>` header.
+
+### REST API (through the gateway)
+
+| Method | Path                                               | Body                                                                      | Description                                               |
+| ------ | -------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------- |
+| GET    | `/api/chat/conversations?as=`                      |                                                                           | Your chats, most recent first (admins: all support chats) |
+| POST   | `/api/chat/conversations?as=`                      | `{ "shopId" }`, `{ "support": true }`, `{ "userId" }` or `{ "sellerId" }` | Start or resume a chat                                    |
+| GET    | `/api/chat/conversations/:id/messages?as=&before=` |                                                                           | 50 messages before `before` (ISO date), oldest first      |
+| POST   | `/api/chat/conversations/:id/messages?as=`         | `{ "body": "..." }`                                                       | Send a message (up to 2000 characters); returns 202       |
+
+Who can open what:
+
+- Shoppers send `shopId` to message a shop, or `support: true`.
+- Sellers send `support: true`. They reply to shoppers but can't start shop chats.
+- Admins send `userId` or `sellerId`.
+
+A chat you're not part of returns 404, the same as a missing one. If Kafka is unavailable, sending returns 503.
+
+### WebSocket
+
+Connect to `ws://localhost:3000/api/chat/ws?as=user` (through the gateway) or directly to port 3336.
+
+| Direction       | Message                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| server → client | `{ "type": "ready", "you": { "role", "id", "name" } }`                                   |
+| client → server | `{ "type": "send", "conversationId", "body", "clientId"? }`                              |
+| server → client | `{ "type": "sent", "clientId", "message" }`                                              |
+| server → client | `{ "type": "error", "clientId", "message" }`                                             |
+| server → client | `{ "type": "message", "message" }`, sent to every participant, including your other tabs |
+
+- Only origins listed in `CHAT_ALLOWED_ORIGINS` may connect.
+- The socket closes with code **4001** when the access token expires. The client should refresh the session and reconnect.
+- Dead connections are dropped after a missed heartbeat (30 s).
+
+---
+
+## Logger service
+
+`logger-service` stores every entry published to the `logs` topic in the `platform_logs` collection:
+
+- It saves a batch at a time and marks the batch as read only after it's saved, so logs aren't lost.
+- Entries older than `LOG_RETENTION_DAYS` are deleted every hour.
+
+To publish a log from any service:
+
+```ts
+import { createLogEntry, sendLog } from '@org/utils/logs';
+
+void sendLog(createLogEntry('error', 'Payment failed', 'api', { orderId }));
+```
+
+Admins can read logs (with an admin cookie or bearer token):
+
+```
+GET /api/logs?level=error&source=chatting-service&q=kafka&before=<ISO date>&limit=50
+```
+
+The response is `{ "logs": [...], "sources": [...] }`, newest first and up to 200 per page. To get the next page, pass the last entry's timestamp as `before`.
+
+---
+
+## Database (Prisma)
+
+The schema is in `prisma/schema.prisma` (MongoDB). After changing it:
 
 ```bash
-# Test a specific library
-npx nx run @org/shop-data:test
-
-# Test all projects
-npx nx run-many -t test
+npx prisma generate   # update the client
+npx prisma db push    # create new collections and indexes
 ```
 
-[Learn more about Vite testing →](https://nx.dev/docs/technologies/build-tools/vite)
-
-### 4. 🔧 Self-Healing CI
-
-The CI pipeline includes `nx fix-ci` which automatically identifies and suggests fixes for common issues:
+If you change `@org/models`, rebuild it before type-checking other projects:
 
 ```bash
-# In CI, this command provides automated fixes
-npx nx fix-ci
+npx tsc -b packages/shared/models
 ```
 
-This feature helps maintain a healthy CI pipeline by automatically detecting and suggesting solutions for:
+Main collections:
 
-- Missing dependencies
-- Incorrect task configurations
-- Cache invalidation issues
-- Common build failures
+- **Accounts:** `users`, `sellers`, `admins`, `riders`
+- **Shops and catalog:** `shops`, `products`, `product_reviews`, `shop_reviews`, `discount_codes`, `images`
+- **Services:** `service_profiles`, `service_requests`
+- **Orders:** `orders`, `deliveries`
+- **Analytics:** `user_analytics`, `product_analytics`, `shop_analytics`
+- **Chat:** `conversations`, `chat_messages`
+- **Logs:** `platform_logs`
 
-[Learn more about self-healing CI →](https://nx.dev/docs/features/ci-features/self-healing-ci)
+---
 
-## 📁 Project Structure
+## Testing and quality checks
+
+Run tasks through Nx:
+
+```bash
+npx nx run-many -t test                    # all unit tests
+npx nx run-many -t lint test build typecheck
+npx nx run chatting-service:test           # one project
+npx nx affected -t test                    # only what your changes affect
+npx nx run-many -t e2e --parallel=1        # e2e (they share ports, so one at a time)
+npx nx format:check                        # Prettier check, as in CI
+npx nx format:write                        # fix formatting
+npx nx graph                               # project dependency graph
+```
+
+---
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on pushes to `main` and on pull requests:
+
+1. `npm ci` and install Playwright browsers
+2. `npx nx format:check --base="remotes/origin/main"`
+3. `npx nx run-many -t lint test build typecheck`
+4. `npx nx run-many -t e2e --parallel=1`
+
+Run steps 2 and 3 locally before pushing.
+
+---
+
+## Project structure
 
 ```
 ├── apps/
-│   ├── user-ui/        [scope:shop]    - Next.js e-commerce app
-│   ├── user-ui-e2e/                    - E2E tests for user-ui
-│   └── api/            [scope:api]     - Backend API
+│   ├── user-ui/                 [scope:shop]            Next.js shop front (4200)
+│   ├── user-ui-e2e/                                     Playwright tests
+│   ├── seller-ui/               [scope:seller]          Seller dashboard (4300)
+│   ├── admin-ui/                [scope:admin]           Admin dashboard (4400)
+│   ├── api-gateway/                                     Gateway (3000)
+│   ├── api-gateway-e2e/                                 Gateway e2e tests
+│   ├── api/                     [scope:api]             Main API (3333)
+│   ├── auth-service/            [scope:auth]            Auth (3334)
+│   ├── kafka-service/           [scope:kafka]           Analytics consumer (3335)
+│   ├── chatting-service/        [scope:chat]            Chat (3336)
+│   ├── logger-service/          [scope:logger]          Logs (3337)
+│   └── recommendation-service/  [scope:recommendation]  Recommendations (3338)
 ├── packages/
-│   ├── shop/
-│   │   ├── feature-products/        [scope:shop,type:feature] - Product listing
-│   │   ├── feature-product-detail/  [scope:shop,type:feature] - Product details
-│   │   ├── data/                    [scope:shop,type:data]    - Data access
-│   │   └── shared-ui/               [scope:shop,type:ui]      - UI components
-│   ├── api/
-│   │   └── products/    [scope:api]    - Product service
-│   └── shared/
-│       ├── models/      [scope:shared,type:data] - Shared models
-│       └── test-utils/  [scope:shared]           - Testing utilities
-├── nx.json             - Nx configuration
-├── tsconfig.json       - TypeScript configuration
-└── eslint.config.mjs   - ESLint with module boundary rules
+│   ├── shared/   models, errors, test-utils             [scope:shared]
+│   ├── shop/     data, feature-products, feature-product-detail, shared-ui  [scope:shop]
+│   ├── api/      products                               [scope:api]
+│   └── utils/    kafka, events, logs, auth              [scope:shared]
+├── prisma/schema.prisma          Database schema
+├── tools/
+│   ├── dev.mjs                   Starts the local stack (npm run dev)
+│   ├── create-admin.mjs          Creates admin accounts (npm run admin:create)
+│   ├── run-user-ui-e2e.mjs       Runs the user-ui e2e suite
+│   └── run-api-gateway-e2e.mjs   Runs the gateway e2e suite
+├── .env.example                  Environment template
+└── nx.json                       Nx configuration
 ```
 
-## 🏷️ Understanding Tags
+Projects are tagged by scope, and ESLint's module-boundary rule stops one scope from importing another's code. Anything in `scope:shared` can be used everywhere.
 
-This repository uses tags to enforce module boundaries:
+---
 
-| Project                 | Tags                         | Can Import From              |
-| ----------------------- | ---------------------------- | ---------------------------- |
-| `user-ui`               | `scope:shop`                 | `scope:shop`, `scope:shared` |
-| `api`                   | `scope:api`                  | `scope:api`, `scope:shared`  |
-| `shop-feature-products` | `scope:shop`, `type:feature` | `scope:shop`, `scope:shared` |
-| `shop-data`             | `scope:shop`, `type:data`    | `scope:shared`               |
-| `models`                | `scope:shared`, `type:data`  | Nothing (base library)       |
+## Troubleshooting
 
-## 📚 Useful Commands
+**`prisma generate` fails with `EPERM: operation not permitted, rename ... query_engine-windows.dll.node`**
+Running servers keep Prisma's engine file open. Stop `serve:api`, `serve:auth`, `serve:kafka`, `serve:chat` and `serve:logger`, run the command again, then restart them.
+
+**Admin login returns 500**
+`ADMIN_ACCESS_TOKEN_SECRET` and `ADMIN_REFRESH_TOKEN_SECRET` are missing or match another account's secrets. Add unique values and restart auth-service and the API.
+
+**A service logs "Couldn't make sure the … topic exists"**
+The Kafka credentials may not be allowed to create topics. Create the topic in the Confluent Cloud console instead (replication factor 3), or set `KAFKA_REPLICATION_FACTOR` for your cluster. The consumers retry every 30 seconds.
+
+**`nx format:check` lists many files on Windows but CI passes**
+With `core.autocrlf=true`, Git checks files out with Windows line endings, and Prettier expects Unix ones. CI runs on Linux with Unix line endings, so only files flagged there need fixing. Check locally with:
 
 ```bash
-# Project exploration
-npx nx graph                                    # Interactive dependency graph
-npx nx list                                     # List installed plugins
-npx nx show project @org/user-ui --web              # View project details
-
-# Development
-npx nx run @org/user-ui:dev                             # Serve Next.js app
-npx nx run @org/api:serve                               # Serve backend API
-npx nx run @org/user-ui:build                           # Build Next.js app
-npx nx run @org/shop-data:test                          # Test a specific library
-npx nx run @org/shop-feature-products:lint              # Lint a specific library
-
-# Running multiple tasks
-npx nx run-many -t build                       # Build all projects
-npx nx run-many -t test --parallel=3          # Test in parallel
-npx nx run-many -t lint test build            # Run multiple targets
-
-# Affected commands (great for CI)
-npx nx affected -t build                       # Build only affected projects
-npx nx affected -t test                        # Test only affected projects
+npx prettier --check --end-of-line auto <files>
 ```
 
-## 🎯 Adding New Features
-
-### Generate a new React application:
-
-```bash
-npx nx g @nx/react:app my-app
-```
-
-### Generate a new React library:
-
-```bash
-npx nx g @nx/react:lib my-lib
-```
-
-### Generate a new React component:
-
-```bash
-npx nx g @nx/react:component my-component --project=my-lib
-```
-
-### Generate a new API library:
-
-```bash
-npx nx g @nx/node:lib my-api-lib
-```
-
-You can use `npx nx list` to see all available plugins and `npx nx list <plugin-name>` to see all generators for a specific plugin.
-
-## Nx Cloud
-
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/docs/features/ci-features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/docs/features/ci-features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/docs/features/ci-features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/docs/features/ci-features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/docs/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## 🔗 Learn More
-
-- [Nx Documentation](https://nx.dev/docs)
-- [Crafting Your Workspace Tutorial](https://nx.dev/docs/getting-started/tutorials/crafting-your-workspace)
-- [Module Boundaries](https://nx.dev/docs/features/enforce-module-boundaries)
-- [Playwright Testing](https://nx.dev/docs/technologies/test-tools/playwright)
-- [Vite](https://nx.dev/docs/technologies/build-tools/vite)
-- [Docker Integration](https://nx.dev/docs/guides/nx-release/release-docker-images)
-- [Nx Cloud](https://nx.dev/nx-cloud)
-
-## 💬 Community
-
-Join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [X (Twitter)](https://twitter.com/nxdevtools)
-- [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [YouTube](https://www.youtube.com/@nxdevtools)
-- [Blog](https://nx.dev/blog)
+**Chat WebSocket refuses to connect (403)**
+Add the page's origin to `CHAT_ALLOWED_ORIGINS`.
