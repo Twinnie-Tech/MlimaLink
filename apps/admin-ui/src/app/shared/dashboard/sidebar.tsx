@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LogOut } from 'lucide-react';
+import { StatusPicker, useUnseenTotal } from '@org/chat-ui';
+import { formatUnseen } from '@org/models/chat';
 import { initials, switchAdmin } from '../hooks/use-admin';
-import { logoutAdmin } from '../utils/admin-api';
+import { logoutAdmin, refreshAdminSession } from '../utils/admin-api';
 import { ThemeToggle } from '../widgets/theme-toggle';
 import { useDashboardAdmin } from './admin-context';
 import { DASHBOARD_HOME, NAV_SECTIONS, type NavItem } from './nav';
@@ -20,12 +22,15 @@ function NavLink({
   item,
   active,
   onNavigate,
+  count = 0,
 }: {
   item: NavItem;
   active: boolean;
   onNavigate?: () => void;
+  count?: number;
 }) {
   const Icon = item.icon;
+  const badge = formatUnseen(count);
   return (
     <Link
       href={item.href}
@@ -45,6 +50,14 @@ function NavLink({
         aria-hidden="true"
       />
       {item.label}
+      {badge && (
+        <span
+          aria-label={`${badge} unread`}
+          className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-semibold text-white"
+        >
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }
@@ -54,6 +67,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname() ?? '';
   const router = useRouter();
   const queryClient = useQueryClient();
+  const unseen = useUnseenTotal({
+    account: 'admin',
+    refreshSession: refreshAdminSession,
+  });
 
   const logoutMutation = useMutation({
     mutationFn: logoutAdmin,
@@ -85,6 +102,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </span>
         </span>
       </Link>
+      <StatusPicker className="mt-2" />
 
       <nav
         aria-label="Admin dashboard"
@@ -107,6 +125,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                   item={item}
                   active={isActive(pathname, item.href)}
                   onNavigate={onNavigate}
+                  count={item.unseenBadge ? unseen : 0}
                 />
               ))}
             </div>

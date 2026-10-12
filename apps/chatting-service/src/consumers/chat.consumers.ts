@@ -65,9 +65,10 @@ export function startPersistenceConsumer(): Promise<() => Promise<void>> {
     eachBatchAutoResolve: false,
     eachBatch: async ({ batch, resolveOffset, heartbeat, isStale }) => {
       if (isStale() || batch.messages.length === 0) return;
-      const envelopes = batch.messages.flatMap(
-        (message) => readEnvelope(message) ?? [],
-      );
+      const envelopes = batch.messages.flatMap((message) => {
+        const envelope = readEnvelope(message);
+        return envelope?.type === 'message' ? [envelope] : [];
+      });
       try {
         await storeMessages(envelopes.map(({ message }) => message));
       } catch (error) {

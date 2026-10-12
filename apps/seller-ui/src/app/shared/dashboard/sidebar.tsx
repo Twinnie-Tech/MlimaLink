@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LogOut, Store } from 'lucide-react';
+import { useUnseenTotal } from '@org/chat-ui';
+import { formatUnseen } from '@org/models/chat';
 import { switchSeller } from '../hooks/use-seller';
-import { logoutSeller } from '../utils/seller-api';
+import { logoutSeller, refreshSellerSession } from '../utils/seller-api';
 import { ThemeToggle } from '../widgets/theme-toggle';
 import { DASHBOARD_HOME, NAV_SECTIONS, type NavItem } from './nav';
 import { useDashboardSeller } from './seller-context';
@@ -20,12 +22,15 @@ function NavLink({
   item,
   active,
   onNavigate,
+  count = 0,
 }: {
   item: NavItem;
   active: boolean;
   onNavigate?: () => void;
+  count?: number;
 }) {
   const Icon = item.icon;
+  const badge = formatUnseen(count);
   return (
     <Link
       href={item.href}
@@ -45,6 +50,14 @@ function NavLink({
         aria-hidden="true"
       />
       {item.label}
+      {badge && (
+        <span
+          aria-label={`${badge} unread`}
+          className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-semibold text-white"
+        >
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }
@@ -54,6 +67,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname() ?? '';
   const router = useRouter();
   const queryClient = useQueryClient();
+  const unseen = useUnseenTotal({
+    account: 'seller',
+    refreshSession: refreshSellerSession,
+  });
 
   const logoutMutation = useMutation({
     mutationFn: logoutSeller,
@@ -104,6 +121,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                   item={item}
                   active={isActive(pathname, item.href)}
                   onNavigate={onNavigate}
+                  count={item.unseenBadge ? unseen : 0}
                 />
               ))}
             </div>

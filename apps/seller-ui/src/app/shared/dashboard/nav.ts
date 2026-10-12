@@ -15,7 +15,13 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-export type NavItem = { label: string; href: string; icon: LucideIcon };
+export type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  /** Shows the unseen chat message count next to the link. */
+  unseenBadge?: boolean;
+};
 
 export const DASHBOARD_HOME: NavItem = {
   label: 'Dashboard',
@@ -75,7 +81,12 @@ export const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: 'Controllers',
     items: [
-      { label: 'Inbox', href: '/dashboard/inbox', icon: Mail },
+      {
+        label: 'Inbox',
+        href: '/dashboard/inbox',
+        icon: Mail,
+        unseenBadge: true,
+      },
       { label: 'Settings', href: '/dashboard/settings', icon: Settings },
       {
         label: 'Notifications',

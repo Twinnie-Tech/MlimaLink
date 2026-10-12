@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* The shared chat screen lives outside this app, so scan it for classes too. */
+@source '../../../../packages/shared/chat-ui';
+
 /* Dark mode follows the `dark` class on <html>, set by the theme toggle. */
 @custom-variant dark (&:where(.dark, .dark *));
 

@@ -7,8 +7,12 @@ type Reply = { status: number; body: unknown };
 
 export const fetchMock = vi.fn();
 const replies = new Map<string, Reply[]>();
+const UNSEEN_ROUTE = 'GET /api/chat/unseen?as=seller';
 
-/** Queues a reply for `METHOD /api/auth/path`. Unqueued requests answer 401, like a signed-out browser. */
+/**
+ * Queues a reply for `METHOD /api/auth/path`. Unqueued requests answer 401, like a
+ * signed-out browser, except the sidebar's unseen chat count, which answers zero.
+ */
 export function reply(route: string, status: number, body: unknown) {
   const queue = replies.get(route) ?? [];
   queue.push({ status, body });
@@ -20,10 +24,14 @@ export function installFetchMock() {
   fetchMock.mockReset();
   fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
     const route = `${init?.method ?? 'GET'} ${url}`;
-    const { status, body } = replies.get(route)?.shift() ?? {
-      status: 401,
-      body: { success: false, error: 'Unauthorized! Please log in.' },
-    };
+    const { status, body } =
+      replies.get(route)?.shift() ??
+      (route === UNSEEN_ROUTE
+        ? { status: 200, body: { total: 0 } }
+        : {
+            status: 401,
+            body: { success: false, error: 'Unauthorized! Please log in.' },
+          });
     return {
       ok: status >= 200 && status < 300,
       status,
@@ -31,6 +39,18 @@ export function installFetchMock() {
     };
   });
   vi.stubGlobal('fetch', fetchMock);
+  vi.stubGlobal('WebSocket', IdleWebSocket);
+}
+
+/** A chat connection that never opens, so the dashboard's live chat stays quiet. */
+export class IdleWebSocket {
+  static readonly OPEN = 1;
+  readyState = 0;
+  onopen = null;
+  onmessage = null;
+  onclose = null;
+  send = vi.fn();
+  close = vi.fn();
 }
 
 /** Body of the last request sent to `route`. */

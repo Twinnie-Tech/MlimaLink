@@ -12,6 +12,7 @@ import './env';
 import { disconnectProducer } from '@org/utils/kafka';
 import { createApp } from './app';
 import { ChatHub } from './chat/hub';
+import { closePresenceBus } from './chat/presence-bus';
 import {
   startDeliveryConsumer,
   startPersistenceConsumer,
@@ -25,7 +26,7 @@ const CONSUMER_RETRY_MS = 30_000;
 
 const hub = new ChatHub();
 const port = Number(process.env.CHAT_SERVICE_PORT) || 3336;
-const server = createApp().listen(port, () => {
+const server = createApp({ hub }).listen(port, () => {
   console.log(`Chatting service listening at http://localhost:${port}/api`);
   console.log(`Live chat at ws://localhost:${port}${CHAT_SOCKET_PATH}`);
 });
@@ -66,6 +67,7 @@ const shutdown = () => {
   void (async () => {
     await Promise.all(stops.map((stop) => stop().catch(console.error)));
     await disconnectProducer().catch(console.error);
+    await closePresenceBus().catch(console.error);
     await disconnectRedis();
     await prisma.$disconnect();
   })().finally(() => process.exit(0));

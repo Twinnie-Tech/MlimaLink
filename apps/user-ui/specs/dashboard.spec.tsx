@@ -176,6 +176,7 @@ describe('Dashboard layout', () => {
       '/dashboard/orders',
       '/dashboard/wishlist',
       '/dashboard/cart',
+      '/inbox',
       '/dashboard/profile',
       '/dashboard/addresses',
       '/dashboard/notifications',

@@ -4,6 +4,7 @@ import {
   Heart,
   LayoutDashboard,
   MapPin,
+  MessageCircle,
   Package,
   ShieldCheck,
   ShoppingBag,
@@ -44,6 +45,7 @@ export const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
         icon: ShoppingCart,
         badge: 'cart',
       },
+      { label: 'Messages', href: '/inbox', icon: MessageCircle },
     ],
   },
   {

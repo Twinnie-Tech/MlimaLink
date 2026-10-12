@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import type { Admin, AdminOrder } from '@org/models';
 import { QueryProvider } from '../src/app/shared/providers/query-provider';
@@ -7,8 +7,12 @@ type Reply = { status: number; body: unknown };
 
 export const fetchMock = vi.fn();
 const replies = new Map<string, Reply[]>();
+const UNSEEN_ROUTE = 'GET /api/chat/unseen?as=admin';
 
-/** Queues a reply for `METHOD /api/path`. Unqueued requests answer 401, like a signed-out browser. */
+/**
+ * Queues a reply for `METHOD /api/path`. Unqueued requests answer 401, like a
+ * signed-out browser, except the sidebar's unseen chat count, which answers zero.
+ */
 export function reply(route: string, status: number, body: unknown) {
   const queue = replies.get(route) ?? [];
   queue.push({ status, body });
@@ -20,10 +24,14 @@ export function installFetchMock() {
   fetchMock.mockReset();
   fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
     const route = `${init?.method ?? 'GET'} ${url}`;
-    const { status, body } = replies.get(route)?.shift() ?? {
-      status: 401,
-      body: { success: false, error: 'Unauthorized! Please log in.' },
-    };
+    const { status, body } =
+      replies.get(route)?.shift() ??
+      (route === UNSEEN_ROUTE
+        ? { status: 200, body: { total: 0 } }
+        : {
+            status: 401,
+            body: { success: false, error: 'Unauthorized! Please log in.' },
+          });
     return {
       ok: status >= 200 && status < 300,
       status,
@@ -31,6 +39,42 @@ export function installFetchMock() {
     };
   });
   vi.stubGlobal('fetch', fetchMock);
+  vi.stubGlobal('WebSocket', FakeWebSocket);
+  FakeWebSocket.instances = [];
+}
+
+/** The dashboard's live chat connection; stays closed until a test opens it. */
+export class FakeWebSocket {
+  static readonly OPEN = 1;
+  static instances: FakeWebSocket[] = [];
+  readyState = 0;
+  sent: Record<string, unknown>[] = [];
+  onopen: (() => void) | null = null;
+  onmessage: ((event: { data: string }) => void) | null = null;
+  onclose: ((event: { code: number }) => void) | null = null;
+
+  constructor(readonly url: string) {
+    FakeWebSocket.instances.push(this);
+  }
+
+  send(data: string) {
+    this.sent.push(JSON.parse(data));
+  }
+
+  close() {
+    this.readyState = 3;
+  }
+
+  open() {
+    act(() => {
+      this.readyState = FakeWebSocket.OPEN;
+      this.onopen?.();
+    });
+  }
+
+  receive(event: unknown) {
+    act(() => this.onmessage?.({ data: JSON.stringify(event) }));
+  }
 }
 
 /** Body of the last request sent to `route`. */

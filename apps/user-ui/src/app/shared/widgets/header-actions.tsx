@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, ShoppingCart, UserRound } from 'lucide-react';
+import { Heart, MessageCircle, ShoppingCart, UserRound } from 'lucide-react';
+import { useUnseenTotal } from '@org/chat-ui';
 import { firstName, initials, useUser } from '../hooks/use-user';
 import { useShopStore } from '../store/shop-store';
+import { refreshUserSession } from '../utils/auth-api';
 import { ThemeToggle } from './theme-toggle';
 
 function CountBadge({
@@ -58,6 +60,27 @@ function ProfileLink() {
   );
 }
 
+function InboxLink() {
+  const { user } = useUser();
+  const unseen = useUnseenTotal({
+    account: 'user',
+    refreshSession: refreshUserSession,
+    enabled: Boolean(user),
+  });
+  if (!user) return null;
+
+  return (
+    <Link
+      href="/inbox"
+      aria-label={`Messages, ${unseen} unread`}
+      className="relative text-neutral-800 hover:text-brand-start"
+    >
+      <MessageCircle />
+      {unseen > 0 && <CountBadge count={unseen} className="bg-brand-start" />}
+    </Link>
+  );
+}
+
 export function HeaderActions() {
   const { wishlist, cartCount } = useShopStore();
   const wishlistCount = wishlist.length;
@@ -67,6 +90,8 @@ export function HeaderActions() {
       <ThemeToggle />
 
       <ProfileLink />
+
+      <InboxLink />
 
       <Link
         href="/wishlist"

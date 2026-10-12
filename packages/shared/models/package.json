@@ -46,6 +46,11 @@
       "import": "./src/lib/admin.model.ts",
       "default": "./src/lib/admin.model.ts"
     },
+    "./chat": {
+      "types": "./src/lib/chat.model.ts",
+      "import": "./src/lib/chat.model.ts",
+      "default": "./src/lib/chat.model.ts"
+    },
     "./package.json": "./package.json"
   },
   "nx": {

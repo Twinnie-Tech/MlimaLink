@@ -1,14 +1,26 @@
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { WebSocket, type WebSocketServer } from 'ws';
-import { sendMessage } from './chat/conversations';
+import {
+  announceTyping,
+  counterpartKeys,
+  markRead,
+  sendMessage,
+} from './chat/conversations';
 import { ChatHub } from './chat/hub';
 import { authenticate, type Participant } from './chat/participants';
+import { MemoryPresenceStore } from './chat/presence';
+import { LocalPresenceBus, type PresenceUpdate } from './chat/presence-bus';
 import { HttpError } from './http-error';
 import { SESSION_EXPIRED_CODE, allowedOrigins, attachChatSockets } from './ws';
 
 vi.mock('./chat/participants', () => ({ authenticate: vi.fn() }));
-vi.mock('./chat/conversations', () => ({ sendMessage: vi.fn() }));
+vi.mock('./chat/conversations', () => ({
+  announceTyping: vi.fn(),
+  counterpartKeys: vi.fn(),
+  markRead: vi.fn(),
+  sendMessage: vi.fn(),
+}));
 
 const shopper: Participant = {
   role: 'user',
@@ -16,19 +28,35 @@ const shopper: Participant = {
   name: 'Amina',
   expiresAt: Date.now() + 60_000,
 };
+const admin: Participant = {
+  role: 'admin',
+  id: 'f'.repeat(24),
+  name: 'Ops',
+  expiresAt: Date.now() + 60_000,
+};
 const ORIGIN = 'http://localhost:4200';
 
 let server: Server;
 let sockets: WebSocketServer;
 let hub: ChatHub;
+let presence: MemoryPresenceStore;
+let bus: LocalPresenceBus;
 let baseUrl: string;
 
 beforeEach(async () => {
   vi.clearAllMocks();
   vi.mocked(authenticate).mockResolvedValue(shopper);
   hub = new ChatHub();
+  presence = new MemoryPresenceStore();
+  bus = new LocalPresenceBus();
   server = createServer();
-  sockets = attachChatSockets(server, hub, allowedOrigins(ORIGIN));
+  sockets = attachChatSockets(
+    server,
+    hub,
+    allowedOrigins(ORIGIN),
+    presence,
+    bus,
+  );
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   baseUrl = `ws://127.0.0.1:${(server.address() as AddressInfo).port}`;
 });
@@ -160,6 +188,214 @@ describe('attachChatSockets', () => {
     expect(sendMessage).toHaveBeenCalledWith(shopper, 'c'.repeat(24), {
       body: undefined,
       attachments: [photo],
+    });
+  });
+
+  it('marks chats read and tells every tab the person has open', async () => {
+    const read = {
+      conversationId: 'c'.repeat(24),
+      lastReadAt: '2026-10-08T10:00:00.000Z',
+    };
+    vi.mocked(markRead)
+      .mockResolvedValueOnce(read)
+      .mockRejectedValueOnce(new HttpError(404, 'Conversation not found.'));
+    const tab1 = connect();
+    const tab2 = connect();
+    await tab1.next(1);
+    await tab2.next(1);
+
+    tab1.ws.send(
+      JSON.stringify({ type: 'read', conversationId: 'c'.repeat(24) }),
+    );
+
+    expect(await tab1.next(2)).toEqual({ type: 'read', ...read });
+    expect(await tab2.next(2)).toEqual({ type: 'read', ...read });
+    expect(markRead).toHaveBeenCalledWith(shopper, 'c'.repeat(24));
+
+    tab1.ws.send(JSON.stringify({ type: 'read', conversationId: 'x' }));
+    expect(await tab1.next(3)).toEqual({
+      type: 'error',
+      message: 'Conversation not found.',
+    });
+  });
+
+  it('shows people as available, away only when every tab is idle, then offline', async () => {
+    const key = `user:${shopper.id}`;
+    const statusNow = async () => (await presence.get([key])).get(key)?.status;
+    const tab1 = connect();
+    const tab2 = connect();
+    await tab1.next(1);
+    await tab2.next(1);
+    expect(await statusNow()).toBe('available');
+
+    tab1.ws.send(JSON.stringify({ type: 'presence', status: 'away' }));
+    await vi.waitFor(() =>
+      expect(hub.statusOf('user', shopper.id)).toBe('available'),
+    );
+    tab2.ws.send(JSON.stringify({ type: 'presence', status: 'away' }));
+    await vi.waitFor(async () => expect(await statusNow()).toBe('away'));
+
+    tab1.ws.close();
+    tab2.ws.close();
+    await vi.waitFor(async () => expect(await statusNow()).toBe('offline'));
+    expect((await presence.get([key])).get(key)?.lastSeenAt).not.toBeNull();
+  });
+
+  it('announces status changes, not repeats', async () => {
+    const announced: PresenceUpdate[] = [];
+    bus.subscribe((update) => announced.push(update));
+    const statuses = () => announced.map(({ status }) => status);
+    const tab1 = connect();
+    const tab2 = connect();
+    await tab1.next(1);
+    await tab2.next(1);
+    expect(statuses()).toEqual(['available']);
+    expect(announced[0]).toMatchObject({ key: `user:${shopper.id}` });
+
+    tab1.ws.send(JSON.stringify({ type: 'presence', status: 'away' }));
+    tab2.ws.send(JSON.stringify({ type: 'presence', status: 'away' }));
+    await vi.waitFor(() => expect(statuses()).toEqual(['available', 'away']));
+
+    tab1.ws.close();
+    tab2.ws.close();
+    await vi.waitFor(() =>
+      expect(statuses()).toEqual(['available', 'away', 'offline']),
+    );
+  });
+
+  it('tells watchers the status of the people they chat with, then every change', async () => {
+    const seller = `seller:${'b'.repeat(24)}`;
+    const stranger = `seller:${'e'.repeat(24)}`;
+    vi.mocked(counterpartKeys).mockResolvedValue([seller]);
+    await presence.touch([{ key: seller, status: 'away' }]);
+    const { ws, next } = connect();
+    await next(1);
+
+    ws.send(JSON.stringify({ type: 'watch' }));
+
+    expect(await next(2)).toEqual({
+      type: 'presence',
+      updates: [
+        { key: seller, status: 'away', lastSeenAt: expect.any(String) },
+      ],
+    });
+    expect(counterpartKeys).toHaveBeenCalledWith(shopper);
+
+    const lastSeenAt = '2026-10-12T16:00:00.000Z';
+    await bus.publish({ key: stranger, status: 'available', lastSeenAt });
+    await bus.publish({ key: seller, status: 'offline', lastSeenAt });
+
+    expect(await next(3)).toEqual({
+      type: 'presence',
+      updates: [{ key: seller, status: 'offline', lastSeenAt }],
+    });
+  });
+
+  it('rejects unknown presence statuses', async () => {
+    const { ws, next } = connect();
+    await next(1);
+
+    ws.send(JSON.stringify({ type: 'presence', status: 'busy' }));
+
+    expect(await next(2)).toMatchObject({ type: 'error' });
+  });
+
+  it('passes typing on, at most every couple of seconds per chat', async () => {
+    vi.mocked(announceTyping).mockResolvedValue(undefined);
+    const { ws, next } = connect();
+    await next(1);
+    const chatA = 'c'.repeat(24);
+    const chatB = 'd'.repeat(24);
+
+    ws.send(JSON.stringify({ type: 'typing', conversationId: chatA }));
+    ws.send(JSON.stringify({ type: 'typing', conversationId: chatA }));
+    ws.send(JSON.stringify({ type: 'typing', conversationId: chatB }));
+
+    await vi.waitFor(() => expect(announceTyping).toHaveBeenCalledTimes(2));
+    expect(announceTyping).toHaveBeenCalledWith(shopper, chatA);
+    expect(announceTyping).toHaveBeenCalledWith(shopper, chatB);
+  });
+
+  it('only lets admins set their status by hand', async () => {
+    const { ws, next } = connect();
+    await next(1);
+
+    ws.send(JSON.stringify({ type: 'status', status: 'busy' }));
+
+    expect(await next(2)).toEqual({
+      type: 'error',
+      message: 'Only admins can set their status by hand.',
+    });
+    expect(await presence.getManual(`user:${shopper.id}`)).toBeNull();
+  });
+
+  it('lets admins set busy, appear offline and go back to automatic', async () => {
+    vi.mocked(authenticate).mockResolvedValue(admin);
+    const key = `admin:${admin.id}`;
+    const announced: PresenceUpdate[] = [];
+    bus.subscribe((update) => announced.push(update));
+    const tab1 = connect('/api/chat/ws?as=admin');
+    expect(await tab1.next(1)).toMatchObject({ type: 'ready' });
+    expect(await tab1.next(2)).toEqual({ type: 'status', manual: null });
+
+    tab1.ws.send(JSON.stringify({ type: 'status', status: 'busy' }));
+    expect(await tab1.next(3)).toEqual({ type: 'status', manual: 'busy' });
+    expect(await presence.getManual(key)).toBe('busy');
+    expect(announced.at(-1)).toMatchObject({
+      key,
+      status: 'busy',
+      manual: 'busy',
+    });
+
+    // Another tab starts with the status already set.
+    const tab2 = connect('/api/chat/ws?as=admin');
+    await tab2.next(1);
+    expect(await tab2.next(2)).toEqual({ type: 'status', manual: 'busy' });
+
+    tab2.ws.send(JSON.stringify({ type: 'status', status: 'offline' }));
+    expect(await tab1.next(4)).toEqual({ type: 'status', manual: 'offline' });
+    expect(announced.at(-1)).toMatchObject({
+      status: 'offline',
+      lastSeenAt: null,
+    });
+    expect((await presence.get([key])).get(key)?.status).toBe('offline');
+
+    tab1.ws.send(JSON.stringify({ type: 'status', status: null }));
+    expect(await tab2.next(4)).toEqual({ type: 'status', manual: null });
+    expect(announced.at(-1)).toMatchObject({ status: 'available' });
+    expect(await presence.getManual(key)).toBeNull();
+  });
+
+  it('keeps an admin’s status across reconnects, without telling watchers how it was set', async () => {
+    vi.mocked(authenticate).mockResolvedValue(admin);
+    const key = `admin:${admin.id}`;
+    await presence.setManual(key, 'dnd');
+    vi.mocked(counterpartKeys).mockResolvedValue([key]);
+
+    const { next } = connect('/api/chat/ws?as=admin');
+    await next(1);
+    expect(await next(2)).toEqual({ type: 'status', manual: 'dnd' });
+    await vi.waitFor(async () =>
+      expect((await presence.get([key])).get(key)?.status).toBe('dnd'),
+    );
+
+    vi.mocked(authenticate).mockResolvedValue(shopper);
+    const watcher = connect();
+    await watcher.next(1);
+    watcher.ws.send(JSON.stringify({ type: 'watch' }));
+    expect(await watcher.next(2)).toMatchObject({
+      updates: [{ key, status: 'dnd' }],
+    });
+
+    await bus.publish({
+      key,
+      status: 'brb',
+      lastSeenAt: '2026-10-12T16:00:00.000Z',
+      manual: 'brb',
+    });
+    expect(await watcher.next(3)).toEqual({
+      type: 'presence',
+      updates: [{ key, status: 'brb', lastSeenAt: '2026-10-12T16:00:00.000Z' }],
     });
   });
 

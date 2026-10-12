@@ -3,6 +3,7 @@ import { Poppins, Roboto } from 'next/font/google';
 import { Header } from './shared/widgets/header';
 import { SiteHeader } from './shared/widgets/site-header';
 import { themeInitScript } from './shared/theme/theme-script';
+import { ChatLiveProvider } from './shared/providers/chat-live-provider';
 import { QueryProvider } from './shared/providers/query-provider';
 import { TrackedShopStoreProvider } from './shared/providers/tracked-shop-store';
 import './global.css';
@@ -40,14 +41,16 @@ export default function RootLayout({
       </head>
       <body>
         <QueryProvider>
-          <TrackedShopStoreProvider>
-            <div className="flex min-h-screen flex-col">
-              <SiteHeader>
-                <Header />
-              </SiteHeader>
-              <main className="flex-1 bg-neutral-100">{children}</main>
-            </div>
-          </TrackedShopStoreProvider>
+          <ChatLiveProvider>
+            <TrackedShopStoreProvider>
+              <div className="flex min-h-screen flex-col">
+                <SiteHeader>
+                  <Header />
+                </SiteHeader>
+                <main className="flex-1 bg-neutral-100">{children}</main>
+              </div>
+            </TrackedShopStoreProvider>
+          </ChatLiveProvider>
         </QueryProvider>
       </body>
     </html>

@@ -39,6 +39,7 @@
     }
   },
   "dependencies": {
+    "@org/chat-ui": "*",
     "@org/models": "^0.0.1",
     "@tanstack/react-query": "^5.104.0",
     "@tiptap/extension-highlight": "^3.31.3",

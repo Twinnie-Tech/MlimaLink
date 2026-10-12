@@ -65,6 +65,9 @@
     },
     {
       "path": "./apps/recommendation-service"
+    },
+    {
+      "path": "./packages/shared/chat-ui"
     }
   ]
 }
