@@ -78,6 +78,9 @@
     },
     {
       "path": "../../packages/shared/models"
+    },
+    {
+      "path": "../../packages/shared/chat-ui"
     }
   ]
 }

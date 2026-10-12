@@ -24,6 +24,7 @@ vi.mock('../chat/conversations', () => ({ storeMessages: vi.fn() }));
 vi.mock('../log', () => ({ log: vi.fn() }));
 
 const envelope = {
+  type: 'message',
   message: {
     id: 'd'.repeat(24),
     conversationId: 'c'.repeat(24),
@@ -32,6 +33,12 @@ const envelope = {
     senderName: 'Amina',
     body: 'Hello',
     attachments: [],
+    files: [],
+    gif: null,
+    replyTo: null,
+    reactions: [],
+    editedAt: null,
+    deletedAt: null,
     createdAt: '2026-10-08T09:30:00.000Z',
   },
   audience: {
@@ -86,7 +93,7 @@ describe('deliveryGroupId', () => {
 });
 
 describe('startPersistenceConsumer', () => {
-  it('stores each batch in one write, skipping malformed messages, then commits', async () => {
+  it('stores each batch’s new messages in one write, skipping malformed ones and other events, then commits', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const stop = await startPersistenceConsumer();
 
@@ -103,10 +110,17 @@ describe('startPersistenceConsumer', () => {
       ...envelope,
       message: { ...envelope.message, id: 'e'.repeat(24) },
     };
+    const typing = {
+      type: 'typing',
+      conversationId: 'c'.repeat(24),
+      from: { key: `user:${'a'.repeat(24)}`, name: 'Amina' },
+      audience: envelope.audience,
+    };
     const { payload, run } = batchOf([
       JSON.stringify(envelope),
       'nope',
       JSON.stringify(second),
+      JSON.stringify(typing),
     ]);
     await run();
 
@@ -118,7 +132,7 @@ describe('startPersistenceConsumer', () => {
     expect(warn).toHaveBeenCalledWith(
       'Skipped a malformed message on chat_messages at offset 11.',
     );
-    expect(payload.resolveOffset).toHaveBeenCalledWith('12');
+    expect(payload.resolveOffset).toHaveBeenCalledWith('13');
     expect(payload.heartbeat).toHaveBeenCalled();
 
     await stop();

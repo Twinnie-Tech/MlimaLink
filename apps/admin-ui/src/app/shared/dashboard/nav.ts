@@ -4,6 +4,7 @@ import {
   FileClock,
   LayoutDashboard,
   ListOrdered,
+  Mail,
   Package,
   Palette,
   Settings,
@@ -13,7 +14,13 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-export type NavItem = { label: string; href: string; icon: LucideIcon };
+export type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  /** Shows the unseen chat message count next to the link. */
+  unseenBadge?: boolean;
+};
 
 export const DASHBOARD_HOME: NavItem = {
   label: 'Dashboard',
@@ -36,6 +43,12 @@ export const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: 'Controllers',
     items: [
+      {
+        label: 'Inbox',
+        href: '/dashboard/inbox',
+        icon: Mail,
+        unseenBadge: true,
+      },
       { label: 'Loggers', href: '/dashboard/loggers', icon: FileClock },
       { label: 'Management', href: '/dashboard/management', icon: Settings },
       { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },

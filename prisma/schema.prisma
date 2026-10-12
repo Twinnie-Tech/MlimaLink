@@ -556,13 +556,69 @@ model chat_messages {
   senderId       String        @db.ObjectId
   /// The sender's name when they sent it.
   senderName     String
-  /// May be empty when the message is only photos.
+  /// May be empty when the message is only photos, documents or a GIF.
   body           String
   /// Photo URLs the sender uploaded to their chat folder on ImageKit.
   attachments    String[]
+  /// Documents the sender uploaded to their chat folder on ImageKit.
+  files          chat_file[]
+  /// A GIF or sticker from GIPHY; such a message has nothing else in it.
+  gif            chat_gif?
+  /// The message this one answers, as it read when quoted.
+  replyTo        chat_reply?
+  /// At most one per person.
+  reactions      chat_reaction[]
+  editedAt       DateTime?
+  /// Set when the sender deleted it; the content is cleared then.
+  deletedAt      DateTime?
   createdAt      DateTime
 
   @@index([conversationId, createdAt])
+}
+
+type chat_file {
+  url      String
+  /// The name it was shared with, e.g. "Invoice March.pdf".
+  name     String
+  /// Bytes.
+  size     Int
+  mimeType String
+}
+
+type chat_gif {
+  /// "gif" or "sticker"
+  kind   String
+  url    String
+  width  Int
+  height Int
+  title  String
+}
+
+type chat_reply {
+  id         String
+  senderName String
+  /// What the quoted message said, shortened; "This message was deleted" once it is.
+  preview    String
+}
+
+type chat_reaction {
+  emoji String
+  /// "<role>:<id>" of who reacted.
+  key   String
+  name  String
+}
+
+/// How far one person has read in a chat; unseen counts are worked out from it. Every
+/// admin has their own row for a support chat.
+model conversation_reads {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String   @db.ObjectId
+  /// "<role>:<id>", e.g. "admin:<adminId>"
+  participant    String
+  lastReadAt     DateTime
+
+  @@unique([conversationId, participant])
+  @@index([participant])
 }
 
 /// A log entry from the logs topic, stored by logger-service. Entries older than

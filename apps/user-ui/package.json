@@ -47,6 +47,7 @@
     "react-hook-form": "^7.89.0"
   },
   "devDependencies": {
+    "@org/chat-ui": "*",
     "@org/models": "*",
     "@org/shop-data": "*",
     "@org/shop-feature-product-detail": "*",

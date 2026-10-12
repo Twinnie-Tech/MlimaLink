@@ -2,6 +2,7 @@
 
 /* Shared shop libraries live outside this app, so scan them for classes too. */
 @source '../../../../packages/shop';
+@source '../../../../packages/shared/chat-ui';
 
 /* Dark mode follows the `dark` class on <html>, set by the theme toggle. */
 @custom-variant dark (&:where(.dark, .dark *));

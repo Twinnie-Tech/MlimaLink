@@ -25,6 +25,7 @@ import { formatPrice } from '../../shared/store/shop-store';
 import { AuthRequestError } from '../../shared/utils/auth-api';
 import { getShop, shopQueryKey } from '../../shared/utils/shops-api';
 import { EmptyState } from '../../shared/widgets/empty-state';
+import { MessageShopButton } from '../../shared/widgets/message-shop-button';
 import { ProductTile } from '../../shared/widgets/product-tile';
 import { ReviewsSection } from '../../shared/widgets/reviews-section';
 import {
@@ -262,15 +263,18 @@ export default function ShopPage() {
               <OpenBadge status={openStatus(shop.openingHours)} />
             </div>
           </div>
-          {shop.isProvider && (
-            <Link
-              href={`/providers/${shop.id}`}
-              className="inline-flex items-center gap-2 self-start rounded-full border border-neutral-300 px-5 py-2.5 text-sm font-medium text-neutral-800 transition hover:border-brand-start hover:text-brand-start sm:mt-4"
-            >
-              <Briefcase size={16} aria-hidden />
-              Services profile
-            </Link>
-          )}
+          <div className="flex flex-wrap items-start gap-2 self-start sm:mt-4">
+            <MessageShopButton shopId={shop.id} />
+            {shop.isProvider && (
+              <Link
+                href={`/providers/${shop.id}`}
+                className="inline-flex items-center gap-2 rounded-full border border-neutral-300 px-5 py-2.5 text-sm font-medium text-neutral-800 transition hover:border-brand-start hover:text-brand-start"
+              >
+                <Briefcase size={16} aria-hidden />
+                Services profile
+              </Link>
+            )}
+          </div>
         </header>
 
         <div className="grid gap-8 py-10 lg:grid-cols-[minmax(0,1fr)_320px]">

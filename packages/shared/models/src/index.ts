@@ -7,3 +7,4 @@ export * from './lib/delivery.model.js';
 export * from './lib/shop.model.js';
 export * from './lib/review.model.js';
 export * from './lib/admin.model.js';
+export * from './lib/chat.model.js';

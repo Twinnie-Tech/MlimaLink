@@ -6,6 +6,7 @@ const apiGatewayUrl = process.env.API_GATEWAY_URL || 'http://127.0.0.1:3000';
 const nextConfig = {
   // Workspace libraries export TypeScript source, so Next must compile them.
   transpilePackages: [
+    '@org/chat-ui',
     '@org/models',
     '@org/shop-data',
     '@org/shop-feature-product-detail',

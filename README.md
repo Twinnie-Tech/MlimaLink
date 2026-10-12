@@ -66,20 +66,20 @@ MlimaLink is a marketplace platform built as an [Nx](https://nx.dev) monorepo. S
 
 ## Applications and ports
 
-| App                      | Port | Stack        | What it does                                                                                 |
-| ------------------------ | ---- | ------------ | -------------------------------------------------------------------------------------------- |
-| `user-ui`                | 4200 | Next.js      | Shop front: products, offers, reviews, cart, checkout, delivery tracking                     |
-| `seller-ui`              | 4300 | Next.js      | Seller dashboard: products, orders, payments, discount codes, service profile                |
-| `admin-ui`               | 4400 | Next.js      | Admin dashboard: users, sellers, products, events, orders, payments, logs, management        |
-| `api-gateway`            | 3000 | NestJS       | Single entry point; proxies to the services below                                            |
-| `api`                    | 3333 | NestJS       | Catalog, reviews, discount codes, checkout, orders, delivery, admin endpoints                |
-| `auth-service`           | 3334 | NestJS       | Sign-up, login, refresh, logout and password reset for shoppers, sellers, riders and admins  |
-| `kafka-service`          | 3335 | Express      | Consumes `user_events` and keeps user, product and shop analytics up to date                 |
-| `chatting-service`       | 3336 | Express + ws | Direct, shop and support chats with photos, carried over Kafka and delivered over WebSockets |
-| `logger-service`         | 3337 | Express      | Stores everything published to the `logs` topic and serves it to admins                      |
-| `recommendation-service` | 3338 | Express      | Starter service for product recommendations (health check only for now)                      |
-| `user-ui-e2e`            | —    | Playwright   | End-to-end tests for user-ui                                                                 |
-| `api-gateway-e2e`        | —    | Jest         | End-to-end tests for the gateway                                                             |
+| App                      | Port | Stack        | What it does                                                                                                     |
+| ------------------------ | ---- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `user-ui`                | 4200 | Next.js      | Shop front: products, offers, reviews, cart, checkout, delivery tracking                                         |
+| `seller-ui`              | 4300 | Next.js      | Seller dashboard: products, orders, payments, discount codes, service profile                                    |
+| `admin-ui`               | 4400 | Next.js      | Admin dashboard: users, sellers, products, events, orders, payments, logs, management                            |
+| `api-gateway`            | 3000 | NestJS       | Single entry point; proxies to the services below                                                                |
+| `api`                    | 3333 | NestJS       | Catalog, reviews, discount codes, checkout, orders, delivery, admin endpoints                                    |
+| `auth-service`           | 3334 | NestJS       | Sign-up, login, refresh, logout and password reset for shoppers, sellers, riders and admins                      |
+| `kafka-service`          | 3335 | Express      | Consumes `user_events` and keeps user, product and shop analytics up to date                                     |
+| `chatting-service`       | 3336 | Express + ws | Direct, shop and support chats with photos, documents and GIFs, carried over Kafka and delivered over WebSockets |
+| `logger-service`         | 3337 | Express      | Stores everything published to the `logs` topic and serves it to admins                                          |
+| `recommendation-service` | 3338 | Express      | Starter service for product recommendations (health check only for now)                                          |
+| `user-ui-e2e`            | —    | Playwright   | End-to-end tests for user-ui                                                                                     |
+| `api-gateway-e2e`        | —    | Jest         | End-to-end tests for the gateway                                                                                 |
 
 Every Express service answers `GET /api` with `{ "service": "<name>", "status": "ok" }`.
 
@@ -242,13 +242,15 @@ chatting-service and logger-service also need the access-token secrets to check 
 
 ### Chat and logs
 
-| Variable                       | Default                    | Description                                                |
-| ------------------------------ | -------------------------- | ---------------------------------------------------------- |
-| `CHAT_ALLOWED_ORIGINS`         | the three local UI origins | Browser origins allowed to open chat WebSockets            |
-| `CHAT_INSTANCE_ID`             | `<hostname>-<pid>`         | Stable name per chat instance, so it keeps its Kafka group |
-| `CHAT_RATE_LIMIT_PER_MINUTE`   | `30`                       | Chat messages each person may send per minute              |
-| `CHAT_UPLOAD_LIMIT_PER_MINUTE` | `10`                       | Chat photos each person may upload per minute              |
-| `LOG_RETENTION_DAYS`           | `7`                        | How long logger-service keeps logs                         |
+| Variable                       | Default                    | Description                                                            |
+| ------------------------------ | -------------------------- | ---------------------------------------------------------------------- |
+| `CHAT_ALLOWED_ORIGINS`         | the three local UI origins | Browser origins allowed to open chat WebSockets                        |
+| `CHAT_INSTANCE_ID`             | `<hostname>-<pid>`         | Stable name per chat instance, so it keeps its Kafka group             |
+| `CHAT_RATE_LIMIT_PER_MINUTE`   | `30`                       | Chat messages each person may send per minute                          |
+| `CHAT_UPLOAD_LIMIT_PER_MINUTE` | `10`                       | Chat photos and documents each person may upload per minute            |
+| `GIPHY_API_KEY`                | none                       | GIPHY key for GIFs and stickers in chat; without it the picker says so |
+| `NEXT_PUBLIC_CHAT_WS_URL`      | same origin `/api/chat/ws` | Chat WebSocket URL for the three UIs, if not the UI's own origin       |
+| `LOG_RETENTION_DAYS`           | `7`                        | How long logger-service keeps logs                                     |
 
 ### Email, images and payments
 
@@ -257,7 +259,7 @@ chatting-service and logger-service also need the access-token secrets to check 
 | `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`           | SMTP login and sender (use a Gmail App Password) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SERVICE`        | Optional SMTP server settings                    |
 | `GMAIL_USER`, `GMAIL_PASS`                      | Gmail fallback credentials                       |
-| `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT` | Product and chat photo uploads                   |
+| `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT` | Product photos and chat photo/document uploads   |
 | `STRIPE_SECRET_KEY`                             | Stripe Connect onboarding for seller payouts     |
 | `APP_TIMEZONE`                                  | Time zone used by auth-service                   |
 
@@ -303,7 +305,7 @@ The services create missing topics on startup when the cluster allows it.
 - A **shopper and a shop**. The shopper starts the chat and the shop's seller replies.
 - **Support chats** between a shopper or seller and MlimaLink. Either side can start one; every admin sees them and any admin can reply.
 
-Messages can carry text, up to 4 photos, or both.
+Messages carry text plus up to 4 photos or documents, or a GIF or sticker on its own. Like Microsoft Teams, people can react with emoji, reply to (quote) a message, and edit or delete their own messages at any time. Chats show who's typing and when your messages were seen.
 
 ### How it scales
 
@@ -313,14 +315,33 @@ Messages can carry text, up to 4 photos, or both.
 
 ### Sending limits
 
-Each person may send `CHAT_RATE_LIMIT_PER_MINUTE` messages (default 30) and upload `CHAT_UPLOAD_LIMIT_PER_MINUTE` photos (default 10) per minute. The counts are kept in Redis, so the limits hold across every instance. If Redis is unavailable, each instance counts on its own. Over the limit, REST returns 429 and the WebSocket replies with an `error`.
+Each person may send `CHAT_RATE_LIMIT_PER_MINUTE` messages or reactions (default 30) and upload `CHAT_UPLOAD_LIMIT_PER_MINUTE` files (default 10) per minute. The counts are kept in Redis, so the limits hold across every instance. If Redis is unavailable, each instance counts on its own. Over the limit, REST returns 429 and the WebSocket replies with an `error`.
 
-### Photos
+### Photos and documents
 
-1. Upload the photo first: `POST /api/chat/attachments?as=` with `{ "fileName", "file" }`, where `file` is a JPEG, PNG or WebP data URL under 3 MB. It's stored in your own ImageKit folder (`/chat/<role>-<id>`) and you get back `{ "url", "fileId" }`.
-2. Send the message with `"attachments": [url, ...]`.
+Photos can be JPEG, PNG, WebP or GIF. Documents can be PDF, Word (`.doc`, `.docx`), Excel (`.xls`, `.xlsx`), PowerPoint (`.ppt`, `.pptx`), text or CSV. The content is checked, not just the name.
+
+1. Upload the file first: `POST /api/chat/attachments?as=&name=<file name>`, with the file itself as the request body. It's stored in your own ImageKit folder (`/chat/<role>-<id>`) and you get back `{ "url", "fileId", "kind", "name", "size", "mimeType" }`, where `kind` is `photo` or `document`.
+2. Send the message with photo URLs in `"attachments": [url, ...]` and documents in `"files": [{ "url", "name", "size", "mimeType" }, ...]`, up to 4 in total.
 
 Only URLs from your own chat folder are accepted, so a message can't point at someone else's files or other sites.
+
+**Every file must be 10 MB or less.** A bigger one gets a 413 with _"That file is over the 10 MB limit. Please compress it to under 10 MB and try again."_ The chat screens check before uploading, so nothing is sent, and name the file and its size: _"“report.pdf” is 12.4 MB, which is over the 10 MB limit. Please compress it to under 10 MB and try again."_
+
+### GIFs and stickers
+
+`GET /api/chat/gifs?as=&type=gif|sticker&q=&offset=` searches GIPHY through the server, so the key never reaches the browser. An empty `q` returns what's trending. It returns `{ "results": [{ "id", "title", "url", "width", "height", "previewUrl" }], "next" }`; pass `next` as `offset` for more. Results are cached for 5 minutes, because free GIPHY keys allow few requests an hour. It returns 503 when `GIPHY_API_KEY` isn't set.
+
+Send the chosen one as `"gif": { "kind": "gif" | "sticker", "url", "width", "height", "title" }` with no text or files. Only GIPHY URLs are accepted.
+
+### Reactions, replies, edits and deletions
+
+- **Reactions:** `POST .../messages/:messageId/reactions` with `{ "emoji" }`. Each person has one reaction per message: the same emoji again takes it away, another emoji replaces it.
+- **Replies:** send `"replyToId"` with the message. The reply keeps a quote of the original (`replyTo: { id, senderName, preview }`) as it read at the time.
+- **Edits:** `PATCH .../messages/:messageId` with `{ "body" }`. Only your own messages, at any time. They get `editedAt` and show "Edited". GIFs and stickers can't be edited.
+- **Deletions:** `DELETE .../messages/:messageId`. Only your own messages. The text, files, GIF, quote and reactions are removed, everyone sees "This message was deleted", and replies quoting it say the same.
+
+Each change is sent to everyone in the chat as an `updated` event carrying the whole message, so screens just replace it.
 
 ### Choosing the account
 
@@ -328,22 +349,60 @@ Every request needs `?as=user`, `?as=seller` or `?as=admin`. The service reads t
 
 ### REST API (through the gateway)
 
-| Method | Path                                               | Body                                                                                                    | Description                                                              |
-| ------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| GET    | `/api/chat/conversations?as=`                      |                                                                                                         | Your chats, most recent first (admins also see all support chats)        |
-| POST   | `/api/chat/conversations?as=`                      | `{ "to": { "role", "id" } }`, `{ "shopId" }`, `{ "support": true }`, `{ "userId" }` or `{ "sellerId" }` | Start or resume a chat                                                   |
-| GET    | `/api/chat/conversations/:id/messages?as=&before=` |                                                                                                         | 50 messages before `before` (ISO date), oldest first                     |
-| POST   | `/api/chat/conversations/:id/messages?as=`         | `{ "body"?, "attachments"? }`                                                                           | Send text (up to 2000 characters) and/or up to 4 photo URLs; returns 202 |
-| POST   | `/api/chat/attachments?as=`                        | `{ "fileName", "file" }`                                                                                | Upload a chat photo; returns 201 with `{ "url", "fileId" }`              |
+| Method | Path                                                            | Body                                                                                                    | Description                                                         |
+| ------ | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| GET    | `/api/chat/conversations?as=`                                   |                                                                                                         | Your chats, most recent first (admins also see all support chats)   |
+| POST   | `/api/chat/conversations?as=`                                   | `{ "to": { "role", "id" } }`, `{ "shopId" }`, `{ "support": true }`, `{ "userId" }` or `{ "sellerId" }` | Start or resume a chat                                              |
+| GET    | `/api/chat/conversations/:id?as=`                               |                                                                                                         | One of your chats, in the same shape as the list                    |
+| GET    | `/api/chat/conversations/:id/messages?as=&cursor=&limit=`       |                                                                                                         | A page of messages, newest first (see below)                        |
+| POST   | `/api/chat/conversations/:id/messages?as=`                      | `{ "body"?, "attachments"?, "files"?, "gif"?, "replyToId"? }`                                           | Send a message (text up to 2000 characters); returns 202            |
+| PATCH  | `/api/chat/conversations/:id/messages/:messageId?as=`           | `{ "body" }`                                                                                            | Edit your own message; returns the message                          |
+| DELETE | `/api/chat/conversations/:id/messages/:messageId?as=`           |                                                                                                         | Delete your own message; returns the message                        |
+| POST   | `/api/chat/conversations/:id/messages/:messageId/reactions?as=` | `{ "emoji" }`                                                                                           | Add, change or take away your reaction; returns the message         |
+| POST   | `/api/chat/attachments?as=&name=`                               | the file                                                                                                | Upload a photo or document (10 MB max); returns 201                 |
+| GET    | `/api/chat/gifs?as=&type=&q=&offset=`                           |                                                                                                         | Search GIPHY GIFs or stickers                                       |
+| POST   | `/api/chat/conversations/:id/read?as=`                          |                                                                                                         | Mark the chat as seen; returns `{ "conversationId", "lastReadAt" }` |
+| GET    | `/api/chat/unseen?as=`                                          |                                                                                                         | Unseen messages across your chats, for a badge: `{ "total" }`       |
 
-Who can open what:
+Who can open what (send exactly one of these, or you get a 400):
 
 - Anyone sends `to: { role: "user" | "seller" | "admin", id }` for a direct chat. You can't message yourself, or an account that doesn't exist or is suspended.
-- Shoppers send `shopId` to message a shop.
+- Shoppers send `shopId` to message a shop. A missing shop, or one whose seller is suspended, returns 404.
 - Shoppers and sellers send `support: true` to reach MlimaLink.
 - Admins send `userId` or `sellerId` to open a support chat with that person.
 
-Direct chats in the list include `counterpart: { role, id }`, with the other person's name as the title and their role as the subtitle.
+Every chat in the list (and from `GET /conversations/:id`) has:
+
+- `participants`: everyone in it, as `{ role, id }`.
+- `counterpart`: who you're talking to. That's the other person in a direct chat, the seller or shopper in a shop chat, and the shopper or seller for an admin in a support chat. Shoppers and sellers have no counterpart in support chats, because admins answer as a team.
+- `presence`: the counterpart's status (see below), or null without a counterpart.
+
+### Reading messages
+
+`GET /conversations/:id/messages` returns `{ messages, hasMore, nextCursor, lastReadAt }`, with the newest message first:
+
+- `limit` is 1 to 50 (default 20).
+- To load older messages, pass `nextCursor` back as `cursor`. A cursor must be the id of a message in that chat.
+- The first page (no `cursor`) marks the chat as read and clears its unseen count; `lastReadAt` says when. Your other open tabs get a `read` event too.
+
+### Presence
+
+Like Microsoft Teams, everyone is **available**, **away** or **offline**, with `lastSeenAt` for when they were last connected. Admins can also be **busy**, **do not disturb** (`dnd`) or **be right back** (`brb`):
+
+- Opening a chat WebSocket makes you available. A tab sends `{ "type": "presence", "status": "away" }` after 5 idle minutes and `"available"` when you're back. You're away only when all your tabs are.
+- Closing your last tab makes you offline.
+- Statuses are kept in Redis (`chat:presence`), so every instance sees them, and each instance renews its people every 30 seconds. If an instance crashes, its people go offline within 75 seconds. Without Redis, each instance only knows its own connections.
+- **Admins can also set a status by hand**, like Teams: **Busy**, **Do not disturb**, **Be right back**, **Appear away** or **Appear offline**, or go back to **Available** (automatic). A tab sends `{ "type": "status", "status": "busy" | "dnd" | "brb" | "away" | "offline" | null }`, and every tab of that admin gets `{ "type": "status", "manual" }`. The choice is kept in Redis (`chat:presence-manual`) until they change it, across reconnects and instances. Appear offline hides `lastSeenAt` too. Do not disturb silences the chime, toasts and browser notifications. Shoppers and sellers who try get an `error`.
+- Changes are pushed live. A tab sends `watch` and gets the current status of the people in its 50 most recent chats, then a `presence` event whenever one of them changes. Changes travel between instances on the Redis channel `chat:presence-updates`; without Redis, only people on the same instance are pushed.
+
+### Unseen messages
+
+Every chat in the list has an `unseenCount`: messages from other people since you last read it. Your own messages never count, and sending a message marks the chat as read for you.
+
+- Read positions are stored in MongoDB (`conversation_reads`), so the counts are always exact.
+- Every admin has their own count for support chats.
+- Counts stop at 100, and `GET /api/chat/unseen` totals your 50 most recent chats with the same cap; show "99+" above 99.
+- While connected, refresh the badge when a `message` arrives for a chat that isn't open, and send `read` when the user opens it.
 
 A chat you're not part of returns 404, the same as a missing one. If Kafka is unavailable, sending returns 503.
 
@@ -351,17 +410,51 @@ A chat you're not part of returns 404, the same as a missing one. If Kafka is un
 
 Connect to `ws://localhost:3000/api/chat/ws?as=user` (through the gateway) or directly to port 3336.
 
-| Direction       | Message                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------- |
-| server → client | `{ "type": "ready", "you": { "role", "id", "name" } }`                                   |
-| client → server | `{ "type": "send", "conversationId", "body"?, "attachments"?, "clientId"? }`             |
-| server → client | `{ "type": "sent", "clientId", "message" }`                                              |
-| server → client | `{ "type": "error", "clientId", "message" }`                                             |
-| server → client | `{ "type": "message", "message" }`, sent to every participant, including your other tabs |
+| Direction       | Message                                                                                      |
+| --------------- | -------------------------------------------------------------------------------------------- |
+| server → client | `{ "type": "ready", "you": { "role", "id", "name" } }`                                       |
+| client → server | `{ "type": "send", "conversationId", "clientId"?, ...message fields as in REST }`            |
+| server → client | `{ "type": "sent", "clientId", "message" }`                                                  |
+| server → client | `{ "type": "error", "clientId", "message" }`                                                 |
+| server → client | `{ "type": "message", "message" }`, sent to every participant, including your other tabs     |
+| client → server | `{ "type": "read", "conversationId" }`                                                       |
+| server → client | `{ "type": "read", "conversationId", "lastReadAt" }`, sent to all your tabs on that instance |
+| client → server | `{ "type": "presence", "status": "available" \| "away" }`                                    |
+| client → server | `{ "type": "watch" }`, again whenever a new chat appears                                     |
+| server → client | `{ "type": "presence", "updates": [{ "key": "seller:<id>", "status", "lastSeenAt" }] }`      |
+| server → client | `{ "type": "updated", "message" }`, when a message is edited, deleted or reacted to          |
+| server → client | `{ "type": "seen", "conversationId", "reader", "lastReadAt" }`, when someone else reads it   |
+| client → server | `{ "type": "typing", "conversationId" }`, every 3 seconds or so while typing                 |
+| server → client | `{ "type": "typing", "conversationId", "from": { "key", "name" } }`; show it for 6 seconds   |
+| client → server | `{ "type": "status", "status" }`, admins only (see Presence)                                 |
+| server → client | `{ "type": "status", "manual" }`, an admin's own status set by hand, to all their tabs       |
 
 - Only origins listed in `CHAT_ALLOWED_ORIGINS` may connect.
 - The socket closes with code **4001** when the access token expires. The client should refresh the session and reconnect.
 - Dead connections are dropped after a missed heartbeat (30 s).
+
+### Chat screens
+
+The chat screen lives in `packages/shared/chat-ui` (`@org/chat-ui`), so the three UIs share it:
+
+- **user-ui:** `/inbox` (signed-out shoppers are sent to login and brought back), a messages badge in the header, and a **Message shop** button on every shop page.
+- **seller-ui:** `/dashboard/inbox`, with the unseen count next to Inbox in the sidebar.
+- **admin-ui:** `/dashboard/inbox`, the support inbox shared by the admin team plus their direct messages, with the unseen count in the sidebar and a status picker under the logo.
+
+In a chat you can:
+
+- Pick emoji from a searchable picker with recently used ones, and attach photos or documents (checked against the 10 MB limit before uploading) or a GIPHY GIF or sticker.
+- Hover a message to react, reply, or edit or delete your own. Reactions show who reacted; replies show a quote you can click to jump to the original.
+- See "… is typing…" in the header, and one tick (sent) or two (seen) on your messages. In support chats a shopper or seller sees two ticks once any admin has read the message.
+
+The open chat is the `?conversationId=` search param, so links and the back button work. Scrolling to the top loads older messages.
+
+`ChatProvider` keeps one WebSocket per tab on every page: the whole of user-ui for a signed-in shopper, and the seller and admin dashboards. It connects through the UI's own `/api` rewrite unless `NEXT_PUBLIC_CHAT_WS_URL` is set. With it:
+
+- Badges, the chat list, the open conversation and statuses update the moment the server says so, with no refresh.
+- A new message in a chat that isn't on screen plays a chime and shows a toast with **Open**. When the tab is in the background, it shows a browser notification instead (the inbox offers to turn these on). The tab title shows the unseen count, e.g. "(3) MlimaLink Shop".
+- You show as away after 5 idle minutes on any page, not just the inbox.
+- While reconnecting, messages are sent over REST and the open chat checks for new ones every 5 seconds; everything catches up once the connection is back.
 
 ---
 
@@ -464,7 +557,7 @@ Run steps 2 and 3 locally before pushing.
 │   ├── logger-service/          [scope:logger]          Logs (3337)
 │   └── recommendation-service/  [scope:recommendation]  Recommendations (3338)
 ├── packages/
-│   ├── shared/   models, errors, test-utils             [scope:shared]
+│   ├── shared/   models, errors, test-utils, chat-ui    [scope:shared]
 │   ├── shop/     data, feature-products, feature-product-detail, shared-ui  [scope:shop]
 │   ├── api/      products                               [scope:api]
 │   └── utils/    kafka, events, logs, auth              [scope:shared]
