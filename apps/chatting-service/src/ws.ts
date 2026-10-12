@@ -5,7 +5,7 @@ import { isAccountType } from '@org/utils/auth';
 import { sendMessage } from './chat/conversations';
 import type { ChatHub } from './chat/hub';
 import { authenticate, type Participant } from './chat/participants';
-import { MAX_MESSAGE_LENGTH } from './chat/protocol';
+import { MAX_ATTACHMENTS, MAX_MESSAGE_LENGTH } from './chat/protocol';
 import { HttpError } from './http-error';
 
 export const CHAT_SOCKET_PATH = '/api/chat/ws';
@@ -41,9 +41,12 @@ function errorText(error: unknown): string {
   return error instanceof HttpError ? error.message : 'Something went wrong.';
 }
 
-function parseClientMessage(
-  data: RawData,
-): { conversationId: unknown; body: unknown; clientId?: string } | null {
+function parseClientMessage(data: RawData): {
+  conversationId: unknown;
+  body: unknown;
+  attachments: unknown;
+  clientId?: string;
+} | null {
   try {
     const parsed = JSON.parse(data.toString());
     if (parsed?.type !== 'send') return null;
@@ -54,6 +57,7 @@ function parseClientMessage(
     return {
       conversationId: parsed.conversationId,
       body: parsed.body,
+      attachments: parsed.attachments,
       clientId,
     };
   } catch {
@@ -64,7 +68,8 @@ function parseClientMessage(
 /**
  * Serves live chat at ws://host/api/chat/ws?as=user|seller|admin.
  *
- * The client sends `{ type: 'send', conversationId, body, clientId? }` and gets back
+ * The client sends `{ type: 'send', conversationId, body?, attachments?, clientId? }`,
+ * where attachments are photo URLs from POST /api/chat/attachments, and gets back
  * `{ type: 'sent', clientId, message }` or `{ type: 'error', clientId, message }`. Every
  * participant, including the sender's other tabs, then receives
  * `{ type: 'message', message }` once Kafka delivers it.
@@ -74,10 +79,11 @@ export function attachChatSockets(
   hub: ChatHub,
   origins = allowedOrigins(),
 ): WebSocketServer {
-  // Room for a full message plus the JSON around it, even when every character is escaped.
+  // Room for a full message and its photo URLs plus the JSON around them, even when
+  // every character is escaped.
   const wss = new WebSocketServer({
     noServer: true,
-    maxPayload: MAX_MESSAGE_LENGTH * 6 + 1024,
+    maxPayload: (MAX_MESSAGE_LENGTH + MAX_ATTACHMENTS * 2048) * 6 + 1024,
   });
   const alive = new WeakMap<WebSocket, boolean>();
 
@@ -129,13 +135,17 @@ export function attachChatSockets(
         ws.send(
           JSON.stringify({
             type: 'error',
-            message: 'Send { type: "send", conversationId, body }.',
+            message:
+              'Send { type: "send", conversationId, body, attachments? }.',
           }),
         );
         return;
       }
-      const { clientId } = request;
-      sendMessage(participant, String(request.conversationId), request.body)
+      const { clientId, body, attachments } = request;
+      sendMessage(participant, String(request.conversationId), {
+        body,
+        attachments,
+      })
         .then((message) =>
           ws.send(JSON.stringify({ type: 'sent', clientId, message })),
         )

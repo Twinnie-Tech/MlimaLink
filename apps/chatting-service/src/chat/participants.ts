@@ -14,7 +14,8 @@ export interface Participant {
   expiresAt: number;
 }
 
-async function findAccount(
+/** The account's name, or null when it doesn't exist or is suspended. */
+export async function findActiveAccount(
   role: AccountType,
   id: string,
 ): Promise<{ name: string } | null> {
@@ -39,7 +40,7 @@ export async function authenticate(
 ): Promise<Participant | null> {
   const verified = verifyAccessToken(readAccessToken(headers, role), role);
   if (!verified) return null;
-  const account = await findAccount(role, verified.id);
+  const account = await findActiveAccount(role, verified.id);
   return account
     ? {
         role,

@@ -1,7 +1,7 @@
 import { hostname } from 'node:os';
-import type { Consumer } from 'kafkajs';
+import type { Consumer, ConsumerRunConfig, KafkaMessage } from 'kafkajs';
 import { ensureTopic, getKafka } from '@org/utils/kafka';
-import { storeMessage } from '../chat/conversations';
+import { storeMessages } from '../chat/conversations';
 import type { ChatHub } from '../chat/hub';
 import {
   CHAT_MESSAGES_TOPIC,
@@ -23,9 +23,19 @@ export function deliveryGroupId(
   return `chat-delivery-${instanceId || `${hostname()}-${process.pid}`}`;
 }
 
+function readEnvelope(message: KafkaMessage): ChatEnvelope | null {
+  const envelope = parseChatEnvelope(message.value?.toString());
+  if (!envelope) {
+    console.warn(
+      `Skipped a malformed message on ${CHAT_MESSAGES_TOPIC} at offset ${message.offset}.`,
+    );
+  }
+  return envelope;
+}
+
 async function startConsumer(
   groupId: string,
-  handle: (envelope: ChatEnvelope) => Promise<void> | void,
+  run: ConsumerRunConfig,
 ): Promise<() => Promise<void>> {
   const kafka = getKafka();
   await ensureTopic(kafka, CHAT_MESSAGES_TOPIC);
@@ -37,18 +47,7 @@ async function startConsumer(
       topic: CHAT_MESSAGES_TOPIC,
       fromBeginning: false,
     });
-    await consumer.run({
-      eachMessage: async ({ message }) => {
-        const envelope = parseChatEnvelope(message.value?.toString());
-        if (!envelope) {
-          console.warn(
-            `Skipped a malformed message on ${CHAT_MESSAGES_TOPIC} at offset ${message.offset}.`,
-          );
-          return;
-        }
-        await handle(envelope);
-      },
-    });
+    await consumer.run(run);
   } catch (error) {
     await consumer.disconnect().catch(() => undefined);
     throw error;
@@ -57,20 +56,35 @@ async function startConsumer(
 }
 
 /**
- * Stores each chat message in MongoDB. A failed write throws, so Kafka offers the
- * message again instead of losing it.
+ * Stores chat messages in MongoDB a batch at a time, so a busy topic means fewer, larger
+ * writes. Offsets are committed only after the batch is written; a failed write throws,
+ * so Kafka offers the whole batch again instead of losing it.
  */
 export function startPersistenceConsumer(): Promise<() => Promise<void>> {
-  return startConsumer(CHAT_PERSISTENCE_GROUP, async ({ message }) => {
-    try {
-      await storeMessage(message);
-    } catch (error) {
-      log('error', `Couldn't store chat message ${message.id}.`, {
-        conversationId: message.conversationId,
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw error;
-    }
+  return startConsumer(CHAT_PERSISTENCE_GROUP, {
+    eachBatchAutoResolve: false,
+    eachBatch: async ({ batch, resolveOffset, heartbeat, isStale }) => {
+      if (isStale() || batch.messages.length === 0) return;
+      const envelopes = batch.messages.flatMap(
+        (message) => readEnvelope(message) ?? [],
+      );
+      try {
+        await storeMessages(envelopes.map(({ message }) => message));
+      } catch (error) {
+        log(
+          'error',
+          `Couldn't store ${envelopes.length} chat messages from partition ${batch.partition}.`,
+          {
+            firstOffset: batch.firstOffset(),
+            lastOffset: batch.lastOffset(),
+            error: error instanceof Error ? error.message : String(error),
+          },
+        );
+        throw error;
+      }
+      resolveOffset(batch.lastOffset());
+      await heartbeat();
+    },
   });
 }
 
@@ -78,7 +92,10 @@ export function startPersistenceConsumer(): Promise<() => Promise<void>> {
 export function startDeliveryConsumer(
   hub: ChatHub,
 ): Promise<() => Promise<void>> {
-  return startConsumer(deliveryGroupId(), (envelope) => {
-    hub.deliver(envelope);
+  return startConsumer(deliveryGroupId(), {
+    eachMessage: async ({ message }) => {
+      const envelope = readEnvelope(message);
+      if (envelope) hub.deliver(envelope);
+    },
   });
 }

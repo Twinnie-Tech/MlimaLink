@@ -515,30 +515,34 @@ model shop_analytics {
 
 /// A chat in chatting-service. "shop" chats are between a shopper and a shop (its seller
 /// replies); "support" chats are between a shopper or seller and MlimaLink's admins, any
-/// of whom can reply.
+/// of whom can reply; "direct" chats are between any two shoppers, sellers or admins.
 model conversations {
-  id            String          @id @default(auto()) @map("_id") @db.ObjectId
-  /// "shop:<shopId>:<userId>", "support:user:<userId>" or "support:seller:<sellerId>".
-  /// One chat per pair, and unique even though userId, sellerId and shopId are optional.
-  key           String          @unique
-  /// "shop" or "support"
-  kind          String
-  userId        String?         @db.ObjectId
-  user          users?          @relation(fields: [userId], references: [id])
-  sellerId      String?         @db.ObjectId
-  seller        sellers?        @relation(fields: [sellerId], references: [id])
-  shopId        String?         @db.ObjectId
-  shop          shops?          @relation(fields: [shopId], references: [id])
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  /// "shop:<shopId>:<userId>", "support:user:<userId>", "support:seller:<sellerId>" or
+  /// "direct:<role>:<id>|<role>:<id>" (sorted). One chat per pair, and unique even though
+  /// userId, sellerId and shopId are optional.
+  key             String          @unique
+  /// "shop", "support" or "direct"
+  kind            String
+  /// Direct chats only: both people as "<role>:<id>", e.g. "seller:<sellerId>", sorted.
+  participantKeys String[]
+  userId          String?         @db.ObjectId
+  user            users?          @relation(fields: [userId], references: [id])
+  sellerId        String?         @db.ObjectId
+  seller          sellers?        @relation(fields: [sellerId], references: [id])
+  shopId          String?         @db.ObjectId
+  shop            shops?          @relation(fields: [shopId], references: [id])
   /// Start of the latest message, for chat lists.
-  lastMessage   String?
-  lastMessageAt DateTime?
-  messages      chat_messages[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  lastMessage     String?
+  lastMessageAt   DateTime?
+  messages        chat_messages[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   @@index([userId, updatedAt])
   @@index([sellerId, updatedAt])
   @@index([kind, updatedAt])
+  @@index([participantKeys, updatedAt])
 }
 
 /// One chat message. Written by chatting-service from the chat_messages topic; the id is
@@ -552,7 +556,10 @@ model chat_messages {
   senderId       String        @db.ObjectId
   /// The sender's name when they sent it.
   senderName     String
+  /// May be empty when the message is only photos.
   body           String
+  /// Photo URLs the sender uploaded to their chat folder on ImageKit.
+  attachments    String[]
   createdAt      DateTime
 
   @@index([conversationId, createdAt])

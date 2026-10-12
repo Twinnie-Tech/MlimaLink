@@ -112,7 +112,10 @@ describe('attachChatSockets', () => {
       }),
     );
     expect(await next(2)).toEqual({ type: 'sent', clientId: 'tmp-1', message });
-    expect(sendMessage).toHaveBeenCalledWith(shopper, 'c'.repeat(24), 'Hello');
+    expect(sendMessage).toHaveBeenCalledWith(shopper, 'c'.repeat(24), {
+      body: 'Hello',
+      attachments: undefined,
+    });
 
     ws.send(
       JSON.stringify({
@@ -130,6 +133,34 @@ describe('attachChatSockets', () => {
 
     ws.send('not json');
     expect(await next(4)).toMatchObject({ type: 'error' });
+  });
+
+  it('passes photo URLs along and reports the sending limit', async () => {
+    const photo = 'https://ik.imagekit.io/mlima/chat/user-a/a.jpg';
+    vi.mocked(sendMessage).mockRejectedValueOnce(
+      new HttpError(429, 'You’re sending messages too fast.'),
+    );
+    const { ws, next } = connect();
+    await next(1);
+
+    ws.send(
+      JSON.stringify({
+        type: 'send',
+        conversationId: 'c'.repeat(24),
+        attachments: [photo],
+        clientId: 'tmp-3',
+      }),
+    );
+
+    expect(await next(2)).toEqual({
+      type: 'error',
+      clientId: 'tmp-3',
+      message: 'You’re sending messages too fast.',
+    });
+    expect(sendMessage).toHaveBeenCalledWith(shopper, 'c'.repeat(24), {
+      body: undefined,
+      attachments: [photo],
+    });
   });
 
   it('closes the socket when the session runs out', async () => {

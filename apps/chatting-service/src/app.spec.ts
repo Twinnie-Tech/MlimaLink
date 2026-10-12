@@ -1,5 +1,6 @@
 import request from 'supertest';
 import { createApp } from './app';
+import { uploadChatImage } from './chat/attachments';
 import {
   listConversations,
   listMessages,
@@ -9,6 +10,8 @@ import {
 import { authenticate, type Participant } from './chat/participants';
 import { HttpError } from './http-error';
 
+const uploads = vi.hoisted(() => ({ take: vi.fn() }));
+
 vi.mock('./chat/participants', () => ({ authenticate: vi.fn() }));
 vi.mock('./chat/conversations', () => ({
   listConversations: vi.fn(),
@@ -16,6 +19,14 @@ vi.mock('./chat/conversations', () => ({
   openConversation: vi.fn(),
   sendMessage: vi.fn(),
 }));
+vi.mock('./chat/attachments', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./chat/attachments')>()),
+  uploadChatImage: vi.fn(),
+}));
+vi.mock('./chat/rate-limit', () => ({ uploadLimiter: () => uploads }));
+vi.mock('./log', () => ({ log: vi.fn() }));
+
+const photo = `data:image/png;base64,${'A'.repeat(64)}`;
 
 const shopper: Participant = {
   role: 'user',
@@ -28,6 +39,7 @@ const conversationId = 'd'.repeat(24);
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(authenticate).mockResolvedValue(shopper);
+  uploads.take.mockResolvedValue(true);
 });
 
 describe('chatting-service app', () => {
@@ -120,7 +132,53 @@ describe('chatting-service app', () => {
 
     expect(response.status).toBe(202);
     expect(response.body).toEqual({ id: 'm1' });
-    expect(sendMessage).toHaveBeenCalledWith(shopper, conversationId, 'Hello');
+    expect(sendMessage).toHaveBeenCalledWith(shopper, conversationId, {
+      body: 'Hello',
+    });
+  });
+
+  it('uploads a chat photo to the sender’s folder', async () => {
+    vi.mocked(uploadChatImage).mockResolvedValue({
+      url: 'https://ik.imagekit.io/mlima/chat/user-a/shoes_x1.png',
+      fileId: 'f1',
+    });
+
+    const response = await request(createApp())
+      .post('/api/chat/attachments?as=user')
+      .send({ fileName: 'My Shoes!.PNG', file: photo });
+
+    expect(response.status).toBe(201);
+    expect(response.body.fileId).toBe('f1');
+    expect(uploadChatImage).toHaveBeenCalledWith(shopper, {
+      fileName: 'My-Shoes.png',
+      file: photo,
+    });
+    expect(uploads.take).toHaveBeenCalledWith(`user:${shopper.id}`);
+  });
+
+  it('rejects files that aren’t photos, and uploads over the limit', async () => {
+    const app = createApp();
+
+    await request(app)
+      .post('/api/chat/attachments?as=user')
+      .send({ fileName: 'x.gif', file: 'data:image/gif;base64,AAAA' })
+      .expect(400);
+
+    uploads.take.mockResolvedValue(false);
+    await request(app)
+      .post('/api/chat/attachments?as=user')
+      .send({ fileName: 'x.png', file: photo })
+      .expect(429);
+    expect(uploadChatImage).not.toHaveBeenCalled();
+  });
+
+  it('keeps large bodies to the photo route', async () => {
+    const response = await request(createApp())
+      .post(`/api/chat/conversations/${conversationId}/messages?as=user`)
+      .send({ body: 'x'.repeat(20_000) });
+
+    expect(response.status).toBe(413);
+    expect(sendMessage).not.toHaveBeenCalled();
   });
 
   it('turns service errors into their status and message', async () => {

@@ -1,5 +1,6 @@
 /**
- * Chatting service for MlimaLink: shopper, seller and support chats, carried over Kafka.
+ * Chatting service for MlimaLink: direct, shop and support chats between shoppers,
+ * sellers and admins, carried over Kafka.
  *
  * Messages are published to the chat_messages topic. One consumer group, shared by every
  * instance, stores them; each instance also reads them in its own group and delivers
@@ -17,6 +18,7 @@ import {
 } from './consumers/chat.consumers';
 import { log } from './log';
 import { prisma } from './prisma';
+import { disconnectRedis } from './redis';
 import { CHAT_SOCKET_PATH, attachChatSockets } from './ws';
 
 const CONSUMER_RETRY_MS = 30_000;
@@ -64,6 +66,7 @@ const shutdown = () => {
   void (async () => {
     await Promise.all(stops.map((stop) => stop().catch(console.error)));
     await disconnectProducer().catch(console.error);
+    await disconnectRedis();
     await prisma.$disconnect();
   })().finally(() => process.exit(0));
 };
