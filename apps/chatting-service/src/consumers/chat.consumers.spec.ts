@@ -1,5 +1,5 @@
-import type { EachMessagePayload } from 'kafkajs';
-import { storeMessage } from '../chat/conversations';
+import type { EachBatchPayload, EachMessagePayload } from 'kafkajs';
+import { storeMessages } from '../chat/conversations';
 import { ChatHub } from '../chat/hub';
 import {
   CHAT_PERSISTENCE_GROUP,
@@ -20,7 +20,7 @@ vi.mock('@org/utils/kafka', () => ({
   getKafka: () => kafka,
   ensureTopic: vi.fn(),
 }));
-vi.mock('../chat/conversations', () => ({ storeMessage: vi.fn() }));
+vi.mock('../chat/conversations', () => ({ storeMessages: vi.fn() }));
 vi.mock('../log', () => ({ log: vi.fn() }));
 
 const envelope = {
@@ -31,6 +31,7 @@ const envelope = {
     senderId: 'a'.repeat(24),
     senderName: 'Amina',
     body: 'Hello',
+    attachments: [],
     createdAt: '2026-10-08T09:30:00.000Z',
   },
   audience: {
@@ -40,12 +41,36 @@ const envelope = {
   },
 };
 
+const runConfig = () => consumer.run.mock.calls.at(-1)?.[0];
+
 function deliverer() {
-  const { eachMessage } = consumer.run.mock.calls.at(-1)?.[0] as {
+  const { eachMessage } = runConfig() as {
     eachMessage: (payload: EachMessagePayload) => Promise<void>;
   };
   return (value: string, offset = '1') =>
     eachMessage({ message: { value: Buffer.from(value), offset } } as never);
+}
+
+function batchOf(values: string[], stale = false) {
+  const messages = values.map((value, index) => ({
+    value: Buffer.from(value),
+    offset: String(index + 10),
+  }));
+  const payload = {
+    batch: {
+      partition: 3,
+      messages,
+      firstOffset: () => messages[0]?.offset ?? null,
+      lastOffset: () => messages.at(-1)?.offset ?? '9',
+    },
+    resolveOffset: vi.fn(),
+    heartbeat: vi.fn(),
+    isStale: () => stale,
+  };
+  const { eachBatch } = runConfig() as {
+    eachBatch: (payload: EachBatchPayload) => Promise<void>;
+  };
+  return { payload, run: () => eachBatch(payload as never) };
 }
 
 beforeEach(() => {
@@ -61,7 +86,7 @@ describe('deliveryGroupId', () => {
 });
 
 describe('startPersistenceConsumer', () => {
-  it('stores each message in the shared group and skips malformed ones', async () => {
+  it('stores each batch in one write, skipping malformed messages, then commits', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const stop = await startPersistenceConsumer();
 
@@ -72,28 +97,52 @@ describe('startPersistenceConsumer', () => {
       topic: 'chat_messages',
       fromBeginning: false,
     });
-    const deliver = deliverer();
-    await deliver(JSON.stringify(envelope));
-    await deliver('nope', '2');
+    expect(runConfig()).toMatchObject({ eachBatchAutoResolve: false });
 
-    expect(storeMessage).toHaveBeenCalledTimes(1);
-    expect(storeMessage).toHaveBeenCalledWith(envelope.message);
+    const second = {
+      ...envelope,
+      message: { ...envelope.message, id: 'e'.repeat(24) },
+    };
+    const { payload, run } = batchOf([
+      JSON.stringify(envelope),
+      'nope',
+      JSON.stringify(second),
+    ]);
+    await run();
+
+    expect(storeMessages).toHaveBeenCalledTimes(1);
+    expect(storeMessages).toHaveBeenCalledWith([
+      envelope.message,
+      second.message,
+    ]);
     expect(warn).toHaveBeenCalledWith(
-      'Skipped a malformed message on chat_messages at offset 2.',
+      'Skipped a malformed message on chat_messages at offset 11.',
     );
+    expect(payload.resolveOffset).toHaveBeenCalledWith('12');
+    expect(payload.heartbeat).toHaveBeenCalled();
 
     await stop();
     expect(consumer.disconnect).toHaveBeenCalled();
     warn.mockRestore();
   });
 
-  it('throws on a failed write so Kafka offers the message again', async () => {
-    vi.mocked(storeMessage).mockRejectedValueOnce(new Error('db down'));
+  it('throws on a failed write without committing, so Kafka offers the batch again', async () => {
+    vi.mocked(storeMessages).mockRejectedValueOnce(new Error('db down'));
     await startPersistenceConsumer();
 
-    await expect(deliverer()(JSON.stringify(envelope))).rejects.toThrow(
-      'db down',
-    );
+    const { payload, run } = batchOf([JSON.stringify(envelope)]);
+    await expect(run()).rejects.toThrow('db down');
+    expect(payload.resolveOffset).not.toHaveBeenCalled();
+  });
+
+  it('skips a batch that went stale after a rebalance', async () => {
+    await startPersistenceConsumer();
+
+    const { payload, run } = batchOf([JSON.stringify(envelope)], true);
+    await run();
+
+    expect(storeMessages).not.toHaveBeenCalled();
+    expect(payload.resolveOffset).not.toHaveBeenCalled();
   });
 });
 

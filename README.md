@@ -66,20 +66,20 @@ MlimaLink is a marketplace platform built as an [Nx](https://nx.dev) monorepo. S
 
 ## Applications and ports
 
-| App                      | Port | Stack        | What it does                                                                                |
-| ------------------------ | ---- | ------------ | ------------------------------------------------------------------------------------------- |
-| `user-ui`                | 4200 | Next.js      | Shop front: products, offers, reviews, cart, checkout, delivery tracking                    |
-| `seller-ui`              | 4300 | Next.js      | Seller dashboard: products, orders, payments, discount codes, service profile               |
-| `admin-ui`               | 4400 | Next.js      | Admin dashboard: users, sellers, products, events, orders, payments, logs, management       |
-| `api-gateway`            | 3000 | NestJS       | Single entry point; proxies to the services below                                           |
-| `api`                    | 3333 | NestJS       | Catalog, reviews, discount codes, checkout, orders, delivery, admin endpoints               |
-| `auth-service`           | 3334 | NestJS       | Sign-up, login, refresh, logout and password reset for shoppers, sellers, riders and admins |
-| `kafka-service`          | 3335 | Express      | Consumes `user_events` and keeps user, product and shop analytics up to date                |
-| `chatting-service`       | 3336 | Express + ws | Shopper–shop chats and support chats, carried over Kafka and delivered live over WebSockets |
-| `logger-service`         | 3337 | Express      | Stores everything published to the `logs` topic and serves it to admins                     |
-| `recommendation-service` | 3338 | Express      | Starter service for product recommendations (health check only for now)                     |
-| `user-ui-e2e`            | —    | Playwright   | End-to-end tests for user-ui                                                                |
-| `api-gateway-e2e`        | —    | Jest         | End-to-end tests for the gateway                                                            |
+| App                      | Port | Stack        | What it does                                                                                 |
+| ------------------------ | ---- | ------------ | -------------------------------------------------------------------------------------------- |
+| `user-ui`                | 4200 | Next.js      | Shop front: products, offers, reviews, cart, checkout, delivery tracking                     |
+| `seller-ui`              | 4300 | Next.js      | Seller dashboard: products, orders, payments, discount codes, service profile                |
+| `admin-ui`               | 4400 | Next.js      | Admin dashboard: users, sellers, products, events, orders, payments, logs, management        |
+| `api-gateway`            | 3000 | NestJS       | Single entry point; proxies to the services below                                            |
+| `api`                    | 3333 | NestJS       | Catalog, reviews, discount codes, checkout, orders, delivery, admin endpoints                |
+| `auth-service`           | 3334 | NestJS       | Sign-up, login, refresh, logout and password reset for shoppers, sellers, riders and admins  |
+| `kafka-service`          | 3335 | Express      | Consumes `user_events` and keeps user, product and shop analytics up to date                 |
+| `chatting-service`       | 3336 | Express + ws | Direct, shop and support chats with photos, carried over Kafka and delivered over WebSockets |
+| `logger-service`         | 3337 | Express      | Stores everything published to the `logs` topic and serves it to admins                      |
+| `recommendation-service` | 3338 | Express      | Starter service for product recommendations (health check only for now)                      |
+| `user-ui-e2e`            | —    | Playwright   | End-to-end tests for user-ui                                                                 |
+| `api-gateway-e2e`        | —    | Jest         | End-to-end tests for the gateway                                                             |
 
 Every Express service answers `GET /api` with `{ "service": "<name>", "status": "ok" }`.
 
@@ -242,11 +242,13 @@ chatting-service and logger-service also need the access-token secrets to check 
 
 ### Chat and logs
 
-| Variable               | Default                    | Description                                                |
-| ---------------------- | -------------------------- | ---------------------------------------------------------- |
-| `CHAT_ALLOWED_ORIGINS` | the three local UI origins | Browser origins allowed to open chat WebSockets            |
-| `CHAT_INSTANCE_ID`     | `<hostname>-<pid>`         | Stable name per chat instance, so it keeps its Kafka group |
-| `LOG_RETENTION_DAYS`   | `7`                        | How long logger-service keeps logs                         |
+| Variable                       | Default                    | Description                                                |
+| ------------------------------ | -------------------------- | ---------------------------------------------------------- |
+| `CHAT_ALLOWED_ORIGINS`         | the three local UI origins | Browser origins allowed to open chat WebSockets            |
+| `CHAT_INSTANCE_ID`             | `<hostname>-<pid>`         | Stable name per chat instance, so it keeps its Kafka group |
+| `CHAT_RATE_LIMIT_PER_MINUTE`   | `30`                       | Chat messages each person may send per minute              |
+| `CHAT_UPLOAD_LIMIT_PER_MINUTE` | `10`                       | Chat photos each person may upload per minute              |
+| `LOG_RETENTION_DAYS`           | `7`                        | How long logger-service keeps logs                         |
 
 ### Email, images and payments
 
@@ -255,7 +257,7 @@ chatting-service and logger-service also need the access-token secrets to check 
 | `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`           | SMTP login and sender (use a Gmail App Password) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SERVICE`        | Optional SMTP server settings                    |
 | `GMAIL_USER`, `GMAIL_PASS`                      | Gmail fallback credentials                       |
-| `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT` | Product photo uploads                            |
+| `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT` | Product and chat photo uploads                   |
 | `STRIPE_SECRET_KEY`                             | Stripe Connect onboarding for seller payouts     |
 | `APP_TIMEZONE`                                  | Time zone used by auth-service                   |
 
@@ -297,15 +299,28 @@ The services create missing topics on startup when the cluster allows it.
 
 `chatting-service` handles three kinds of chat:
 
+- **Direct messages** between any two people: shopper, seller or admin, in any combination. There's one chat per pair, whoever starts it, and only those two can read it.
 - A **shopper and a shop**. The shopper starts the chat and the shop's seller replies.
-- **Support chats** started by a shopper or a seller. Every admin sees them and any admin can reply.
-- **Support chats started by an admin** with any shopper or seller.
+- **Support chats** between a shopper or seller and MlimaLink. Either side can start one; every admin sees them and any admin can reply.
+
+Messages can carry text, up to 4 photos, or both.
 
 ### How it scales
 
-1. A message is published to `chat_messages`, keyed by conversation, so each chat stays in order.
-2. One consumer group, shared by every instance, saves it to MongoDB. A message Kafka delivers twice is stored once, because its id is chosen before it's sent.
-3. Every instance also reads the topic in its own group and pushes the message to the WebSockets connected to it. You can run as many instances as you need.
+1. The WebSocket (or REST) layer publishes each message to `chat_messages`, keyed by conversation, so each chat stays in order.
+2. One consumer group, shared by every instance, saves messages to MongoDB **in batches**: each Kafka batch becomes one `createMany`, plus one preview update per chat. Offsets are committed only after the write succeeds, so a failed batch is retried, and messages already stored are skipped, because each id is chosen before the message is sent.
+3. Every instance also reads the topic in its own group and pushes each message to the WebSockets connected to it straight away. You can run as many instances as you need.
+
+### Sending limits
+
+Each person may send `CHAT_RATE_LIMIT_PER_MINUTE` messages (default 30) and upload `CHAT_UPLOAD_LIMIT_PER_MINUTE` photos (default 10) per minute. The counts are kept in Redis, so the limits hold across every instance. If Redis is unavailable, each instance counts on its own. Over the limit, REST returns 429 and the WebSocket replies with an `error`.
+
+### Photos
+
+1. Upload the photo first: `POST /api/chat/attachments?as=` with `{ "fileName", "file" }`, where `file` is a JPEG, PNG or WebP data URL under 3 MB. It's stored in your own ImageKit folder (`/chat/<role>-<id>`) and you get back `{ "url", "fileId" }`.
+2. Send the message with `"attachments": [url, ...]`.
+
+Only URLs from your own chat folder are accepted, so a message can't point at someone else's files or other sites.
 
 ### Choosing the account
 
@@ -313,18 +328,22 @@ Every request needs `?as=user`, `?as=seller` or `?as=admin`. The service reads t
 
 ### REST API (through the gateway)
 
-| Method | Path                                               | Body                                                                      | Description                                               |
-| ------ | -------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------- |
-| GET    | `/api/chat/conversations?as=`                      |                                                                           | Your chats, most recent first (admins: all support chats) |
-| POST   | `/api/chat/conversations?as=`                      | `{ "shopId" }`, `{ "support": true }`, `{ "userId" }` or `{ "sellerId" }` | Start or resume a chat                                    |
-| GET    | `/api/chat/conversations/:id/messages?as=&before=` |                                                                           | 50 messages before `before` (ISO date), oldest first      |
-| POST   | `/api/chat/conversations/:id/messages?as=`         | `{ "body": "..." }`                                                       | Send a message (up to 2000 characters); returns 202       |
+| Method | Path                                               | Body                                                                                                    | Description                                                              |
+| ------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| GET    | `/api/chat/conversations?as=`                      |                                                                                                         | Your chats, most recent first (admins also see all support chats)        |
+| POST   | `/api/chat/conversations?as=`                      | `{ "to": { "role", "id" } }`, `{ "shopId" }`, `{ "support": true }`, `{ "userId" }` or `{ "sellerId" }` | Start or resume a chat                                                   |
+| GET    | `/api/chat/conversations/:id/messages?as=&before=` |                                                                                                         | 50 messages before `before` (ISO date), oldest first                     |
+| POST   | `/api/chat/conversations/:id/messages?as=`         | `{ "body"?, "attachments"? }`                                                                           | Send text (up to 2000 characters) and/or up to 4 photo URLs; returns 202 |
+| POST   | `/api/chat/attachments?as=`                        | `{ "fileName", "file" }`                                                                                | Upload a chat photo; returns 201 with `{ "url", "fileId" }`              |
 
 Who can open what:
 
-- Shoppers send `shopId` to message a shop, or `support: true`.
-- Sellers send `support: true`. They reply to shoppers but can't start shop chats.
-- Admins send `userId` or `sellerId`.
+- Anyone sends `to: { role: "user" | "seller" | "admin", id }` for a direct chat. You can't message yourself, or an account that doesn't exist or is suspended.
+- Shoppers send `shopId` to message a shop.
+- Shoppers and sellers send `support: true` to reach MlimaLink.
+- Admins send `userId` or `sellerId` to open a support chat with that person.
+
+Direct chats in the list include `counterpart: { role, id }`, with the other person's name as the title and their role as the subtitle.
 
 A chat you're not part of returns 404, the same as a missing one. If Kafka is unavailable, sending returns 503.
 
@@ -335,7 +354,7 @@ Connect to `ws://localhost:3000/api/chat/ws?as=user` (through the gateway) or di
 | Direction       | Message                                                                                  |
 | --------------- | ---------------------------------------------------------------------------------------- |
 | server → client | `{ "type": "ready", "you": { "role", "id", "name" } }`                                   |
-| client → server | `{ "type": "send", "conversationId", "body", "clientId"? }`                              |
+| client → server | `{ "type": "send", "conversationId", "body"?, "attachments"?, "clientId"? }`             |
 | server → client | `{ "type": "sent", "clientId", "message" }`                                              |
 | server → client | `{ "type": "error", "clientId", "message" }`                                             |
 | server → client | `{ "type": "message", "message" }`, sent to every participant, including your other tabs |

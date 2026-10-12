@@ -1,5 +1,5 @@
 import type { AccountType } from '@org/utils/auth';
-import type { ChatEnvelope } from './protocol';
+import { participantKey, type ChatEnvelope } from './protocol';
 
 /** The part of a ws WebSocket the hub uses. */
 export interface ChatSocket {
@@ -8,8 +8,6 @@ export interface ChatSocket {
 }
 
 const OPEN = 1;
-
-const keyFor = (role: AccountType, id: string) => `${role}:${id}`;
 
 /**
  * The sockets connected to this instance. Every instance reads every chat message
@@ -20,14 +18,14 @@ export class ChatHub {
   private readonly sockets = new Map<string, Set<ChatSocket>>();
 
   add(role: AccountType, id: string, socket: ChatSocket): void {
-    const key = keyFor(role, id);
+    const key = participantKey(role, id);
     const set = this.sockets.get(key) ?? new Set();
     set.add(socket);
     this.sockets.set(key, set);
   }
 
   remove(role: AccountType, id: string, socket: ChatSocket): void {
-    const key = keyFor(role, id);
+    const key = participantKey(role, id);
     const set = this.sockets.get(key);
     set?.delete(socket);
     if (set?.size === 0) this.sockets.delete(key);
@@ -46,8 +44,9 @@ export class ChatHub {
     const addAll = (key: string) =>
       this.sockets.get(key)?.forEach((socket) => targets.add(socket));
 
-    if (audience.userId) addAll(keyFor('user', audience.userId));
-    if (audience.sellerId) addAll(keyFor('seller', audience.sellerId));
+    if (audience.userId) addAll(participantKey('user', audience.userId));
+    if (audience.sellerId) addAll(participantKey('seller', audience.sellerId));
+    audience.participants?.forEach(addAll);
     if (audience.support) {
       for (const key of this.sockets.keys()) {
         if (key.startsWith('admin:')) addAll(key);

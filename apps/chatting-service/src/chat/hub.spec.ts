@@ -15,6 +15,7 @@ const message = {
   senderId: userId,
   senderName: 'Amina',
   body: 'Hello',
+  attachments: [],
   createdAt: '2026-10-08T09:30:00.000Z',
 };
 const shopChat: ChatEnvelope = {
@@ -57,6 +58,26 @@ describe('ChatHub', () => {
     expect(hub.deliver({ message, audience: { userId, support: true } })).toBe(
       3,
     );
+  });
+
+  it('sends direct chats to just the two people in them', () => {
+    const hub = new ChatHub();
+    const adminId = 'f'.repeat(24);
+    const [admin, otherAdmin, shopper] = [socket(), socket(), socket()];
+    hub.add('admin', adminId, admin);
+    hub.add('admin', 'e'.repeat(24), otherAdmin);
+    hub.add('user', userId, shopper);
+
+    const delivered = hub.deliver({
+      message,
+      audience: {
+        participants: [`admin:${adminId}`, `user:${userId}`],
+        support: false,
+      },
+    });
+
+    expect(delivered).toBe(2);
+    expect(otherAdmin.send).not.toHaveBeenCalled();
   });
 
   it('skips closed sockets and forgets removed ones', () => {
