@@ -11,7 +11,7 @@ import {
   NOTIFICATIONS_PAGE_SIZE,
   type NotificationList,
   type NotificationStatus,
-} from '@org/models';
+} from '@org/models/notifications';
 import {
   NOTIFICATIONS_KEY,
   NOTIFICATION_LISTS_KEY,

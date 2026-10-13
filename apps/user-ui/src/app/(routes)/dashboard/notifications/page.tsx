@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Bell } from 'lucide-react';
-import { notificationTime, type NotificationStatus } from '@org/models';
+import {
+  notificationTime,
+  type NotificationStatus,
+} from '@org/models/notifications';
 import {
   useNotificationsFeed,
   useUnreadNotifications,
