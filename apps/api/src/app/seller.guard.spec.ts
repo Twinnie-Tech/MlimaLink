@@ -38,7 +38,7 @@ describe('SellerGuard', () => {
     vi.unstubAllEnvs();
   });
 
-  it("attaches the seller's shop", async () => {
+  it("attaches the seller's shop and id", async () => {
     const shop = { id: 'shop1', name: 'Mlima Boutique' };
     findUnique.mockResolvedValue(shop);
     const req: Record<string, unknown> = {
@@ -48,6 +48,7 @@ describe('SellerGuard', () => {
 
     await expect(guard.canActivate(contextFor(req))).resolves.toBe(true);
     expect(req.shop).toEqual(shop);
+    expect(req.sellerId).toBe('s1');
     expect(findUnique.mock.calls[0][0].where).toEqual({ sellerId: 's1' });
   });
 

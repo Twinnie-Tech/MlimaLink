@@ -621,6 +621,27 @@ model conversation_reads {
   @@index([participant])
 }
 
+/// Something to tell a shopper, seller or admin, shown on their Notifications page.
+/// receiverId is the user, seller or admin id, so it's a plain id like orders.userId.
+/// Every admin gets their own copy of a platform notification, so each reads it separately.
+model notifications {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  /// The shopper, seller, rider or admin whose action caused it; unset when nobody did.
+  creatorId     String?  @db.ObjectId
+  receiverId    String   @db.ObjectId
+  /// A path in the receiver's own app, e.g. "/dashboard/orders".
+  redirect_link String?
+  title         String
+  message       String
+  /// "unread" or "read"
+  status        String   @default("unread")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([receiverId, createdAt])
+  @@index([receiverId, status])
+}
+
 /// A log entry from the logs topic, stored by logger-service. Entries older than
 /// LOG_RETENTION_DAYS are deleted.
 model platform_logs {

@@ -32,6 +32,7 @@ import {
 import { DEFAULT_DELIVERY_FEE } from '@org/models/delivery';
 import { DiscountCodesService } from '../discount-codes/discount-codes.service';
 import { MailService } from '../mail/mail.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma.service';
 import { isObjectId, productImageUrl } from '../products/product-mapper';
 import type { SignedInUser } from '../user.guard';
@@ -44,6 +45,13 @@ export const sellerOrdersUrl = () =>
   `${(process.env.SELLER_UI_URL ?? 'http://localhost:4300').replace(/\/+$/, '')}/dashboard/orders`;
 export const shopperOrdersUrl = () =>
   `${(process.env.USER_UI_URL ?? 'http://localhost:4200').replace(/\/+$/, '')}/dashboard/orders`;
+/** Where order notifications lead; the same path in user-ui, seller-ui and admin-ui. */
+export const ORDERS_PAGE = '/dashboard/orders';
+
+const itemCount = (order: OrderRecord) => {
+  const count = order.items.reduce((total, item) => total + item.quantity, 0);
+  return `${count} ${count === 1 ? 'item' : 'items'}`;
+};
 
 /** "ML-7Q2K9D": short enough to read out over the phone. */
 export const makeOrderNumber = () =>
@@ -79,6 +87,7 @@ export class CheckoutService {
     private readonly prisma: PrismaService,
     private readonly discountCodes: DiscountCodesService,
     private readonly mail: MailService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /** What the cart costs, split by shop, with each shop's delivery fee. A bad code is reported, not thrown. */
@@ -214,6 +223,20 @@ export class CheckoutService {
         ],
         link: { label: 'Track your orders', url: shopperOrdersUrl() },
       }),
+      ...created.flatMap((order) => [
+        this.notifications.notifyShop(order.shopId, {
+          creatorId: user.id,
+          title: `New order ${order.number}`,
+          message: `${order.buyerName} ordered ${itemCount(order)} for ${formatPrice(order.total)}. Confirm it from your Orders page.`,
+          redirectLink: ORDERS_PAGE,
+        }),
+        this.notifications.notifyAdmins({
+          creatorId: user.id,
+          title: `New order ${order.number}`,
+          message: `${order.buyerName} ordered ${itemCount(order)} from ${order.shopName} for ${formatPrice(order.total)}.`,
+          redirectLink: ORDERS_PAGE,
+        }),
+      ]),
     ]);
 
     return created.map((order) => toOrder(order, 'buyer'));

@@ -56,6 +56,7 @@ export class SellerOrdersController {
       id,
       parsed.status,
       parsed.note,
+      req.sellerId,
     );
     return {
       success: true,

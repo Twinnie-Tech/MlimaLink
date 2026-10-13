@@ -22,6 +22,7 @@ MlimaLink is a marketplace platform built as an [Nx](https://nx.dev) monorepo. S
 - [Kafka topics](#kafka-topics)
 - [Chat service](#chat-service)
 - [Logger service](#logger-service)
+- [Notifications](#notifications)
 - [Database (Prisma)](#database-prisma)
 - [Testing and quality checks](#testing-and-quality-checks)
 - [Continuous integration](#continuous-integration)
@@ -498,6 +499,46 @@ The Loggers page in admin-ui shows the last 200 stored lines, then every new lin
 
 ---
 
+## Notifications
+
+The API stores notifications in the `notifications` collection. Each notification has:
+
+- `creatorId`: whoever caused it.
+- `receiverId`: the shopper's user id, the seller's id (not the shop's) or the admin's id.
+- `redirect_link`: a path in the receiver's own app.
+- `title`, `message`, and `status` (`"unread"` or `"read"`).
+- `createdAt` and `updatedAt`.
+
+Every admin gets their own copy of platform notifications, so each admin reads them separately.
+
+What creates them (all link to `/dashboard/orders`):
+
+| Event                                 | Who is notified           |
+| ------------------------------------- | ------------------------- |
+| Order placed                          | The shop's seller, admins |
+| Shopper cancels before it's confirmed | The shop's seller, admins |
+| Seller confirms the order             | The shopper               |
+| Seller cancels the order              | The shopper, admins       |
+| Rider picks it up (out for delivery)  | The shopper               |
+| Rider delivers it                     | The shopper, the seller   |
+
+Saving a notification is best effort, like the order emails. If it fails, the error is logged and the order still goes through.
+
+Each account type has the same four routes under its own prefix: `/api/notifications` (shoppers), `/api/seller/notifications` (sellers) and `/api/admin/notifications` (admins). Each prefix only returns notifications for the signed-in account.
+
+| Method | Path                              | Description                                                                                         |
+| ------ | --------------------------------- | --------------------------------------------------------------------------------------------------- |
+| GET    | `<prefix>?status=&limit=&before=` | Newest first, 50 per page (100 max): `{ "items", "unread" }`; pass the last `createdAt` as `before` |
+| GET    | `<prefix>/status`                 | Unread count for badges: `{ "unread" }`                                                             |
+| PATCH  | `<prefix>/:id/read`               | Mark one as read; returns the notification                                                          |
+| PATCH  | `<prefix>/read-all`               | Mark all as read: `{ "updated" }`                                                                   |
+
+To notify someone from another API service, inject `NotificationsService` (export of `NotificationsModule`) and call `notify([...])`, `notifyShop(shopId, ...)` or `notifyAdmins(...)`.
+
+In each UI, the Notifications page and the sidebar's unread count check for new notifications every 30 seconds. Opening a notification's link marks it read.
+
+---
+
 ## Database (Prisma)
 
 The schema is in `prisma/schema.prisma` (MongoDB). After changing it:
@@ -522,6 +563,7 @@ Main collections:
 - **Analytics:** `user_analytics`, `product_analytics`, `shop_analytics`
 - **Chat:** `conversations`, `chat_messages`
 - **Logs:** `platform_logs`
+- **Notifications:** `notifications`
 
 ---
 

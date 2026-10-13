@@ -410,14 +410,90 @@ describe('Preview pages', () => {
     ).toBe('true');
     expect(screen.getByText('Current logo')).toBeTruthy();
   });
+});
 
-  it('marks example notifications as read', async () => {
+describe('Notifications', () => {
+  const notification = (
+    id: string,
+    status: 'unread' | 'read',
+    title: string,
+  ) => ({
+    id,
+    creatorId: 'u1',
+    receiverId: admin.id,
+    title,
+    message: 'Amina ordered 2 items from Kicks KE for $105.00.',
+    redirectLink: '/dashboard/orders',
+    status,
+    createdAt: '2026-10-13T09:00:00.000Z',
+    updatedAt: '2026-10-13T09:00:00.000Z',
+  });
+  const newOrder = notification('n1', 'unread', 'New order ML-7Q2K9D');
+  const cancelled = notification('n2', 'read', 'Order ML-4H8P2C cancelled');
+
+  function withNotifications(unread: number, items: unknown[]) {
+    reply('GET /api/admin/notifications/status', 200, {
+      success: true,
+      data: { unread },
+    });
+    reply('GET /api/admin/notifications', 200, {
+      success: true,
+      data: { items, unread },
+    });
+  }
+
+  it('lists the admin’s notifications and marks one as read', async () => {
+    withNotifications(1, [newOrder, cancelled]);
+    withNotifications(0, [{ ...newOrder, status: 'read' }, cancelled]);
+    reply('PATCH /api/admin/notifications/n1/read', 200, {
+      success: true,
+      data: { ...newOrder, status: 'read' },
+    });
     renderDashboard(<NotificationsPage />);
-    expect((await screen.findAllByText('Unread')).length).toBeGreaterThan(0);
 
+    const list = await screen.findByRole('list', { name: 'Notifications' });
+    expect(within(list).getAllByRole('listitem')).toHaveLength(2);
+    expect(within(list).getAllByText('Unread')).toHaveLength(1);
+    expect(screen.getByText(/1 unread\./)).toBeTruthy();
+    expect(
+      within(list)
+        .getAllByRole('link', { name: 'View' })[0]
+        .getAttribute('href'),
+    ).toBe('/dashboard/orders');
+    expect(
+      await screen.findByRole('link', { name: 'Notifications 1 unread' }),
+    ).toBeTruthy();
+
+    fireEvent.click(
+      within(list).getByRole('button', {
+        name: 'Mark "New order ML-7Q2K9D" as read',
+      }),
+    );
+
+    await waitFor(() => expect(within(list).queryByText('Unread')).toBeNull());
+    expect(fetchCalls()).toContain('PATCH /api/admin/notifications/n1/read');
+  });
+
+  it('marks everything read and filters to unread', async () => {
+    withNotifications(1, [newOrder, cancelled]);
+    reply('PATCH /api/admin/notifications/read-all', 200, {
+      success: true,
+      data: { updated: 1 },
+    });
+    reply('GET /api/admin/notifications?status=unread', 200, {
+      success: true,
+      data: { items: [], unread: 0 },
+    });
+    renderDashboard(<NotificationsPage />);
+
+    await screen.findByRole('list', { name: 'Notifications' });
     fireEvent.click(screen.getByRole('button', { name: 'Mark all as read' }));
+    await waitFor(() =>
+      expect(fetchCalls()).toContain('PATCH /api/admin/notifications/read-all'),
+    );
 
-    expect(screen.queryByText('Unread')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Unread' }));
+    expect(await screen.findByText('You’re all caught up')).toBeTruthy();
   });
 });
 

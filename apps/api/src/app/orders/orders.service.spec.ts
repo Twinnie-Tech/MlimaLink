@@ -1,9 +1,12 @@
 import type { MailService } from '../mail/mail.service';
+import type { NotificationsService } from '../notifications/notifications.service';
 import type { PrismaService } from '../prisma.service';
 import { OrdersService } from './orders.service';
 import {
   ORDER_ID,
   RIDER_ID,
+  SHOP_ID,
+  USER_ID,
   deliveryRecord,
   orderRecord,
   rider,
@@ -30,9 +33,15 @@ describe('OrdersService', () => {
     products: { findUnique: vi.fn(), updateMany: vi.fn() },
   };
   const mail = { send: vi.fn() };
+  const notifications = {
+    notify: vi.fn(),
+    notifyShop: vi.fn(),
+    notifyAdmins: vi.fn(),
+  };
   const service = new OrdersService(
     prisma as unknown as PrismaService,
     mail as unknown as MailService,
+    notifications as unknown as NotificationsService,
   );
 
   beforeEach(() => {
@@ -113,6 +122,16 @@ describe('OrdersService', () => {
         prisma.products.updateMany.mock.calls[0][0].data.variants.set[0].stock,
       ).toBe(3);
       expect(mail.send.mock.calls[0][0].to).toBe('kicks@example.com');
+      expect(notifications.notifyShop).toHaveBeenCalledWith(SHOP_ID, {
+        creatorId: USER_ID,
+        title: 'Order ML-7Q2K9D was cancelled by the shopper',
+        message:
+          'Amina cancelled it before you confirmed it. The items are back in stock.',
+        redirectLink: '/dashboard/orders',
+      });
+      expect(notifications.notifyAdmins.mock.calls[0][0].title).toBe(
+        'Order ML-7Q2K9D cancelled',
+      );
     });
 
     it('refuses once the shop has confirmed', async () => {
@@ -126,19 +145,36 @@ describe('OrdersService', () => {
   });
 
   describe('updateForShop', () => {
-    it('confirms a new order and emails the shopper', async () => {
+    it('confirms a new order and emails and notifies the shopper', async () => {
       prisma.orders.findFirst.mockResolvedValue(
         orderRecord({ status: 'placed' }),
       );
       prisma.orders.findUnique.mockResolvedValue(orderRecord());
 
-      const order = await service.updateForShop(shop, ORDER_ID, 'confirmed');
+      const order = await service.updateForShop(
+        shop,
+        ORDER_ID,
+        'confirmed',
+        undefined,
+        'seller1',
+      );
 
       expect(order.status).toBe('confirmed');
       expect(mail.send.mock.calls[0][0]).toMatchObject({
         to: 'amina@example.com',
         subject: 'Kicks KE confirmed order ML-7Q2K9D',
       });
+      expect(notifications.notify).toHaveBeenCalledWith([
+        {
+          receiverId: USER_ID,
+          creatorId: 'seller1',
+          title: 'Kicks KE confirmed order ML-7Q2K9D',
+          message:
+            'They’re getting it ready. We’ll let you know when a rider is on the way.',
+          redirectLink: '/dashboard/orders',
+        },
+      ]);
+      expect(notifications.notifyAdmins).not.toHaveBeenCalled();
     });
 
     it('withdraws a waiting delivery and tells the rider when cancelling', async () => {
@@ -166,6 +202,12 @@ describe('OrdersService', () => {
       ]);
       expect(mail.send.mock.calls[0][0].paragraphs).toContain(
         'Their message: Sold out',
+      );
+      expect(notifications.notify.mock.calls[0][0][0].message).toBe(
+        'They can’t fulfil it, so it has been cancelled. Their message: Sold out',
+      );
+      expect(notifications.notifyAdmins.mock.calls[0][0].message).toBe(
+        'Kicks KE cancelled Amina’s order. Their message: Sold out',
       );
     });
 

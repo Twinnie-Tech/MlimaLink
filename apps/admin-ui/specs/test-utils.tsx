@@ -7,11 +7,15 @@ type Reply = { status: number; body: unknown };
 
 export const fetchMock = vi.fn();
 const replies = new Map<string, Reply[]>();
-const UNSEEN_ROUTE = 'GET /api/chat/unseen?as=admin';
+const SIDEBAR_COUNTS: Record<string, unknown> = {
+  'GET /api/chat/unseen?as=admin': { total: 0 },
+  'GET /api/admin/notifications/status': { success: true, data: { unread: 0 } },
+};
 
 /**
  * Queues a reply for `METHOD /api/path`. Unqueued requests answer 401, like a
- * signed-out browser, except the sidebar's unseen chat count, which answers zero.
+ * signed-out browser, except the sidebar's unseen chat and unread notification
+ * counts, which answer zero.
  */
 export function reply(route: string, status: number, body: unknown) {
   const queue = replies.get(route) ?? [];
@@ -26,8 +30,8 @@ export function installFetchMock() {
     const route = `${init?.method ?? 'GET'} ${url}`;
     const { status, body } =
       replies.get(route)?.shift() ??
-      (route === UNSEEN_ROUTE
-        ? { status: 200, body: { total: 0 } }
+      (route in SIDEBAR_COUNTS
+        ? { status: 200, body: SIDEBAR_COUNTS[route] }
         : {
             status: 401,
             body: { success: false, error: 'Unauthorized! Please log in.' },

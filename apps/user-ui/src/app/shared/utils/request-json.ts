@@ -2,7 +2,7 @@ import { AuthRequestError } from './auth-api';
 
 /** Calls the gateway with the session cookies and turns failures into readable `AuthRequestError`s. */
 export async function requestJson<T>(
-  method: 'GET' | 'POST' | 'PUT',
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH',
   url: string,
   body?: unknown,
 ): Promise<T> {

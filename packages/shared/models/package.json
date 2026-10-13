@@ -51,6 +51,11 @@
       "import": "./src/lib/chat.model.ts",
       "default": "./src/lib/chat.model.ts"
     },
+    "./notifications": {
+      "types": "./src/lib/notification.model.ts",
+      "import": "./src/lib/notification.model.ts",
+      "default": "./src/lib/notification.model.ts"
+    },
     "./package.json": "./package.json"
   },
   "nx": {

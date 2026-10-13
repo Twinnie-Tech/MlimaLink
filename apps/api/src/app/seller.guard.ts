@@ -11,7 +11,7 @@ const SELLER_AUDIENCE = 'seller';
 const TOKEN_ISSUER = 'mlimalink-auth';
 
 export type SellerShop = { id: string; name: string };
-export type SellerRequest = Request & { shop: SellerShop };
+export type SellerRequest = Request & { shop: SellerShop; sellerId: string };
 
 /** Returns the seller id from a seller access token, or throws a 401. */
 export function verifySellerAccessToken(token: string | undefined): string {
@@ -48,7 +48,7 @@ function readToken(req: Request): string | undefined {
   return header?.startsWith('Bearer ') ? header.slice(7) : undefined;
 }
 
-/** Lets through signed-in sellers who have a shop, and attaches the shop as `req.shop`. */
+/** Lets through signed-in sellers who have a shop, and attaches the shop as `req.shop` and the seller's id as `req.sellerId`. */
 @Injectable()
 export class SellerGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}
@@ -70,6 +70,7 @@ export class SellerGuard implements CanActivate {
     }
 
     req.shop = shop;
+    req.sellerId = sellerId;
     return true;
   }
 }

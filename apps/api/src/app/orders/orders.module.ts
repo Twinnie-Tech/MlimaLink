@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { DiscountCodesModule } from '../discount-codes/discount-codes.module';
 import { EventsModule } from '../events/events.module';
 import { MailService } from '../mail/mail.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { PrismaService } from '../prisma.service';
 import { RiderGuard } from '../rider.guard';
 import { SellerGuard } from '../seller.guard';
@@ -14,7 +15,7 @@ import { RiderController } from './rider.controller';
 import { SellerOrdersController } from './seller-orders.controller';
 
 @Module({
-  imports: [DiscountCodesModule, EventsModule],
+  imports: [DiscountCodesModule, EventsModule, NotificationsModule],
   controllers: [OrdersController, SellerOrdersController, RiderController],
   providers: [
     CheckoutService,
