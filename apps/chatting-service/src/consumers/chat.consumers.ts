@@ -1,10 +1,10 @@
-import { hostname } from 'node:os';
 import type { Consumer, ConsumerRunConfig, KafkaMessage } from 'kafkajs';
 import { ensureTopic, getKafka } from '@org/utils/kafka';
 import { storeMessages } from '../chat/conversations';
 import type { ChatHub } from '../chat/hub';
 import {
   CHAT_MESSAGES_TOPIC,
+  instanceId,
   parseChatEnvelope,
   type ChatEnvelope,
 } from '../chat/protocol';
@@ -17,10 +17,8 @@ export const CHAT_PERSISTENCE_GROUP = 'chat-persistence-group';
  * One group per instance, so every instance sees every message and can deliver it to
  * its own sockets. Set CHAT_INSTANCE_ID to keep the same group across restarts.
  */
-export function deliveryGroupId(
-  instanceId = process.env.CHAT_INSTANCE_ID?.trim(),
-): string {
-  return `chat-delivery-${instanceId || `${hostname()}-${process.pid}`}`;
+export function deliveryGroupId(instance = instanceId()): string {
+  return `chat-delivery-${instance}`;
 }
 
 function readEnvelope(message: KafkaMessage): ChatEnvelope | null {
@@ -89,14 +87,18 @@ export function startPersistenceConsumer(): Promise<() => Promise<void>> {
   });
 }
 
-/** Pushes each chat message to the participants connected to this instance. */
+/**
+ * Pushes each chat event to the participants connected to this instance, except those
+ * this instance already pushed when it published them.
+ */
 export function startDeliveryConsumer(
   hub: ChatHub,
+  instance = instanceId(),
 ): Promise<() => Promise<void>> {
-  return startConsumer(deliveryGroupId(), {
+  return startConsumer(deliveryGroupId(instance), {
     eachMessage: async ({ message }) => {
       const envelope = readEnvelope(message);
-      if (envelope) hub.deliver(envelope);
+      if (envelope && envelope.origin !== instance) hub.deliver(envelope);
     },
   });
 }

@@ -67,6 +67,7 @@
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/throttler": "^6.7.0",
+    "@org/utils": "^0.0.1",
     "cookie-parser": "^1.4.7",
     "http-proxy-middleware": "^3.0.7",
     "morgan": "^1.12.1",

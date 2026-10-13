@@ -88,7 +88,7 @@ beforeEach(() => {
 describe('deliveryGroupId', () => {
   it('gives each instance its own group', () => {
     expect(deliveryGroupId('chat-1')).toBe('chat-delivery-chat-1');
-    expect(deliveryGroupId('')).toMatch(/^chat-delivery-.+-\d+$/);
+    expect(deliveryGroupId()).toMatch(/^chat-delivery-.+-\d+$/);
   });
 });
 
@@ -172,6 +172,22 @@ describe('startDeliveryConsumer', () => {
     await deliverer()(JSON.stringify(envelope));
 
     expect(deliver).toHaveBeenCalledWith(envelope);
+  });
+
+  it('skips events this instance already delivered when it published them', async () => {
+    const hub = new ChatHub();
+    const deliver = vi.spyOn(hub, 'deliver');
+    await startDeliveryConsumer(hub, 'chat-1');
+    const updated = { ...envelope, type: 'updated' };
+
+    expect(kafka.consumer).toHaveBeenCalledWith({
+      groupId: 'chat-delivery-chat-1',
+    });
+    await deliverer()(JSON.stringify({ ...updated, origin: 'chat-1' }));
+    expect(deliver).not.toHaveBeenCalled();
+
+    await deliverer()(JSON.stringify({ ...updated, origin: 'chat-2' }));
+    expect(deliver).toHaveBeenCalledWith({ ...updated, origin: 'chat-2' });
   });
 
   it('disconnects when it can’t subscribe', async () => {

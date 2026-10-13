@@ -139,8 +139,12 @@ export class ChatHub {
       }
     }
 
-    // The event as clients see it: who it's for stays on the server.
-    const data = JSON.stringify({ ...envelope, audience: undefined });
+    // The event as clients see it: who it's for and where it came from stay on the server.
+    const data = JSON.stringify({
+      ...envelope,
+      audience: undefined,
+      origin: undefined,
+    });
     let sent = 0;
     for (const socket of targets) {
       if (socket.readyState !== OPEN) continue;

@@ -56,7 +56,7 @@ describe('ChatHub', () => {
     expect(admin.send).not.toHaveBeenCalled();
   });
 
-  it('passes on edits and seen receipts the same way, without who they’re for', () => {
+  it('passes on edits and seen receipts the same way, without who they’re for or where from', () => {
     const hub = new ChatHub();
     const seller = socket();
     hub.add('seller', sellerId, seller);
@@ -67,7 +67,12 @@ describe('ChatHub', () => {
       lastReadAt: '2026-10-08T10:00:00.000Z',
     };
 
-    hub.deliver({ type: 'updated', message: edited, audience: shopAudience });
+    hub.deliver({
+      type: 'updated',
+      message: edited,
+      audience: shopAudience,
+      origin: 'chat-1',
+    });
     hub.deliver({ type: 'seen', ...seen, audience: shopAudience });
 
     expect(seller.send).toHaveBeenCalledWith(

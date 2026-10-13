@@ -11,6 +11,7 @@ import './env';
 
 import { disconnectProducer } from '@org/utils/kafka';
 import { createApp } from './app';
+import { deliverLocallyWith } from './chat/conversations';
 import { ChatHub } from './chat/hub';
 import { closePresenceBus } from './chat/presence-bus';
 import {
@@ -25,6 +26,7 @@ import { CHAT_SOCKET_PATH, attachChatSockets } from './ws';
 const CONSUMER_RETRY_MS = 30_000;
 
 const hub = new ChatHub();
+deliverLocallyWith((envelope) => hub.deliver(envelope));
 const port = Number(process.env.CHAT_SERVICE_PORT) || 3336;
 const server = createApp({ hub }).listen(port, () => {
   console.log(`Chatting service listening at http://localhost:${port}/api`);

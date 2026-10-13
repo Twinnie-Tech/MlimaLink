@@ -4,10 +4,9 @@ import express, {
   type Request,
   type Response,
 } from 'express';
-import { readAccessToken, verifyAccessToken } from '@org/utils/auth';
 import { isLogLevel } from '@org/utils/logs';
+import { findSignedInAdmin } from './admin-auth';
 import { listSources, queryLogs, type LogQuery } from './logs/store';
-import { prisma } from './prisma';
 
 const MAX_FILTER_LENGTH = 200;
 
@@ -22,17 +21,7 @@ class HttpError extends Error {
 
 /** Logs can hold anything a service wrote, so only signed-in admins may read them. */
 async function requireAdmin(req: Request, _res: Response, next: NextFunction) {
-  const verified = verifyAccessToken(
-    readAccessToken(req.headers, 'admin'),
-    'admin',
-  );
-  const admin =
-    verified &&
-    (await prisma.admins.findUnique({
-      where: { id: verified.id },
-      select: { id: true },
-    }));
-  if (!admin) {
+  if (!(await findSignedInAdmin(req.headers))) {
     // admin-ui refreshes the session when it sees this 401.
     throw new HttpError(401, 'Please log in as an admin to continue.');
   }

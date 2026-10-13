@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { hostname } from 'node:os';
 import { isAccountType, type AccountType } from '@org/utils/auth';
 
 /**
@@ -97,11 +98,16 @@ export interface ChatAudience {
   support: boolean;
 }
 
+/** Names this instance; set CHAT_INSTANCE_ID to keep the same name across restarts. */
+export const instanceId = () =>
+  process.env.CHAT_INSTANCE_ID?.trim() || `${hostname()}-${process.pid}`;
+
 /**
  * What's published to the chat_messages topic. Only new messages are stored from it;
  * edits are written before they're published, and seen and typing are only delivered.
+ * `origin` names the instance that already delivered it to its own sockets.
  */
-export type ChatEnvelope =
+export type ChatEnvelope = (
   | { type: 'message'; message: ChatMessage; audience: ChatAudience }
   | { type: 'updated'; message: ChatMessage; audience: ChatAudience }
   | {
@@ -117,7 +123,8 @@ export type ChatEnvelope =
       conversationId: string;
       from: { key: string; name: string };
       audience: ChatAudience;
-    };
+    }
+) & { origin?: string };
 
 const OBJECT_ID = /^[a-f\d]{24}$/i;
 
@@ -396,6 +403,13 @@ export function parseChatEnvelope(
   } catch {
     return null;
   }
+  const envelope = parseEnvelopeBody(data);
+  return envelope && typeof data.origin === 'string' && data.origin
+    ? { ...envelope, origin: data.origin }
+    : envelope;
+}
+
+function parseEnvelopeBody(data: Record<string, unknown>): ChatEnvelope | null {
   const audience = parseAudience(
     data.audience as Record<string, unknown> | undefined,
   );

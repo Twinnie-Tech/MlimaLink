@@ -1,7 +1,9 @@
-import { getProducer } from '../kafka/index.js';
+import { ensureTopic, getKafka, getProducer } from '../kafka/index.js';
 
-/** Topic every service publishes its logs to. */
+/** Topic every service publishes its logs to; logger-service keeps them for a while. */
 export const LOGS_TOPIC = 'logs';
+/** Activity, like each request through the gateway: shown live to admins, never kept. */
+export const LIVE_LOGS_TOPIC = 'live_logs';
 
 export const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
 export type LogLevel = (typeof LOG_LEVELS)[number];
@@ -95,4 +97,80 @@ export async function sendLog(entry: LogEntry): Promise<boolean> {
     );
     return false;
   }
+}
+
+export interface LogBatcher {
+  push(entry: LogEntry): void;
+  /** Sends what's waiting now. Never throws. */
+  flush(): Promise<void>;
+  /** Sends what's waiting and stops the timer, e.g. on shutdown. */
+  stop(): Promise<void>;
+}
+
+/**
+ * Collects entries and publishes them together every `everyMs`, or as soon as `maxBatch`
+ * are waiting, so a busy service makes one Kafka request instead of one per entry. While
+ * Kafka is unreachable entries are dropped, keeping at most ten batches waiting, and the
+ * failure is reported once until a send works again.
+ */
+export function createLogBatcher({
+  topic = LOGS_TOPIC,
+  everyMs = 1000,
+  maxBatch = 200,
+}: { topic?: string; everyMs?: number; maxBatch?: number } = {}): LogBatcher {
+  const maxWaiting = maxBatch * 10;
+  let waiting: LogEntry[] = [];
+  let sending: Promise<void> | null = null;
+  let failing = false;
+  let topicChecked: Promise<void> | null = null;
+
+  const send = async (entries: LogEntry[]) => {
+    try {
+      topicChecked ??= ensureTopic(getKafka(), topic);
+      await topicChecked;
+      const connected = await getProducer();
+      await connected.send({
+        topic,
+        messages: entries.map((entry) => ({
+          key: entry.source,
+          value: JSON.stringify(entry),
+        })),
+      });
+      failing = false;
+    } catch (error) {
+      if (!failing) {
+        console.error(
+          `Couldn't send ${entries.length} log(s) to ${topic}: ${error instanceof Error ? error.message : error}`,
+        );
+      }
+      failing = true;
+    }
+  };
+
+  const flush = async () => {
+    while (sending) await sending;
+    if (waiting.length === 0) return;
+    const entries = waiting;
+    waiting = [];
+    sending = send(entries).finally(() => {
+      sending = null;
+    });
+    await sending;
+  };
+
+  const timer = setInterval(() => void flush(), everyMs);
+  timer.unref?.();
+
+  return {
+    push(entry) {
+      waiting.push(entry);
+      if (waiting.length > maxWaiting) waiting = waiting.slice(-maxWaiting);
+      if (waiting.length >= maxBatch && !sending) void flush();
+    },
+    flush,
+    async stop() {
+      clearInterval(timer);
+      await flush();
+    },
+  };
 }

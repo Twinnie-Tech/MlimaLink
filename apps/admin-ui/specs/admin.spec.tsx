@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
   AdminOverview,
@@ -21,6 +27,7 @@ import NotificationsPage from '../src/app/dashboard/notifications/page';
 import { niceMax } from '../src/app/shared/dashboard/charts';
 import { globeMarkers } from '../src/app/shared/dashboard/world-globe';
 import {
+  FakeWebSocket,
   admin,
   fill,
   installFetchMock,
@@ -404,22 +411,6 @@ describe('Preview pages', () => {
     expect(screen.getByText('Current logo')).toBeTruthy();
   });
 
-  it('filters example log lines by level', async () => {
-    renderDashboard(<LoggersPage />);
-    const table = await screen.findByRole('table', { name: 'Logs' });
-
-    fireEvent.change(screen.getByRole('combobox', { name: 'Level' }), {
-      target: { value: 'error' },
-    });
-
-    const levels = within(table)
-      .getAllByRole('row')
-      .slice(1)
-      .map((row) => within(row).getAllByRole('cell')[1].textContent);
-    expect(levels.length).toBeGreaterThan(0);
-    expect(new Set(levels)).toEqual(new Set(['ERROR']));
-  });
-
   it('marks example notifications as read', async () => {
     renderDashboard(<NotificationsPage />);
     expect((await screen.findAllByText('Unread')).length).toBeGreaterThan(0);
@@ -427,6 +418,111 @@ describe('Preview pages', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mark all as read' }));
 
     expect(screen.queryByText('Unread')).toBeNull();
+  });
+});
+
+describe('Loggers', () => {
+  const line = (
+    id: string,
+    level: string,
+    source: string,
+    message: string,
+    timestamp: string,
+  ) => ({ id, level, source, message, timestamp });
+
+  const stored = [
+    line(
+      's2',
+      'error',
+      'auth-service',
+      'Login failed',
+      '2026-10-13T09:00:02.000Z',
+    ),
+    line(
+      's1',
+      'info',
+      'api-gateway',
+      'GET /api/admin/overview 200 12ms · admin a1',
+      '2026-10-13T09:00:01.000Z',
+    ),
+  ];
+
+  function logsSocket() {
+    const socket = FakeWebSocket.instances.findLast((ws) =>
+      ws.url.endsWith('/api/logs/ws'),
+    );
+    if (!socket) throw new Error('No logs socket');
+    return socket;
+  }
+
+  const messages = (table: HTMLElement) =>
+    within(table)
+      .getAllByRole('row')
+      .slice(1)
+      .map((row) => within(row).getAllByRole('cell')[3].textContent);
+
+  it('shows recent history oldest first, then appends live lines with their service', async () => {
+    reply('GET /api/logs?limit=200', 200, {
+      logs: stored,
+      sources: ['api-gateway', 'auth-service'],
+    });
+    renderDashboard(<LoggersPage />);
+
+    const table = await screen.findByRole('table', { name: 'Logs' });
+    expect(messages(table)).toEqual([
+      'GET /api/admin/overview 200 12ms · admin a1',
+      'Login failed',
+    ]);
+
+    const socket = logsSocket();
+    socket.open();
+    socket.receive({ type: 'ready' });
+    expect(await screen.findByText('Live')).toBeTruthy();
+
+    socket.receive({
+      type: 'log',
+      log: line(
+        'logs-0-7',
+        'info',
+        'chatting-service',
+        'Message sent in c1',
+        '2026-10-13T09:00:03.000Z',
+      ),
+    });
+    // The stored line also comes past live; it isn't shown twice.
+    socket.receive({ type: 'log', log: { ...stored[0], id: 'logs-0-6' } });
+
+    await waitFor(() => expect(messages(table)).toHaveLength(3));
+    expect(messages(table)[2]).toBe('Message sent in c1');
+    expect(within(table).getByText('chatting-service')).toBeTruthy();
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Service' }), {
+      target: { value: 'chatting-service' },
+    });
+    expect(messages(table)).toEqual(['Message sent in c1']);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Level' }), {
+      target: { value: 'error' },
+    });
+    expect(screen.getByText('No log lines found')).toBeTruthy();
+  });
+
+  it('renews the session and reconnects when the live feed says it expired', async () => {
+    reply('GET /api/logs?limit=200', 200, { logs: [], sources: [] });
+    reply('POST /api/auth/refresh-token/admin', 200, { success: true });
+    renderDashboard(<LoggersPage />);
+
+    expect(await screen.findByText('Waiting for activity')).toBeTruthy();
+    const first = logsSocket();
+    first.receive({ type: 'ready' });
+
+    act(() => first.onclose?.({ code: 4001 }));
+    expect(await screen.findByText('Reconnecting…')).toBeTruthy();
+
+    await waitFor(() => expect(logsSocket()).not.toBe(first), {
+      timeout: 3000,
+    });
+    expect(fetchCalls()).toContain('POST /api/auth/refresh-token/admin');
   });
 });
 

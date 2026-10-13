@@ -70,9 +70,11 @@
     "dotenv": "^18.0.3",
     "express": "^5.1.0",
     "kafkajs": "^2.2.4",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0"
+    "@types/express": "^5.0.0",
+    "@types/ws": "^8.18.1"
   }
 }

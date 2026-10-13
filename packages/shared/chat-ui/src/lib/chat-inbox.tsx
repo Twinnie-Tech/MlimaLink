@@ -143,6 +143,8 @@ export function ChatInbox({
   const stickToBottomRef = useRef(true);
   const heightBeforeOlderRef = useRef<number | null>(null);
   const handleEventRef = useRef<(event: ChatEvent) => void>(() => undefined);
+  /** How many of your reactions are on their way, by message id. */
+  const reacting = useRef(new Map<string, number>());
   const latestRef = useRef({ conversationId, chats });
 
   // Back/forward and links change the URL; follow them.
@@ -335,7 +337,7 @@ export function ChatInbox({
         return;
       }
       if (event.type === 'updated') {
-        replaceInThread(event.message);
+        replaceInThread(keepPendingReaction(event.message));
         return;
       }
       if (event.type === 'seen') {
@@ -556,6 +558,63 @@ export function ChatInbox({
       (error: unknown) => {
         setSendError(errorText(error));
         return false;
+      },
+    );
+  }
+
+  /** Your own reaction while it's on its way, so a live update doesn't undo it. */
+  function keepPendingReaction(message: ChatMessage): ChatMessage {
+    if (!reacting.current.has(message.id)) return message;
+    const shown = queryClient
+      .getQueryData<Pages>(chatKeys.messages(account, message.conversationId))
+      ?.pages.flatMap((page) => page.messages)
+      .find(({ id }) => id === message.id);
+    if (!shown) return message;
+    const mine = shown.reactions.filter(({ key }) => key === myKey);
+    return {
+      ...message,
+      reactions: [
+        ...message.reactions.filter(({ key }) => key !== myKey),
+        ...mine,
+      ],
+    };
+  }
+
+  /**
+   * Shows the reaction straight away, the way the server will store it: the same emoji
+   * again takes it away. The server's answer then replaces it, once no other reaction to
+   * that message is on its way; a refusal reloads the chat.
+   */
+  function react(message: ChatMessage, emoji: string) {
+    const mine = message.reactions.find(({ key }) => key === myKey);
+    const others = message.reactions.filter(({ key }) => key !== myKey);
+    replaceInThread({
+      ...message,
+      reactions:
+        mine?.emoji === emoji
+          ? others
+          : [...others, { emoji, key: myKey, name: mine?.name ?? 'You' }],
+    });
+    const inFlight = reacting.current;
+    inFlight.set(message.id, (inFlight.get(message.id) ?? 0) + 1);
+    const settle = () => {
+      const left = (inFlight.get(message.id) ?? 1) - 1;
+      if (left > 0) inFlight.set(message.id, left);
+      else inFlight.delete(message.id);
+      return left <= 0;
+    };
+    setSendError(null);
+    api.react(message.conversationId, message.id, emoji).then(
+      (saved) => {
+        if (settle()) replaceInThread(saved);
+      },
+      (error: unknown) => {
+        setSendError(errorText(error));
+        if (settle()) {
+          void queryClient.invalidateQueries({
+            queryKey: chatKeys.messages(account, message.conversationId),
+          });
+        }
       },
     );
   }
@@ -837,14 +896,7 @@ export function ChatInbox({
                             viewerKey={myKey}
                             onQuoteClick={jumpToMessage}
                             actions={{
-                              onReact: (emoji) =>
-                                void change(
-                                  api.react(
-                                    message.conversationId,
-                                    message.id,
-                                    emoji,
-                                  ),
-                                ),
+                              onReact: (emoji) => react(message, emoji),
                               onReply: () => {
                                 setEditing(null);
                                 setReplyTo(message);

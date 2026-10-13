@@ -300,6 +300,22 @@ describe('parseChatEnvelope', () => {
     expect(parseChatEnvelope(JSON.stringify(typing))).toEqual(typing);
   });
 
+  it('keeps which instance already delivered it', () => {
+    const typing = {
+      type: 'typing',
+      conversationId: 'c'.repeat(24),
+      from: { key: `user:${'a'.repeat(24)}`, name: 'Amina' },
+      audience: envelope.audience,
+    };
+
+    expect(
+      parseChatEnvelope(JSON.stringify({ ...typing, origin: 'chat-1' })),
+    ).toEqual({ ...typing, origin: 'chat-1' });
+    expect(parseChatEnvelope(JSON.stringify({ ...typing, origin: 7 }))).toEqual(
+      typing,
+    );
+  });
+
   it('leaves out audience ids that aren’t set', () => {
     const support = {
       ...envelope,
