@@ -8,6 +8,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import { LIVE_LOGS_TOPIC, createLogBatcher } from '@org/utils/logs';
+import { activityLogger } from './activity-log';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
@@ -22,6 +24,9 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+  // Every request, live in the admin Loggers page; never stored.
+  const activity = createLogBatcher({ topic: LIVE_LOGS_TOPIC });
+  app.use(activityLogger((entry) => activity.push(entry)));
 
   const apiTarget =
     process.env.API_URL ??
@@ -45,15 +50,16 @@ async function bootstrap() {
     ws: true,
   });
 
+  const logsProxy = createProxyMiddleware({
+    target: loggerTarget,
+    changeOrigin: true,
+    pathFilter: '/api/logs',
+    ws: true,
+  });
+
   // Must be mounted before the catch-all /api proxy below.
   expressApp.use(chatProxy);
-  expressApp.use(
-    createProxyMiddleware({
-      target: loggerTarget,
-      changeOrigin: true,
-      pathFilter: '/api/logs',
-    }),
-  );
+  expressApp.use(logsProxy);
   expressApp.use(
     '/api/auth',
     createProxyMiddleware({
@@ -82,9 +88,14 @@ async function bootstrap() {
 
   await app.listen(port, host);
   app.getHttpServer().on('upgrade', chatProxy.upgrade);
+  app.getHttpServer().on('upgrade', logsProxy.upgrade);
+  const flushActivity = () =>
+    void activity.stop().finally(() => process.exit(0));
+  process.once('SIGINT', flushActivity);
+  process.once('SIGTERM', flushActivity);
   Logger.log(`🚀 API Gateway running on: http://${host}:${port}`);
   Logger.log(`↪️  Proxying /api/chat (and WebSockets) → ${chatTarget}`);
-  Logger.log(`↪️  Proxying /api/logs → ${loggerTarget}`);
+  Logger.log(`↪️  Proxying /api/logs (and WebSockets) → ${loggerTarget}`);
   Logger.log(`↪️  Proxying /api/auth → ${authTarget}/api/auth`);
   Logger.log(`↪️  Proxying /api → ${apiTarget}/api`);
 }

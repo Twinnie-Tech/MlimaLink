@@ -60,7 +60,7 @@ MlimaLink is a marketplace platform built as an [Nx](https://nx.dev) monorepo. S
 - **Kafka connects the services:**
   - The API publishes shopper activity to `user_events`, and kafka-service turns it into analytics.
   - chatting-service carries every chat message over `chat_messages`.
-  - Services publish logs to `logs`, and logger-service stores them.
+  - Services publish logs to `logs`, and logger-service stores them. The gateway publishes every request to `live_logs`. logger-service streams both to admin-ui over a WebSocket.
 
 ---
 
@@ -76,7 +76,7 @@ MlimaLink is a marketplace platform built as an [Nx](https://nx.dev) monorepo. S
 | `auth-service`           | 3334 | NestJS       | Sign-up, login, refresh, logout and password reset for shoppers, sellers, riders and admins                      |
 | `kafka-service`          | 3335 | Express      | Consumes `user_events` and keeps user, product and shop analytics up to date                                     |
 | `chatting-service`       | 3336 | Express + ws | Direct, shop and support chats with photos, documents and GIFs, carried over Kafka and delivered over WebSockets |
-| `logger-service`         | 3337 | Express      | Stores everything published to the `logs` topic and serves it to admins                                          |
+| `logger-service`         | 3337 | Express + ws | Stores the `logs` topic for admins and streams it, plus gateway request activity, live over a WebSocket          |
 | `recommendation-service` | 3338 | Express      | Starter service for product recommendations (health check only for now)                                          |
 | `user-ui-e2e`            | —    | Playwright   | End-to-end tests for user-ui                                                                                     |
 | `api-gateway-e2e`        | —    | Jest         | End-to-end tests for the gateway                                                                                 |
@@ -192,24 +192,25 @@ Every service reads the root `.env`. `.env.example` lists the variables, and thi
 
 ### Servers and URLs
 
-| Variable                                     | Default                 | Description                                                  |
-| -------------------------------------------- | ----------------------- | ------------------------------------------------------------ |
-| `NODE_ENV`                                   | `development`           |                                                              |
-| `HOST`                                       | `0.0.0.0`               | Interface the Nest apps listen on                            |
-| `CORS_ORIGIN`                                | `http://localhost:4200` | Comma-separated origins allowed by the gateway, api and auth |
-| `GATEWAY_PORT`                               | `3000`                  |                                                              |
-| `API_PORT` / `API_URL`                       | `3333`                  | `API_URL` overrides the gateway's API target                 |
-| `AUTH_PORT` / `AUTH_SERVICE_URL`             | `3334`                  | `AUTH_SERVICE_URL` overrides the gateway's auth target       |
-| `KAFKA_SERVICE_PORT`                         | `3335`                  |                                                              |
-| `CHAT_SERVICE_PORT` / `CHAT_SERVICE_URL`     | `3336`                  | `CHAT_SERVICE_URL` overrides the gateway's chat target       |
-| `LOGGER_SERVICE_PORT` / `LOGGER_SERVICE_URL` | `3337`                  | `LOGGER_SERVICE_URL` overrides the gateway's logs target     |
-| `RECOMMENDATION_SERVICE_PORT`                | `3338`                  |                                                              |
-| `API_GATEWAY_URL`                            | `http://127.0.0.1:3000` | Where the Next.js apps send `/api/*`                         |
-| `USER_UI_URL`                                | `http://localhost:4200` | Linked from emails                                           |
-| `SELLER_UI_URL`                              | `http://localhost:4300` | Linked from emails                                           |
-| `NEXT_PUBLIC_SHOP_URL`                       | `http://localhost:4200` | Product and shop links in seller-ui and admin-ui             |
-| `NEXT_PUBLIC_SELLER_UI_URL`                  | `http://localhost:4300` | "Become a seller" link in user-ui                            |
-| `RESET_PASSWORD_URL`                         |                         | Password-reset link sent by auth-service                     |
+| Variable                                     | Default                 | Description                                                   |
+| -------------------------------------------- | ----------------------- | ------------------------------------------------------------- |
+| `NODE_ENV`                                   | `development`           |                                                               |
+| `HOST`                                       | `0.0.0.0`               | Interface the Nest apps listen on                             |
+| `CORS_ORIGIN`                                | `http://localhost:4200` | Comma-separated origins allowed by the gateway, api and auth  |
+| `GATEWAY_PORT`                               | `3000`                  |                                                               |
+| `API_PORT` / `API_URL`                       | `3333`                  | `API_URL` overrides the gateway's API target                  |
+| `AUTH_PORT` / `AUTH_SERVICE_URL`             | `3334`                  | `AUTH_SERVICE_URL` overrides the gateway's auth target        |
+| `KAFKA_SERVICE_PORT`                         | `3335`                  |                                                               |
+| `CHAT_SERVICE_PORT` / `CHAT_SERVICE_URL`     | `3336`                  | `CHAT_SERVICE_URL` overrides the gateway's chat target        |
+| `LOGGER_SERVICE_PORT` / `LOGGER_SERVICE_URL` | `3337`                  | `LOGGER_SERVICE_URL` overrides the gateway's logs target      |
+| `RECOMMENDATION_SERVICE_PORT`                | `3338`                  |                                                               |
+| `API_GATEWAY_URL`                            | `http://127.0.0.1:3000` | Where the Next.js apps send `/api/*`                          |
+| `USER_UI_URL`                                | `http://localhost:4200` | Linked from emails                                            |
+| `SELLER_UI_URL`                              | `http://localhost:4300` | Linked from emails                                            |
+| `ADMIN_UI_URL`                               | `http://localhost:4400` | Tells the gateway's activity log which UI a request came from |
+| `NEXT_PUBLIC_SHOP_URL`                       | `http://localhost:4200` | Product and shop links in seller-ui and admin-ui              |
+| `NEXT_PUBLIC_SELLER_UI_URL`                  | `http://localhost:4300` | "Become a seller" link in user-ui                             |
+| `RESET_PASSWORD_URL`                         |                         | Password-reset link sent by auth-service                      |
 
 ### Auth secrets
 
@@ -251,6 +252,9 @@ chatting-service and logger-service also need the access-token secrets to check 
 | `GIPHY_API_KEY`                | none                       | GIPHY key for GIFs and stickers in chat; without it the picker says so |
 | `NEXT_PUBLIC_CHAT_WS_URL`      | same origin `/api/chat/ws` | Chat WebSocket URL for the three UIs, if not the UI's own origin       |
 | `LOG_RETENTION_DAYS`           | `7`                        | How long logger-service keeps logs                                     |
+| `LOGS_ALLOWED_ORIGINS`         | `http://localhost:4400`    | Browser origins allowed to open the live logs WebSocket                |
+| `LOGGER_INSTANCE_ID`           | `<hostname>-<pid>`         | Stable name per logger instance, so it keeps its live Kafka group      |
+| `NEXT_PUBLIC_LOGS_WS_URL`      | same origin `/api/logs/ws` | Live logs WebSocket URL for admin-ui, if not its own origin            |
 
 ### Email, images and payments
 
@@ -287,11 +291,12 @@ Admins log in to admin-ui at `/login`. Accounts are created only with `npm run a
 
 ## Kafka topics
 
-| Topic           | Key             | Producer                | Consumer (group)                                                                                   |
-| --------------- | --------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
-| `user_events`   | user id         | api                     | kafka-service (`user-events-group`) → user, product and shop analytics                             |
-| `chat_messages` | conversation id | chatting-service        | chatting-service: `chat-persistence-group` (stores) and `chat-delivery-<instance>` (live delivery) |
-| `logs`          | source service  | any service (`sendLog`) | logger-service (`logger-service-group`) → MongoDB                                                  |
+| Topic           | Key             | Producer                | Consumer (group)                                                                                    |
+| --------------- | --------------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
+| `user_events`   | user id         | api                     | kafka-service (`user-events-group`) → user, product and shop analytics                              |
+| `chat_messages` | conversation id | chatting-service        | chatting-service: `chat-persistence-group` (stores) and `chat-delivery-<instance>` (live delivery)  |
+| `logs`          | source service  | any service (`sendLog`) | logger-service: `logger-service-group` (stores in MongoDB) and `logger-live-<instance>` (live feed) |
+| `live_logs`     | source service  | api-gateway (requests)  | logger-service (`logger-live-<instance>`) → live feed only, never stored                            |
 
 The services create missing topics on startup when the cluster allows it.
 
@@ -481,6 +486,15 @@ GET /api/logs?level=error&source=chatting-service&q=kafka&before=<ISO date>&limi
 ```
 
 The response is `{ "logs": [...], "sources": [...] }`, newest first and up to 200 per page. To get the next page, pass the last entry's timestamp as `before`.
+
+### Live logs
+
+The Loggers page in admin-ui shows the last 200 stored lines, then every new line as it happens:
+
+- **User activity.** The gateway logs every request it handles: who made it (shopper, seller, rider, admin or guest), the method, path, status and time taken. For example, `POST /api/chat/conversations 201 34ms · user 64f…`. These go to the `live_logs` topic in batches about once a second. They're shown live but never stored.
+- **Service logs.** Everything sent with `sendLog` also comes past live, as well as being stored.
+- **The WebSocket.** logger-service reads both topics with its own Kafka group per instance. It sends each line to admins connected at `/api/logs/ws` (proxied by the gateway) as `{ "type": "log", "log": { id, level, message, source, timestamp, meta? } }`. The `source` is the service that wrote the line.
+- **Access.** The socket needs an admin cookie and an origin listed in `LOGS_ALLOWED_ORIGINS`. It closes with code `4001` when the access token expires. admin-ui then renews the session and reconnects.
 
 ---
 
