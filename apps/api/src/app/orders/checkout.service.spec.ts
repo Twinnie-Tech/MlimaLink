@@ -2,6 +2,7 @@ import { AppError } from '@org/errors';
 import type { CheckoutItem, DeliveryAddress } from '@org/models';
 import type { DiscountCodesService } from '../discount-codes/discount-codes.service';
 import type { MailService } from '../mail/mail.service';
+import type { NotificationsService } from '../notifications/notifications.service';
 import type { PrismaService } from '../prisma.service';
 import {
   CheckoutService,
@@ -85,10 +86,12 @@ describe('CheckoutService', () => {
   };
   const discountCodes = { apply: vi.fn() };
   const mail = { send: vi.fn() };
+  const notifications = { notifyShop: vi.fn(), notifyAdmins: vi.fn() };
   const service = new CheckoutService(
     prisma as unknown as PrismaService,
     discountCodes as unknown as DiscountCodesService,
     mail as unknown as MailService,
+    notifications as unknown as NotificationsService,
   );
 
   beforeEach(() => {
@@ -251,6 +254,21 @@ describe('CheckoutService', () => {
           'amina@example.com',
         ]),
       );
+
+      expect(notifications.notifyShop).toHaveBeenCalledWith(SHOP_A, {
+        creatorId: user.id,
+        title: `New order ${orders[0].number}`,
+        message:
+          'Amina ordered 2 items for $105.00. Confirm it from your Orders page.',
+        redirectLink: '/dashboard/orders',
+      });
+      expect(notifications.notifyShop.mock.calls[1][0]).toBe(SHOP_B);
+      expect(notifications.notifyAdmins).toHaveBeenCalledWith({
+        creatorId: user.id,
+        title: `New order ${orders[1].number}`,
+        message: 'Amina ordered 5 items from Chai Point for $18.00.',
+        redirectLink: '/dashboard/orders',
+      });
     });
 
     it('puts stock back and stops when someone else bought it first', async () => {

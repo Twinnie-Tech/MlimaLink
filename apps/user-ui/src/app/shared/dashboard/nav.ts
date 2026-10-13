@@ -18,8 +18,8 @@ export type NavItem = {
   label: string;
   href: string;
   icon: LucideIcon;
-  /** Which shop-store count to show next to the link. */
-  badge?: 'wishlist' | 'cart';
+  /** Which count to show next to the link: a shop-store count or unread notifications. */
+  badge?: 'wishlist' | 'cart' | 'notifications';
 };
 
 export const DASHBOARD_HOME: NavItem = {
@@ -53,7 +53,12 @@ export const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
     items: [
       { label: 'Profile', href: '/dashboard/profile', icon: UserRound },
       { label: 'Addresses', href: '/dashboard/addresses', icon: MapPin },
-      { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+      {
+        label: 'Notifications',
+        href: '/dashboard/notifications',
+        icon: Bell,
+        badge: 'notifications',
+      },
       { label: 'Security', href: '/dashboard/security', icon: ShieldCheck },
     ],
   },

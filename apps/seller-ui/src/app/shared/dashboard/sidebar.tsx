@@ -11,6 +11,7 @@ import { logoutSeller, refreshSellerSession } from '../utils/seller-api';
 import { ThemeToggle } from '../widgets/theme-toggle';
 import { DASHBOARD_HOME, NAV_SECTIONS, type NavItem } from './nav';
 import { useDashboardSeller } from './seller-context';
+import { useUnreadNotifications } from './use-notifications';
 
 function isActive(pathname: string, href: string) {
   return href === DASHBOARD_HOME.href
@@ -71,6 +72,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     account: 'seller',
     refreshSession: refreshSellerSession,
   });
+  const unreadNotifications = useUnreadNotifications();
 
   const logoutMutation = useMutation({
     mutationFn: logoutSeller,
@@ -121,7 +123,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                   item={item}
                   active={isActive(pathname, item.href)}
                   onNavigate={onNavigate}
-                  count={item.unseenBadge ? unseen : 0}
+                  count={
+                    item.unseenBadge
+                      ? unseen
+                      : item.notificationsBadge
+                        ? unreadNotifications
+                        : 0
+                  }
                 />
               ))}
             </div>

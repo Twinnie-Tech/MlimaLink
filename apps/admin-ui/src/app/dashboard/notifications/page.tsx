@@ -1,126 +1,73 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { Bell } from 'lucide-react';
 import {
-  BadgeDollarSign,
-  Bell,
-  PackageCheck,
-  ShoppingBag,
-  Store,
-  UserX,
-  type LucideIcon,
-} from 'lucide-react';
+  notificationTime,
+  type NotificationStatus,
+} from '@org/models/notifications';
+import {
+  useNotificationsFeed,
+  useUnreadNotifications,
+} from '../../shared/dashboard/use-notifications';
 import {
   EmptyState,
+  ErrorNotice,
+  Loading,
   PageHeader,
   Panel,
-  PreviewNotice,
   secondaryButtonClassName,
 } from '../../shared/dashboard/ui';
 
-type Topic = 'orders' | 'accounts' | 'payments';
-
-type Notification = {
-  id: string;
-  topic: Topic;
-  icon: LucideIcon;
-  title: string;
-  body: string;
-  time: string;
-};
-
-/** Examples of what will arrive live; replaced by the WebSocket feed later. */
-const SAMPLE: Notification[] = [
-  {
-    id: 'n1',
-    topic: 'orders',
-    icon: ShoppingBag,
-    title: 'New order ML-7Q2K9D',
-    body: 'Hudson Ngira ordered 2 items from Kicks KE for $105.00.',
-    time: '5 minutes ago',
-  },
-  {
-    id: 'n2',
-    topic: 'accounts',
-    icon: Store,
-    title: 'New seller signed up',
-    body: 'Chai Corner created a shop in Nyeri and is waiting to list products.',
-    time: '1 hour ago',
-  },
-  {
-    id: 'n3',
-    topic: 'payments',
-    icon: BadgeDollarSign,
-    title: 'Fee earned',
-    body: 'MlimaLink earned $10.00 on order ML-4H8P2C once it was delivered.',
-    time: '3 hours ago',
-  },
-  {
-    id: 'n4',
-    topic: 'orders',
-    icon: PackageCheck,
-    title: 'Order delivered',
-    body: 'A rider delivered ML-4H8P2C to Ring road, Nyeri.',
-    time: '3 hours ago',
-  },
-  {
-    id: 'n5',
-    topic: 'accounts',
-    icon: UserX,
-    title: 'Shopper suspended',
-    body: 'An admin suspended a shopper account after repeated cancelled orders.',
-    time: 'Yesterday',
-  },
-];
-
-const TOPICS: { value: Topic | 'all'; label: string }[] = [
+const FILTERS: { value: NotificationStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'All' },
-  { value: 'orders', label: 'Orders' },
-  { value: 'accounts', label: 'Accounts' },
-  { value: 'payments', label: 'Payments' },
+  { value: 'unread', label: 'Unread' },
 ];
 
 export default function NotificationsPage() {
-  const [topic, setTopic] = useState<Topic | 'all'>('all');
-  const [read, setRead] = useState<Set<string>>(() => new Set(['n4', 'n5']));
-  const shown = SAMPLE.filter((n) => topic === 'all' || n.topic === topic);
-  const unread = SAMPLE.filter((n) => !read.has(n.id)).length;
+  const [filter, setFilter] = useState<NotificationStatus | 'all'>('all');
+  const unread = useUnreadNotifications();
+  const { feed, items, markRead, markAllRead } = useNotificationsFeed(
+    filter === 'all' ? undefined : filter,
+  );
+  const failure = markRead.error ?? markAllRead.error;
 
   return (
     <>
       <PageHeader
         title="Notifications"
-        description="What's happening across MlimaLink."
+        description={
+          unread > 0
+            ? `What's happening across MlimaLink. ${unread} unread.`
+            : "What's happening across MlimaLink."
+        }
         actions={
           <button
             type="button"
-            disabled={unread === 0}
-            onClick={() => setRead(new Set(SAMPLE.map((n) => n.id)))}
+            disabled={unread === 0 || markAllRead.isPending}
+            onClick={() => markAllRead.mutate()}
             className={secondaryButtonClassName}
           >
             Mark all as read
           </button>
         }
       />
-      <PreviewNotice>
-        These are examples. Live notifications will arrive here as they happen
-        once the real-time (WebSocket) feed is connected.
-      </PreviewNotice>
 
       <Panel>
         <div
           role="group"
-          aria-label="Show notifications about"
+          aria-label="Show notifications"
           className="mb-5 flex flex-wrap gap-2"
         >
-          {TOPICS.map((option) => (
+          {FILTERS.map((option) => (
             <button
               key={option.value}
               type="button"
-              aria-pressed={topic === option.value}
-              onClick={() => setTopic(option.value)}
+              aria-pressed={filter === option.value}
+              onClick={() => setFilter(option.value)}
               className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
-                topic === option.value
+                filter === option.value
                   ? 'bg-blue-600 text-white'
                   : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
               }`}
@@ -130,41 +77,95 @@ export default function NotificationsPage() {
           ))}
         </div>
 
-        {shown.length === 0 ? (
+        {failure && <ErrorNotice message={failure.message} />}
+
+        {feed.isPending ? (
+          <Loading label="Loading notifications" />
+        ) : feed.isError ? (
+          <ErrorNotice message={feed.error.message} />
+        ) : items.length === 0 ? (
           <EmptyState
             icon={Bell}
-            title="Nothing here"
-            description="No notifications about this yet."
+            title={
+              filter === 'unread'
+                ? 'You’re all caught up'
+                : 'No notifications yet'
+            }
+            description={
+              filter === 'unread'
+                ? 'Nothing unread right now.'
+                : 'New orders and cancellations across MlimaLink show up here.'
+            }
           />
         ) : (
           <ul
             aria-label="Notifications"
             className="divide-y divide-neutral-200"
           >
-            {shown.map((n) => {
-              const Icon = n.icon;
-              const isUnread = !read.has(n.id);
+            {items.map((n) => {
+              const isUnread = n.status === 'unread';
+              const open = () => {
+                if (isUnread) markRead.mutate(n.id);
+              };
               return (
                 <li key={n.id} className="flex gap-4 py-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                    <Icon size={18} aria-hidden="true" />
+                    <Bell size={18} aria-hidden="true" />
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-2 font-medium text-neutral-900">
                       {n.title}
                       {isUnread && (
-                        <span className="h-2 w-2 rounded-full bg-blue-500">
+                        <span className="h-2 w-2 shrink-0 rounded-full bg-blue-500">
                           <span className="sr-only">Unread</span>
                         </span>
                       )}
                     </p>
-                    <p className="mt-0.5 text-sm text-neutral-600">{n.body}</p>
-                    <p className="mt-1 text-xs text-neutral-500">{n.time}</p>
+                    <p className="mt-0.5 text-sm text-neutral-600">
+                      {n.message}
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                      <time dateTime={n.createdAt} className="text-neutral-500">
+                        {notificationTime(n.createdAt)}
+                      </time>
+                      {n.redirectLink && (
+                        <Link
+                          href={n.redirectLink}
+                          onClick={open}
+                          className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                        >
+                          View
+                        </Link>
+                      )}
+                      {isUnread && (
+                        <button
+                          type="button"
+                          onClick={open}
+                          aria-label={`Mark "${n.title}" as read`}
+                          className="font-medium text-neutral-600 hover:text-neutral-900"
+                        >
+                          Mark as read
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </li>
               );
             })}
           </ul>
+        )}
+
+        {feed.hasNextPage && (
+          <div className="mt-5 flex justify-center">
+            <button
+              type="button"
+              onClick={() => feed.fetchNextPage()}
+              disabled={feed.isFetchingNextPage}
+              className={secondaryButtonClassName}
+            >
+              {feed.isFetchingNextPage ? 'Loading…' : 'Show older'}
+            </button>
+          </div>
         )}
       </Panel>
     </>

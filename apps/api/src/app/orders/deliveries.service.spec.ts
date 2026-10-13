@@ -1,10 +1,13 @@
 import type { MailService } from '../mail/mail.service';
+import type { NotificationsService } from '../notifications/notifications.service';
 import type { PrismaService } from '../prisma.service';
 import { DeliveriesService } from './deliveries.service';
 import {
   DELIVERY_ID,
   ORDER_ID,
   RIDER_ID,
+  SHOP_ID,
+  USER_ID,
   deliveryRecord,
   orderRecord,
   rider,
@@ -35,9 +38,11 @@ describe('DeliveriesService', () => {
     shops: { findUnique: vi.fn(), findMany: vi.fn() },
   };
   const mail = { send: vi.fn() };
+  const notifications = { notify: vi.fn(), notifyShop: vi.fn() };
   const service = new DeliveriesService(
     prisma as unknown as PrismaService,
     mail as unknown as MailService,
+    notifications as unknown as NotificationsService,
   );
 
   beforeEach(() => {
@@ -274,6 +279,17 @@ describe('DeliveriesService', () => {
       data: { status: 'out_for_delivery' },
     });
     expect(mail.send.mock.calls[0][0].paragraphs.join(' ')).toContain('4821');
+    expect(notifications.notify.mock.calls[0][0]).toEqual([
+      expect.objectContaining({
+        receiverId: USER_ID,
+        creatorId: RIDER_ID,
+        title: 'Order ML-7Q2K9D is on the way',
+        redirectLink: '/dashboard/orders',
+      }),
+    ]);
+    expect(notifications.notify.mock.calls[0][0][0].message).not.toContain(
+      '4821',
+    );
   });
 
   describe('deliver', () => {
@@ -299,6 +315,17 @@ describe('DeliveriesService', () => {
         status: 'delivered',
       });
       expect(mail.send).toHaveBeenCalledTimes(2);
+      expect(notifications.notify.mock.calls[0][0][0]).toMatchObject({
+        receiverId: USER_ID,
+        title: 'Order ML-7Q2K9D was delivered',
+      });
+      expect(notifications.notifyShop).toHaveBeenCalledWith(
+        SHOP_ID,
+        expect.objectContaining({
+          creatorId: RIDER_ID,
+          message: 'Brian delivered it to Amina.',
+        }),
+      );
     });
 
     it('counts wrong codes down', async () => {

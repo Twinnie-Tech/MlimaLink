@@ -20,6 +20,8 @@ export type NavItem = {
   icon: LucideIcon;
   /** Shows the unseen chat message count next to the link. */
   unseenBadge?: boolean;
+  /** Shows the unread notification count next to the link. */
+  notificationsBadge?: boolean;
 };
 
 export const DASHBOARD_HOME: NavItem = {
@@ -51,7 +53,12 @@ export const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
       },
       { label: 'Loggers', href: '/dashboard/loggers', icon: FileClock },
       { label: 'Management', href: '/dashboard/management', icon: Settings },
-      { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+      {
+        label: 'Notifications',
+        href: '/dashboard/notifications',
+        icon: Bell,
+        notificationsBadge: true,
+      },
     ],
   },
   {

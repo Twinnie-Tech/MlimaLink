@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DiscountCodesModule } from './discount-codes/discount-codes.module';
 import { EventsModule } from './events/events.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductImagesModule } from './product-images/product-images.module';
 import { ProductsModule } from './products/products.module';
@@ -32,6 +33,7 @@ import { ShopsModule } from './shops/shops.module';
     EventsModule,
     ReviewsModule,
     AdminModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

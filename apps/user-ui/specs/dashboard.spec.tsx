@@ -11,6 +11,7 @@ import DashboardLayout from '../src/app/(routes)/dashboard/layout';
 import DashboardPage from '../src/app/(routes)/dashboard/page';
 import AddressesPage from '../src/app/(routes)/dashboard/addresses/page';
 import DashboardCartPage from '../src/app/(routes)/dashboard/cart/page';
+import NotificationsPage from '../src/app/(routes)/dashboard/notifications/page';
 import ProfilePage from '../src/app/(routes)/dashboard/profile/page';
 import SecurityPage from '../src/app/(routes)/dashboard/security/page';
 import { QueryProvider } from '../src/app/shared/providers/query-provider';
@@ -315,6 +316,59 @@ describe('Dashboard sections', () => {
     ).toBeTruthy();
     expect(screen.getByText('User account')).toBeTruthy();
     expect(screen.getByText('March 2026')).toBeTruthy();
+  });
+
+  it('shows the shopper’s order notifications and marks them all read', async () => {
+    pathname = '/dashboard/notifications';
+    const confirmed = {
+      id: 'n1',
+      creatorId: 's1',
+      receiverId: jane.id,
+      title: 'Kicks KE confirmed order ML-7Q2K9D',
+      message:
+        'They’re getting it ready. We’ll let you know when a rider is on the way.',
+      redirectLink: '/dashboard/orders',
+      status: 'unread',
+      createdAt: '2026-10-13T09:00:00.000Z',
+      updatedAt: '2026-10-13T09:00:00.000Z',
+    };
+    const ok = (data: unknown) => ({
+      status: 200,
+      body: { success: true, data },
+    });
+    routeAuth({
+      'logged-in-user': [signedIn],
+      '/api/notifications/status': [ok({ unread: 1 }), ok({ unread: 0 })],
+      '/api/notifications': [
+        ok({ items: [confirmed], unread: 1 }),
+        ok({ items: [{ ...confirmed, status: 'read' }], unread: 0 }),
+      ],
+      '/api/notifications/read-all': [ok({ updated: 1 })],
+    });
+    renderDashboard(<NotificationsPage />);
+
+    const list = await screen.findByRole('list', { name: 'Notifications' });
+    expect(
+      within(list).getByText('Kicks KE confirmed order ML-7Q2K9D'),
+    ).toBeTruthy();
+    expect(
+      within(list).getByRole('link', { name: 'View' }).getAttribute('href'),
+    ).toBe('/dashboard/orders');
+    const nav = screen.getByRole('navigation', { name: 'My account' });
+    expect(
+      await within(nav).findByRole('link', { name: 'Notifications 1 unread' }),
+    ).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mark all as read' }));
+
+    await waitFor(() => expect(within(list).queryByText('Unread')).toBeNull());
+    expect(
+      fetchMock.mock.calls.some(
+        ([url, init]) =>
+          url === '/api/notifications/read-all' &&
+          (init as RequestInit).method === 'PATCH',
+      ),
+    ).toBe(true);
   });
 
   it('checks an address without pretending to save it', async () => {

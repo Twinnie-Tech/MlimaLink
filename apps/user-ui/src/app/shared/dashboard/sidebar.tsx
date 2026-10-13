@@ -9,6 +9,7 @@ import { useShopStore } from '../store/shop-store';
 import { logoutUser } from '../utils/auth-api';
 import { ThemeToggle } from '../widgets/theme-toggle';
 import { DASHBOARD_HOME, NAV_SECTIONS, type NavItem } from './nav';
+import { useUnreadNotifications } from './use-notifications';
 import { useDashboardUser } from './user-context';
 
 function isActive(pathname: string, href: string) {
@@ -29,6 +30,10 @@ function NavLink({
   onNavigate?: () => void;
 }) {
   const Icon = item.icon;
+  const countLabel =
+    item.badge === 'notifications'
+      ? `${count} unread`
+      : `${count} ${count === 1 ? 'item' : 'items'}`;
   return (
     <Link
       href={item.href}
@@ -48,7 +53,7 @@ function NavLink({
       <span className="flex-1">{item.label}</span>
       {count ? (
         <span
-          aria-label={`${count} ${count === 1 ? 'item' : 'items'}`}
+          aria-label={countLabel}
           className={`min-w-6 rounded-full px-2 py-0.5 text-center text-xs font-semibold ${
             active
               ? 'bg-brand-start text-white'
@@ -78,7 +83,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     },
   });
 
-  const counts = { wishlist: wishlist.length, cart: cartCount };
+  const notifications = useUnreadNotifications();
+  const counts = { wishlist: wishlist.length, cart: cartCount, notifications };
 
   return (
     <div className="flex h-full flex-col">

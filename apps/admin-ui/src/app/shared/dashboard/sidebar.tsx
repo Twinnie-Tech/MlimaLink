@@ -11,6 +11,7 @@ import { logoutAdmin, refreshAdminSession } from '../utils/admin-api';
 import { ThemeToggle } from '../widgets/theme-toggle';
 import { useDashboardAdmin } from './admin-context';
 import { DASHBOARD_HOME, NAV_SECTIONS, type NavItem } from './nav';
+import { useUnreadNotifications } from './use-notifications';
 
 function isActive(pathname: string, href: string) {
   return href === DASHBOARD_HOME.href
@@ -71,6 +72,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     account: 'admin',
     refreshSession: refreshAdminSession,
   });
+  const unreadNotifications = useUnreadNotifications();
 
   const logoutMutation = useMutation({
     mutationFn: logoutAdmin,
@@ -125,7 +127,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                   item={item}
                   active={isActive(pathname, item.href)}
                   onNavigate={onNavigate}
-                  count={item.unseenBadge ? unseen : 0}
+                  count={
+                    item.unseenBadge
+                      ? unseen
+                      : item.notificationsBadge
+                        ? unreadNotifications
+                        : 0
+                  }
                 />
               ))}
             </div>

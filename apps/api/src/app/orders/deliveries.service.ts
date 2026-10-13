@@ -20,11 +20,16 @@ import {
   vehicleLabel,
 } from '@org/models/delivery';
 import { MailService } from '../mail/mail.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma.service';
 import { isObjectId } from '../products/product-mapper';
 import type { SignedInRider } from '../rider.guard';
 import type { SellerShop } from '../seller.guard';
-import { sellerOrdersUrl, shopperOrdersUrl } from './checkout.service';
+import {
+  ORDERS_PAGE,
+  sellerOrdersUrl,
+  shopperOrdersUrl,
+} from './checkout.service';
 import {
   toRiderJob,
   type DeliveryRecord,
@@ -52,6 +57,7 @@ export class DeliveriesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /** Offers the order to one rider, or posts it for every rider in the shop's town. */
@@ -453,6 +459,15 @@ export class DeliveriesService {
       ],
       link: { label: 'Track your order', url: shopperOrdersUrl() },
     });
+    await this.notifications.notify([
+      {
+        receiverId: order.userId,
+        creatorId: rider.id,
+        title: `Order ${order.number} is on the way`,
+        message: `${rider.name} has collected it from ${order.shopName}. Give them your delivery code only once you have your order.`,
+        redirectLink: ORDERS_PAGE,
+      },
+    ]);
 
     return this.jobView(
       delivery,
@@ -553,6 +568,21 @@ export class DeliveriesService {
           `Hi ${order.buyerName}, your order from ${order.shopName} has been delivered. Enjoy!`,
         ],
         link: { label: 'View your orders', url: shopperOrdersUrl() },
+      }),
+      this.notifications.notify([
+        {
+          receiverId: order.userId,
+          creatorId: rider.id,
+          title: `Order ${order.number} was delivered`,
+          message: `Your order from ${order.shopName} has been delivered. Enjoy!`,
+          redirectLink: ORDERS_PAGE,
+        },
+      ]),
+      this.notifications.notifyShop(order.shopId, {
+        creatorId: rider.id,
+        title: `Order ${order.number} was delivered`,
+        message: `${rider.name} delivered it to ${order.buyerName}.`,
+        redirectLink: ORDERS_PAGE,
       }),
     ]);
 

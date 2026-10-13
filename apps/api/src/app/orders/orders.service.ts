@@ -18,11 +18,13 @@ import {
   orderStatusLabel,
 } from '@org/models/delivery';
 import { MailService } from '../mail/mail.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma.service';
 import { isObjectId } from '../products/product-mapper';
 import type { SellerShop } from '../seller.guard';
 import type { SignedInUser } from '../user.guard';
 import {
+  ORDERS_PAGE,
   describeItem,
   restock,
   sellerOrdersUrl,
@@ -98,6 +100,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async listForUser(userId: string): Promise<Order[]> {
@@ -144,6 +147,20 @@ export class OrdersService {
         link: { label: 'Open your orders', url: sellerOrdersUrl() },
       });
     }
+    await Promise.all([
+      this.notifications.notifyShop(record.shopId, {
+        creatorId: user.id,
+        title: `Order ${record.number} was cancelled by the shopper`,
+        message: `${record.buyerName} cancelled it before you confirmed it. The items are back in stock.`,
+        redirectLink: ORDERS_PAGE,
+      }),
+      this.notifications.notifyAdmins({
+        creatorId: user.id,
+        title: `Order ${record.number} cancelled`,
+        message: `${record.buyerName} cancelled their order from ${record.shopName} before it was confirmed.`,
+        redirectLink: ORDERS_PAGE,
+      }),
+    ]);
 
     const [order] = await withDeliveries(this.prisma, [updated], 'buyer');
     return order;
@@ -164,6 +181,7 @@ export class OrdersService {
     id: string,
     status: OrderStatus,
     note?: string,
+    sellerId?: string,
   ): Promise<Order> {
     const record = isObjectId(id)
       ? await this.prisma.orders.findFirst({ where: { id, shopId: shop.id } })
@@ -248,6 +266,32 @@ export class OrdersService {
         link: { label: 'See your jobs', url: riderPortalUrl() },
       });
     }
+    const theirMessage = note ? ` Their message: ${note}` : '';
+    await Promise.all([
+      this.notifications.notify([
+        {
+          receiverId: record.userId,
+          creatorId: sellerId,
+          title:
+            status === 'confirmed'
+              ? `${shop.name} confirmed order ${record.number}`
+              : `${shop.name} cancelled order ${record.number}`,
+          message:
+            (status === 'confirmed'
+              ? 'They’re getting it ready. We’ll let you know when a rider is on the way.'
+              : 'They can’t fulfil it, so it has been cancelled.') +
+            theirMessage,
+          redirectLink: ORDERS_PAGE,
+        },
+      ]),
+      status === 'cancelled' &&
+        this.notifications.notifyAdmins({
+          creatorId: sellerId,
+          title: `Order ${record.number} cancelled`,
+          message: `${shop.name} cancelled ${record.buyerName}’s order.${theirMessage}`,
+          redirectLink: ORDERS_PAGE,
+        }),
+    ]);
 
     const [order] = await withDeliveries(this.prisma, [updated], 'seller');
     return order;
