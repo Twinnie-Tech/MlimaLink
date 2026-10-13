@@ -312,6 +312,7 @@ Messages carry text plus up to 4 photos or documents, or a GIF or sticker on its
 1. The WebSocket (or REST) layer publishes each message to `chat_messages`, keyed by conversation, so each chat stays in order.
 2. One consumer group, shared by every instance, saves messages to MongoDB **in batches**: each Kafka batch becomes one `createMany`, plus one preview update per chat. Offsets are committed only after the write succeeds, so a failed batch is retried, and messages already stored are skipped, because each id is chosen before the message is sent.
 3. Every instance also reads the topic in its own group and pushes each message to the WebSockets connected to it straight away. You can run as many instances as you need.
+4. Edits, deletions, reactions, seen receipts and typing don't wait for that round trip. The instance that handles one pushes it to its own sockets first, then publishes it tagged with its `CHAT_INSTANCE_ID`, so other instances deliver it and it skips its own copy. The chat screens also show your reaction the moment you click it.
 
 ### Sending limits
 

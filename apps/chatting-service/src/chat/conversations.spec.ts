@@ -7,6 +7,7 @@ import {
   countUnseen,
   counterpartKeys,
   deleteMessage,
+  deliverLocallyWith,
   editMessage,
   getConversation,
   listConversations,
@@ -1388,6 +1389,48 @@ describe('reactToMessage', () => {
     await expect(
       reactToMessage(seller, conversationId, messageId, { emoji: '👍' }),
     ).rejects.toMatchObject({ status: 429 });
+  });
+
+  describe('with sockets on this instance', () => {
+    const deliver = vi.fn();
+    beforeEach(() => deliverLocallyWith(deliver));
+    afterEach(() => {
+      deliverLocallyWith(null);
+      producer.send.mockReset();
+    });
+
+    it('delivers here before Kafka, which carries it to the other instances', async () => {
+      producer.send.mockImplementation(async () => {
+        expect(deliver).toHaveBeenCalledTimes(1);
+      });
+      const reacted = await reactToMessage(seller, conversationId, messageId, {
+        emoji: '👍',
+      });
+
+      expect(deliver).toHaveBeenCalledWith({
+        type: 'updated',
+        message: reacted,
+        audience: expect.objectContaining({ support: false }),
+      });
+      const [{ value }] = producer.send.mock.calls[0][0].messages;
+      expect(JSON.parse(value)).toMatchObject({
+        type: 'updated',
+        origin: expect.stringMatching(/.+-\d+$/),
+      });
+    });
+
+    it('keeps the saved reaction when Kafka is down', async () => {
+      producer.send.mockRejectedValue(new Error('broker down'));
+
+      await expect(
+        reactToMessage(seller, conversationId, messageId, { emoji: '👍' }),
+      ).resolves.toMatchObject({
+        reactions: expect.arrayContaining([
+          expect.objectContaining({ emoji: '👍' }),
+        ]),
+      });
+      expect(deliver).toHaveBeenCalled();
+    });
   });
 });
 

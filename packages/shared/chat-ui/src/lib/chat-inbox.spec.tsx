@@ -361,7 +361,9 @@ describe('ChatInbox', () => {
       expect(
         within(messagesList())
           .getAllByRole('listitem')
-          .map((item) => item.textContent?.split(/\d/)[0]),
+          .map(
+            (item) => item.textContent?.match(/^(Oldest|Newer|Newest)/)?.[0],
+          ),
       ).toEqual(['Oldest', 'Newer', 'Newest']),
     );
     expect(
@@ -652,6 +654,66 @@ describe('ChatInbox', () => {
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/chat/conversations/c1/messages/m1/reactions?as=user',
       expect.objectContaining({ body: JSON.stringify({ emoji: '❤️' }) }),
+    );
+  });
+
+  it('shows a reaction before the server answers, through live updates in between', async () => {
+    await openChatWith([message('m1', 'New stock in!')]);
+    type Answer = Awaited<ReturnType<typeof fetchMock>>;
+    let answer: (value: Answer) => void = () => undefined;
+    fetchMock.mockImplementationOnce(
+      () => new Promise<Answer>((resolve) => (answer = resolve)),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'React' }));
+    fireEvent.click(screen.getByRole('button', { name: 'React with ❤️' }));
+
+    expect(screen.getByRole('button', { name: '❤️ 1: You' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+
+    latestSocket().receive({
+      type: 'updated',
+      message: message('m1', 'New stock in!', {
+        reactions: [{ emoji: '👍', key: 'seller:s9', name: 'Baraka' }],
+      }),
+    });
+    expect(screen.getByRole('button', { name: '👍 1: Baraka' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '❤️ 1: You' })).toBeTruthy();
+
+    const saved = message('m1', 'New stock in!', {
+      reactions: [
+        { emoji: '👍', key: 'seller:s9', name: 'Baraka' },
+        { emoji: '❤️', key: 'user:u1', name: 'Juma' },
+      ],
+    });
+    await act(async () =>
+      answer({ ok: true, status: 200, json: async () => saved }),
+    );
+    expect(screen.getByRole('button', { name: '❤️ 1: You' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '👍 1: Baraka' })).toBeTruthy();
+  });
+
+  it('takes a reaction back when the server refuses it', async () => {
+    await openChatWith([message('m1', 'New stock in!')]);
+    reply(
+      'POST /api/chat/conversations/c1/messages/m1/reactions?as=user',
+      400,
+      {
+        message: 'You can’t react to a deleted message.',
+      },
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'React' }));
+    fireEvent.click(screen.getByRole('button', { name: 'React with 👍' }));
+    expect(screen.getByRole('button', { name: '👍 1: You' })).toBeTruthy();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'You can’t react to a deleted message.',
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: '👍 1: You' })).toBeNull(),
     );
   });
 

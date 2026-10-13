@@ -11,6 +11,7 @@ import {
   DELETED_TEXT,
   MAX_ATTACHMENTS,
   MAX_MESSAGE_LENGTH,
+  instanceId,
   isObjectId,
   newObjectId,
   parseMessageContent,
@@ -171,6 +172,25 @@ async function publish(envelope: ChatEnvelope): Promise<void> {
   } catch {
     throw chatUnavailable();
   }
+}
+
+type LocalDelivery = (envelope: ChatEnvelope) => void;
+let deliverHere: LocalDelivery | null = null;
+
+/** Where this instance's own sockets get edits, reactions, seen receipts and typing. */
+export function deliverLocallyWith(deliver: LocalDelivery | null): void {
+  deliverHere = deliver;
+}
+
+/**
+ * Pushes an event that isn't stored from the topic to the sockets on this instance
+ * straight away, then publishes it for the others; going through Kafka first can take
+ * seconds.
+ */
+async function announce(envelope: ChatEnvelope): Promise<void> {
+  if (!deliverHere) return publish(envelope);
+  deliverHere(envelope);
+  await publish({ ...envelope, origin: instanceId() });
 }
 
 type MessageRow = {
@@ -522,7 +542,7 @@ async function announceSeen(
   at: Date,
 ): Promise<void> {
   try {
-    await publish({
+    await announce({
       type: 'seen',
       conversationId: row.id,
       reader: keyOf(viewer),
@@ -973,9 +993,17 @@ async function refreshPreview(message: ChatMessage) {
   });
 }
 
-/** Writes nothing new; tells everyone in the chat the message changed. */
+/**
+ * Writes nothing new; tells everyone in the chat the message changed. The change is
+ * already saved, so if Kafka is down only people on other instances miss it until they
+ * reload.
+ */
 async function announceUpdate(row: ConversationRow, message: ChatMessage) {
-  await publish({ type: 'updated', message, audience: audienceOf(row) });
+  try {
+    await announce({ type: 'updated', message, audience: audienceOf(row) });
+  } catch {
+    log('warn', `Couldn't announce a change to chat message ${message.id}.`);
+  }
 }
 
 /**
@@ -1124,7 +1152,7 @@ export async function announceTyping(
   conversationId: string,
 ): Promise<void> {
   const row = await findAccessible(viewer, conversationId);
-  await publish({
+  await announce({
     type: 'typing',
     conversationId: row.id,
     from: { key: keyOf(viewer), name: viewer.name },
