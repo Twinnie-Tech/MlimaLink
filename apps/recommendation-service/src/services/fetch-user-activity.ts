@@ -5,7 +5,12 @@ const OBJECT_ID = /^[a-f\d]{24}$/i;
 
 type StoredActivity = {
   userId: string;
-  actions: { action: string; productId: string; shopId: string | null; at: Date }[];
+  actions: {
+    action: string;
+    productId: string;
+    shopId: string | null;
+    at: Date;
+  }[];
 };
 
 const toUserActions = ({ userId, actions }: StoredActivity): UserAction[] =>

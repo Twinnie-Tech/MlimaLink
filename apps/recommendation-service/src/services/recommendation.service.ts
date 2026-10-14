@@ -98,7 +98,10 @@ function buildModel(userCount: number, productCount: number): Tf.LayersModel {
     .dense({ units: 1, activation: 'sigmoid' })
     .apply(affinity) as Tf.SymbolicTensor;
 
-  const model = tf.model({ inputs: [userInput, productInput], outputs: output });
+  const model = tf.model({
+    inputs: [userInput, productInput],
+    outputs: output,
+  });
   model.compile({
     optimizer: tf.train.adam(LEARNING_RATE),
     loss: 'binaryCrossentropy',

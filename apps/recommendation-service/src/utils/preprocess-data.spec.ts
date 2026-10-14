@@ -34,7 +34,10 @@ describe('preprocessData', () => {
 
   it('drops actions on products that are no longer listed', () => {
     const { interactions } = preprocessData(
-      [action('e'.repeat(24), 'product_view'), action(phone.id, 'add_to_wishlist')],
+      [
+        action('e'.repeat(24), 'product_view'),
+        action(phone.id, 'add_to_wishlist'),
+      ],
       [phone],
     );
 
