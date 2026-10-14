@@ -6,6 +6,11 @@ import * as tfjs from '@tensorflow/tfjs';
  * plain JavaScript, which is slower but fine for a catalogue this size.
  */
 function load(): typeof tfjs {
+  // tfjs-node 4.22 still calls util.isNullOrUndefined, which Node 23 removed.
+  const util = require('node:util') as {
+    isNullOrUndefined?: (value: unknown) => boolean;
+  };
+  util.isNullOrUndefined ??= (value) => value === null || value === undefined;
   try {
     return require('@tensorflow/tfjs-node');
   } catch {
