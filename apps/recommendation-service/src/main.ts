@@ -6,12 +6,15 @@ import './env';
 
 import { createApp } from './app';
 import { prisma } from './prisma';
+import { RecommendationEngine } from './services/recommendation-engine';
 
+const engine = new RecommendationEngine();
 const port = Number(process.env.RECOMMENDATION_SERVICE_PORT) || 3338;
-const server = createApp().listen(port, () => {
+const server = createApp(engine).listen(port, () => {
   console.log(
     `Recommendation service listening at http://localhost:${port}/api`,
   );
+  engine.warmUp();
 });
 server.on('error', console.error);
 

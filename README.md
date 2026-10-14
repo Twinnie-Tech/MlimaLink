@@ -78,7 +78,7 @@ MlimaLink is a marketplace platform built as an [Nx](https://nx.dev) monorepo. S
 | `kafka-service`          | 3335 | Express      | Consumes `user_events` and keeps user, product and shop analytics up to date                                     |
 | `chatting-service`       | 3336 | Express + ws | Direct, shop and support chats with photos, documents and GIFs, carried over Kafka and delivered over WebSockets |
 | `logger-service`         | 3337 | Express + ws | Stores the `logs` topic for admins and streams it, plus gateway request activity, live over a WebSocket          |
-| `recommendation-service` | 3338 | Express      | Starter service for product recommendations (health check only for now)                                          |
+| `recommendation-service` | 3338 | Express      | Personalised picks (`GET /api/recommendations`) from a TensorFlow model trained on shopper activity              |
 | `user-ui-e2e`            | —    | Playwright   | End-to-end tests for user-ui                                                                                     |
 | `api-gateway-e2e`        | —    | Jest         | End-to-end tests for the gateway                                                                                 |
 
@@ -204,7 +204,7 @@ Every service reads the root `.env`. `.env.example` lists the variables, and thi
 | `KAFKA_SERVICE_PORT`                         | `3335`                  |                                                               |
 | `CHAT_SERVICE_PORT` / `CHAT_SERVICE_URL`     | `3336`                  | `CHAT_SERVICE_URL` overrides the gateway's chat target        |
 | `LOGGER_SERVICE_PORT` / `LOGGER_SERVICE_URL` | `3337`                  | `LOGGER_SERVICE_URL` overrides the gateway's logs target      |
-| `RECOMMENDATION_SERVICE_PORT`                | `3338`                  |                                                               |
+| `RECOMMENDATION_SERVICE_PORT` / `_URL`       | `3338`                  | `RECOMMENDATION_SERVICE_URL` overrides the gateway's target   |
 | `API_GATEWAY_URL`                            | `http://127.0.0.1:3000` | Where the Next.js apps send `/api/*`                          |
 | `USER_UI_URL`                                | `http://localhost:4200` | Linked from emails                                            |
 | `SELLER_UI_URL`                              | `http://localhost:4300` | Linked from emails                                            |

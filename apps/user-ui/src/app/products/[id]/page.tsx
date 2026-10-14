@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ProductDetail } from '@org/shop-feature-product-detail';
 import { useTrackProductView } from '../../shared/hooks/use-track-page-view';
 import { useShopStore } from '../../shared/store/shop-store';
+import { RecommendedProducts } from '../../shared/widgets/recommended-products';
 import { ReviewsSection } from '../../shared/widgets/reviews-section';
 import { ServicePanel } from '../../shared/widgets/service-panel';
 
@@ -26,15 +27,16 @@ export default function ProductDetailPage() {
         onToggleWishlist={toggleWishlist}
         renderService={(product) => <ServicePanel product={product} />}
       />
-      {isListing(id) && (
-        <div className="mx-auto max-w-[1200px] px-6 pb-12">
+      <div className="mx-auto max-w-[1200px] px-6 pb-12">
+        {isListing(id) && (
           <ReviewsSection
             target={{ kind: 'products', id }}
             subject="this product"
             returnTo={`/products/${id}`}
           />
-        </div>
-      )}
+        )}
+        <RecommendedProducts exclude={id} />
+      </div>
     </>
   );
 }

@@ -1,6 +1,10 @@
 import type { Interaction } from '../utils/preprocess-data';
 import { getAllUserActivity } from './fetch-user-activity';
-import { rankProducts, recommendProducts } from './recommendation.service';
+import {
+  rankProducts,
+  recommendProducts,
+  trainRecommender,
+} from './recommendation.service';
 
 vi.mock('./fetch-user-activity', () => ({ getAllUserActivity: vi.fn() }));
 
@@ -39,6 +43,42 @@ describe('rankProducts', () => {
     for (const product of ranked) expect(products).toContain(product);
     expect(ranked).not.toContain(products[1]);
     expect(ranked).not.toContain(products[2]);
+  }, 30_000);
+});
+
+describe('trainRecommender', () => {
+  it('is null when there are no products', async () => {
+    await expect(
+      trainRecommender([interaction(userId, 0, 'product_view')], []),
+    ).resolves.toBeNull();
+  });
+
+  it('serves many shoppers from one model and respects exclude', async () => {
+    const recommender = await trainRecommender(
+      [
+        interaction(userId, 0, 'product_view'),
+        interaction(userId, 1, 'add_to_cart'),
+        interaction(otherId, 2, 'add_to_wishlist'),
+      ],
+      products,
+    );
+    if (!recommender) throw new Error('expected a model');
+    try {
+      const mine = await recommender.recommend(userId, {
+        limit: 20,
+        exclude: [products[3].id],
+      });
+      expect(mine).toHaveLength(products.length - 2);
+      expect(mine).not.toContain(products[1]);
+      expect(mine).not.toContain(products[3]);
+
+      await expect(
+        recommender.recommend(otherId, { limit: 3 }),
+      ).resolves.toHaveLength(3);
+      await expect(recommender.recommend('9'.repeat(24))).resolves.toEqual([]);
+    } finally {
+      recommender.dispose();
+    }
   }, 30_000);
 });
 
