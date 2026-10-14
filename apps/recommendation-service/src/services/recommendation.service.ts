@@ -112,6 +112,97 @@ function buildModel(userCount: number, productCount: number): Tf.LayersModel {
 const column = (values: number[]) =>
   tf.tensor2d(values, [values.length, 1], 'int32');
 
+export interface RecommendOptions {
+  limit?: number;
+  /** Products to leave out, e.g. the one the shopper is looking at. */
+  exclude?: string[];
+}
+
+/** A trained model that can rank products for any shopper it learned from. */
+export interface Recommender<P extends RecommendableProduct> {
+  /**
+   * The shopper's best matches, best first, leaving out what they already carted or bought.
+   * Empty for shoppers who had no activity when the model was trained.
+   */
+  recommend(userId: string, options?: RecommendOptions): Promise<P[]>;
+  dispose(): void;
+}
+
+/** Trains on every shopper's interactions; null when there's nothing to learn from. */
+export async function trainRecommender<P extends RecommendableProduct>(
+  interactions: Interaction[],
+  products: P[],
+): Promise<Recommender<P> | null> {
+  if (products.length === 0) return null;
+
+  const userIndex = new Map<string, number>();
+  for (const { userId } of interactions) {
+    if (!userIndex.has(userId)) userIndex.set(userId, userIndex.size);
+  }
+  const productIndex = new Map(products.map((product, i) => [product.id, i]));
+
+  const set = buildTrainingSet(interactions, userIndex, productIndex);
+  if (set.labels.length === 0) return null;
+
+  const model = buildModel(userIndex.size, products.length);
+  const users = column(set.users);
+  const trainedProducts = column(set.products);
+  const labels = tf.tensor2d(set.labels, [set.labels.length, 1]);
+  try {
+    await model.fit([users, trainedProducts], labels, {
+      epochs: EPOCHS,
+      batchSize: BATCH_SIZE,
+      shuffle: true,
+      verbose: 0,
+    });
+  } catch (error) {
+    model.dispose();
+    throw error;
+  } finally {
+    tf.dispose([users, trainedProducts, labels]);
+  }
+
+  const skippedByUser = new Map<string, Set<string>>();
+  for (const { userId, productId, actionType } of interactions) {
+    if (!SKIPPED_ACTIONS.has(actionType)) continue;
+    const skipped = skippedByUser.get(userId) ?? new Set<string>();
+    skipped.add(productId);
+    skippedByUser.set(userId, skipped);
+  }
+  const candidates = column(products.map((_, i) => i));
+
+  return {
+    async recommend(
+      userId,
+      { limit = RECOMMENDATIONS_LIMIT, exclude = [] } = {},
+    ) {
+      const user = userIndex.get(userId);
+      if (user === undefined) return [];
+
+      const shopper = column(products.map(() => user));
+      const prediction = model.predict([shopper, candidates]) as Tf.Tensor;
+      shopper.dispose();
+      const scores = await prediction.data();
+      prediction.dispose();
+
+      const skipped = new Set([
+        ...(skippedByUser.get(userId) ?? []),
+        ...exclude,
+      ]);
+      return products
+        .map((product, i) => ({ product, score: scores[i] }))
+        .filter(({ product }) => !skipped.has(product.id))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(({ product }) => product);
+    },
+    dispose() {
+      candidates.dispose();
+      model.dispose();
+    },
+  };
+}
+
 /**
  * Trains on every shopper's interactions and returns the products this shopper is most
  * likely to want, best first. Empty when they have no interactions with listed products.
@@ -122,49 +213,13 @@ export async function rankProducts<P extends RecommendableProduct>(
   products: P[],
   limit = RECOMMENDATIONS_LIMIT,
 ): Promise<P[]> {
-  const own = interactions.filter((entry) => entry.userId === userId);
-  if (own.length === 0 || products.length === 0) return [];
-
-  const userIndex = new Map<string, number>();
-  for (const { userId: id } of interactions) {
-    if (!userIndex.has(id)) userIndex.set(id, userIndex.size);
-  }
-  const productIndex = new Map(products.map((product, i) => [product.id, i]));
-
-  const set = buildTrainingSet(interactions, userIndex, productIndex);
-  if (set.labels.length === 0) return [];
-
-  const model = buildModel(userIndex.size, products.length);
-  const users = column(set.users);
-  const trainedProducts = column(set.products);
-  const labels = tf.tensor2d(set.labels, [set.labels.length, 1]);
-  const candidates = column(products.map((_, i) => i));
-  const shopper = column(products.map(() => userIndex.get(userId) as number));
+  if (!interactions.some((entry) => entry.userId === userId)) return [];
+  const recommender = await trainRecommender(interactions, products);
+  if (!recommender) return [];
   try {
-    await model.fit([users, trainedProducts], labels, {
-      epochs: EPOCHS,
-      batchSize: BATCH_SIZE,
-      shuffle: true,
-      verbose: 0,
-    });
-    const prediction = model.predict([shopper, candidates]) as Tf.Tensor;
-    const scores = await prediction.data();
-    prediction.dispose();
-
-    const skipped = new Set(
-      own
-        .filter((entry) => SKIPPED_ACTIONS.has(entry.actionType))
-        .map((entry) => entry.productId),
-    );
-    return products
-      .map((product, i) => ({ product, score: scores[i] }))
-      .filter(({ product }) => !skipped.has(product.id))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit)
-      .map(({ product }) => product);
+    return await recommender.recommend(userId, { limit });
   } finally {
-    tf.dispose([users, trainedProducts, labels, candidates, shopper]);
-    model.dispose();
+    recommender.dispose();
   }
 }
 

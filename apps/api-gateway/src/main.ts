@@ -40,6 +40,9 @@ async function bootstrap() {
   const loggerTarget =
     process.env.LOGGER_SERVICE_URL ??
     `http://127.0.0.1:${process.env.LOGGER_SERVICE_PORT ? Number(process.env.LOGGER_SERVICE_PORT) : 3337}`;
+  const recommendationTarget =
+    process.env.RECOMMENDATION_SERVICE_URL ??
+    `http://127.0.0.1:${process.env.RECOMMENDATION_SERVICE_PORT ? Number(process.env.RECOMMENDATION_SERVICE_PORT) : 3338}`;
   const expressApp = app.getHttpAdapter().getInstance();
 
   // pathFilter instead of a mount path keeps the full path, which WebSocket upgrades need.
@@ -57,9 +60,16 @@ async function bootstrap() {
     ws: true,
   });
 
+  const recommendationProxy = createProxyMiddleware({
+    target: recommendationTarget,
+    changeOrigin: true,
+    pathFilter: '/api/recommendations',
+  });
+
   // Must be mounted before the catch-all /api proxy below.
   expressApp.use(chatProxy);
   expressApp.use(logsProxy);
+  expressApp.use(recommendationProxy);
   expressApp.use(
     '/api/auth',
     createProxyMiddleware({
@@ -96,6 +106,7 @@ async function bootstrap() {
   Logger.log(`🚀 API Gateway running on: http://${host}:${port}`);
   Logger.log(`↪️  Proxying /api/chat (and WebSockets) → ${chatTarget}`);
   Logger.log(`↪️  Proxying /api/logs (and WebSockets) → ${loggerTarget}`);
+  Logger.log(`↪️  Proxying /api/recommendations → ${recommendationTarget}`);
   Logger.log(`↪️  Proxying /api/auth → ${authTarget}/api/auth`);
   Logger.log(`↪️  Proxying /api → ${apiTarget}/api`);
 }
