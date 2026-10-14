@@ -5,6 +5,7 @@
 import './env';
 
 import { createApp } from './app';
+import { prisma } from './prisma';
 
 const port = Number(process.env.RECOMMENDATION_SERVICE_PORT) || 3338;
 const server = createApp().listen(port, () => {
@@ -15,7 +16,8 @@ const server = createApp().listen(port, () => {
 server.on('error', console.error);
 
 const shutdown = () => {
-  server.close(() => process.exit(0));
+  server.close();
+  void prisma.$disconnect().finally(() => process.exit(0));
 };
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
