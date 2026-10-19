@@ -1,6 +1,7 @@
 import {
   readAccessToken,
   verifyAccessToken,
+  verifySocketTicket,
   type AccountType,
 } from '@org/utils/auth';
 import { prisma } from '../prisma';
@@ -33,12 +34,17 @@ export async function findActiveAccount(
 /**
  * The participant signed in as `role` on this request, or null. The token must be valid
  * for that account type, and the account must still exist and not be suspended.
+ * WebSocket upgrades from another site pass a socket `ticket` instead of a token.
  */
 export async function authenticate(
   role: AccountType,
   headers: { cookie?: string; authorization?: string },
+  ticket?: string,
 ): Promise<Participant | null> {
-  const verified = verifyAccessToken(readAccessToken(headers, role), role);
+  const verified =
+    ticket !== undefined
+      ? verifySocketTicket(ticket, role)
+      : verifyAccessToken(readAccessToken(headers, role), role);
   if (!verified) return null;
   const account = await findActiveAccount(role, verified.id);
   return account

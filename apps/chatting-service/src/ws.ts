@@ -124,7 +124,8 @@ function parseClientMessage(data: RawData): ClientMessage | null {
 }
 
 /**
- * Serves live chat at ws://host/api/chat/ws?as=user|seller|admin.
+ * Serves live chat at ws://host/api/chat/ws?as=user|seller|admin. UIs on another site
+ * add `&ticket=` from POST /api/chat/socket-ticket, since their cookie isn't sent.
  *
  * The client sends `{ type: 'send', conversationId, body?, attachments?, files?, gif?,
  * replyToId?, clientId? }`, where attachments (photo URLs) and files come from
@@ -185,7 +186,11 @@ export function attachChatSockets(
         reject(socket, 400, 'Bad Request');
         return;
       }
-      const participant = await authenticate(account, req.headers);
+      const participant = await authenticate(
+        account,
+        req.headers,
+        url.searchParams.get('ticket') ?? undefined,
+      );
       if (!participant) {
         reject(socket, 401, 'Unauthorized');
         return;

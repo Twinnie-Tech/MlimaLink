@@ -1,10 +1,11 @@
-import { verifyAccessToken } from '@org/utils/auth';
+import { verifyAccessToken, verifySocketTicket } from '@org/utils/auth';
 import { prisma } from '../prisma';
 import { authenticate } from './participants';
 
 vi.mock('@org/utils/auth', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@org/utils/auth')>()),
   verifyAccessToken: vi.fn(),
+  verifySocketTicket: vi.fn(),
 }));
 vi.mock('../prisma', () => ({
   prisma: {
@@ -56,6 +57,24 @@ describe('authenticate', () => {
     expect(
       await authenticate('admin', { authorization: 'Bearer t' }),
     ).toBeNull();
+  });
+
+  it('accepts a socket ticket instead of a token', async () => {
+    vi.mocked(verifySocketTicket).mockReturnValue({ id, expiresAt });
+    db.users.findUnique.mockResolvedValue({
+      name: 'Amina',
+      suspended: false,
+    } as never);
+
+    const participant = await authenticate(
+      'user',
+      { cookie: 'accessToken=ignored' },
+      'ticket',
+    );
+
+    expect(verifySocketTicket).toHaveBeenCalledWith('ticket', 'user');
+    expect(verifyAccessToken).not.toHaveBeenCalled();
+    expect(participant).toEqual({ role: 'user', id, name: 'Amina', expiresAt });
   });
 
   it('doesn’t look anyone up for an invalid token', async () => {

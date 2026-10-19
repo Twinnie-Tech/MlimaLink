@@ -1,0 +1,1352 @@
+[
+  {
+    "_id": {
+      "$oid": "d62a7a5c0b5d4ecca815807f"
+    },
+    "name": "Njeri Electronics",
+    "bio": "Quality electronics at affordable prices",
+    "category": "Electronics",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "f738098e73d4498b91364ea8"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b018bea13ebe4b2bbd90463b"
+    },
+    "name": "Mukurweini Digital Hub",
+    "bio": "Your trusted digital solutions shop",
+    "category": "Electronics",
+    "address": "Mukurwe-ini, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "64b404da422d49a7bf1c7908"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "4ddb9198222c430c9f6cb71d"
+    },
+    "name": "Mount Kenya Gadgets",
+    "bio": "Phones, accessories and smart gadgets",
+    "category": "Electronics",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "ad0ad177fa624f9e8ad53452"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "baf25abbe48e4507b707f843"
+    },
+    "name": "SmartBuy Electronics",
+    "bio": "Affordable electronics for everyone",
+    "category": "Electronics",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "96f5821894754a14a0b6c4d8"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "f6e5bbe7596546d98b13265a"
+    },
+    "name": "TechNest Kenya",
+    "bio": "Discover the latest technology",
+    "category": "Electronics",
+    "address": "Nanyuki, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "960cf744145b460bae6032b7"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Laikipia",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "a66255633681476691b54e08"
+    },
+    "name": "Pixel Point",
+    "bio": "Phones and computer accessories",
+    "category": "Electronics",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "a56ebfe66bc14f9b8166be84"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "290b5a6cfb7b477b98916153"
+    },
+    "name": "Gadget Corner",
+    "bio": "Everyday gadgets and accessories",
+    "category": "Electronics",
+    "address": "Othaya, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "eae25a5ec2d44a85a63456b3"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "e08a640b88574ccd982a596f"
+    },
+    "name": "Digital World Nyeri",
+    "bio": "Electronics and home technology",
+    "category": "Electronics",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "6e727c8f7e9a4592822d0f17"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "1c5bb15642b2412fa336855b"
+    },
+    "name": "Mobile Masters",
+    "bio": "Mobile phones and accessories",
+    "category": "Phones & Accessories",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "02796c9e250e4cc09781c239"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "f9ead54cefe244cab19d6172"
+    },
+    "name": "Laptop Lounge",
+    "bio": "Computers and laptop accessories",
+    "category": "Computers",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "9a8cdb2f811a4fcb8d3343e7"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "a263c2e154f74c689beb51cf"
+    },
+    "name": "Fresh Basket Market",
+    "bio": "Fresh groceries for your family",
+    "category": "Groceries",
+    "address": "Mukurwe-ini, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "96c182e730284fa9977c4ce7"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "2.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "d9c510c0a7474309bf3bcac3"
+    },
+    "name": "Green Valley Grocers",
+    "bio": "Fresh produce sourced locally",
+    "category": "Groceries",
+    "address": "Othaya, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "0ac528200500481e9e76ec43"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "209838de8f5541fda7e3c944"
+    },
+    "name": "Mama Mboga Online",
+    "bio": "Fresh vegetables and fruits",
+    "category": "Groceries",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "0092b1ec9da8435db78e00a3"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "2.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "0db09e24ff1b475891d1651c"
+    },
+    "name": "Farm Fresh Hub",
+    "bio": "Farm produce delivered to your door",
+    "category": "Agriculture",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "b3cfbe73da9d456c82fce39b"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "7b2cb5bfc021492b81c46983"
+    },
+    "name": "Golden Grain Stores",
+    "bio": "Cereals, grains and household staples",
+    "category": "Groceries",
+    "address": "Nanyuki, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "e50f9765fb2f4e4393135e84"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Laikipia",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b7febd0a3cd8404d9f2bb02a"
+    },
+    "name": "Mountain Harvest",
+    "bio": "Locally grown farm products",
+    "category": "Agriculture",
+    "address": "Mukurwe-ini, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "f92a91c829934dacbe0c586d"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "7401173d10fb4a76a867db56"
+    },
+    "name": "Daily Needs Store",
+    "bio": "Your everyday shopping destination",
+    "category": "General Retail",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "80d99b44bb4545baac42fc1a"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "2.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "7ad514d35f374afd92989772"
+    },
+    "name": "Family Choice Mart",
+    "bio": "Household goods and groceries",
+    "category": "Supermarket",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "1d268bd7a2f14c2089c5d9ac"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "2fa2dc9c0dd047428cfaa1cc"
+    },
+    "name": "Sunrise Mini Mart",
+    "bio": "Convenient shopping close to home",
+    "category": "Supermarket",
+    "address": "Nanyuki, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "f25767dd058544cf8622f10f"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Laikipia",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "e64cb3917f944d90857bebfa"
+    },
+    "name": "Prime Pantry",
+    "bio": "Quality pantry essentials and snacks",
+    "category": "Groceries",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "cf7875625c3a49e888420d7b"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5b44b59faffe4986add22de3"
+    },
+    "name": "Urban Style Boutique",
+    "bio": "Fashion for every occasion",
+    "category": "Fashion",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "adb8f6d5d6d24624afb2413b"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "410444d15f1541e8baac748b"
+    },
+    "name": "Elegance Wear",
+    "bio": "Modern clothing and timeless styles",
+    "category": "Clothing",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "26dbab4b4397489e8fe47136"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "23bd8b9fd9704a12aa3ab1fe"
+    },
+    "name": "Mt Kenya Fashion House",
+    "bio": "Trendy outfits at friendly prices",
+    "category": "Fashion",
+    "address": "Nanyuki, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "4807ebf66bf446eeb8cf02f1"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Laikipia",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "02450a11dc4b481fb7dfd029"
+    },
+    "name": "Shoe Avenue",
+    "bio": "Shoes for work, school and leisure",
+    "category": "Footwear",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "613bfa54f7e3402e8145a3aa"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "52ce8cbb71b8421481f61fb4"
+    },
+    "name": "Classic Kicks",
+    "bio": "Stylish footwear for every step",
+    "category": "Footwear",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "f8b58e1ae5b14e44954df4eb"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "7289e94f0d534336ba002dfd"
+    },
+    "name": "Royal Threads",
+    "bio": "Clothing and accessories for all",
+    "category": "Clothing",
+    "address": "Mukurwe-ini, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "528a488629594babb1b8c687"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "4aef89509be742e6a3165e38"
+    },
+    "name": "Little Stars Kidswear",
+    "bio": "Comfortable clothing for children",
+    "category": "Baby & Kids",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "578ec7b632bc452b8fcd0a50"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "aa20ceac6df547aca0db865a"
+    },
+    "name": "Trendsetters Boutique",
+    "bio": "Discover your personal style",
+    "category": "Fashion",
+    "address": "Nanyuki, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "3f8cfd44eca94607b538c406"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Laikipia",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "bc6900ba602f49e7bc4bba01"
+    },
+    "name": "Leather Craft Kenya",
+    "bio": "Bags, belts and leather accessories",
+    "category": "Fashion Accessories",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "7b15e380ba594edea1505435"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "a352cf019797498ba453a493"
+    },
+    "name": "Everyday Apparel",
+    "bio": "Affordable everyday clothing",
+    "category": "Clothing",
+    "address": "Othaya, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "c362d5c43458444e901ad595"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "7abf307ef347413597487a24"
+    },
+    "name": "Home Comforts",
+    "bio": "Make your house feel like home",
+    "category": "Home & Living",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "36271671eb2c4ec69c1439c6"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "2d113ae689844968abed8e73"
+    },
+    "name": "Kitchen Essentials",
+    "bio": "Kitchenware for every household",
+    "category": "Kitchenware",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "6da1706377354c8087036e39"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b20ebb0af3ca4feeaf23e280"
+    },
+    "name": "Cozy Living Store",
+    "bio": "Home decor and comfort essentials",
+    "category": "Home Decor",
+    "address": "Nanyuki, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "8965ca2d713649f28df33692"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Laikipia",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "0314796715cb4d5c84e63575"
+    },
+    "name": "Bright Home Appliances",
+    "bio": "Reliable appliances for modern homes",
+    "category": "Home Appliances",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "a7a311975fa64698926e9ae4"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b315eff55bfa4eaeadf642b4"
+    },
+    "name": "Sleep Well Bedding",
+    "bio": "Bedding and bedroom essentials",
+    "category": "Bedding",
+    "address": "Mukurwe-ini, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "e527ae47a2b742bab5651def"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "450f205ef698444e8a932bee"
+    },
+    "name": "CleanSpace Supplies",
+    "bio": "Cleaning products and home supplies",
+    "category": "Household Supplies",
+    "address": "Othaya, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "267842d3fe4a496e9869df75"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "3e955bf516c14d00b8140dd6"
+    },
+    "name": "Decor Haven",
+    "bio": "Beautiful decor for beautiful spaces",
+    "category": "Home Decor",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "416dbb8805c940468f98e70a"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "046dee409f0e4602a1b5f4ed"
+    },
+    "name": "Furniture Point",
+    "bio": "Functional furniture for every room",
+    "category": "Furniture",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "0c69ac19399b4e75926f9fd3"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "6.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "19ace0a9a5db40888daaeec3"
+    },
+    "name": "Garden & Grow",
+    "bio": "Gardening tools and plant supplies",
+    "category": "Garden Supplies",
+    "address": "Nanyuki, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "ee00e287ca604deaaa84229f"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Laikipia",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "21a01d6f5e5b4a649da46f92"
+    },
+    "name": "PowerHouse Electricals",
+    "bio": "Electrical fittings and lighting",
+    "category": "Electrical Supplies",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "73ebfeb89baa4821bbf6b06d"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "967abb6a6141460eafd321c8"
+    },
+    "name": "Beauty Bloom",
+    "bio": "Beauty products for everyday confidence",
+    "category": "Beauty & Personal Care",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "e0f02fe1990d49d2a807fde7"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "8d9c1f34293f43efa662098e"
+    },
+    "name": "Glow Up Cosmetics",
+    "bio": "Cosmetics and skincare essentials",
+    "category": "Cosmetics",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "76d9ad390ec04b1c80eef10a"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "ce500daf49c64d6182c4c67a"
+    },
+    "name": "Natural Care Shop",
+    "bio": "Personal care and wellness products",
+    "category": "Personal Care",
+    "address": "Othaya, Nyeri",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "fe736852527844959246dc9e"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "0f0b4ae306564273bed51e8f"
+    },
+    "name": "Healthy Living Pharmacy",
+    "bio": "Health and wellness essentials",
+    "category": "Health & Wellness",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "b69534a0cdbc47d0af3efd39"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "556005ecf8de43c6ae9a6a38"
+    },
+    "name": "Little Angels Baby Shop",
+    "bio": "Baby care products and accessories",
+    "category": "Baby & Kids",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "301d5e1e8a82409a853c70b1"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b141a329052e4a6585eab4df"
+    },
+    "name": "Pet Care Corner",
+    "bio": "Pet food and animal care supplies",
+    "category": "Pet Supplies",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "e44b8287355843ec9b3b045d"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b4976f3ccbfb43f1b04c5485"
+    },
+    "name": "Sports Gear Hub",
+    "bio": "Sportswear and fitness accessories",
+    "category": "Sports & Fitness",
+    "address": "Nanyuki, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "9f2e975b15e04851a74ab0e4"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Laikipia",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "0f524622de044912ba3cfffa"
+    },
+    "name": "BookSmart Stationers",
+    "bio": "Books, stationery and school supplies",
+    "category": "Books & Stationery",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "055a1bef89da4263ac4d1f94"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "3.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "c857468e0e0e4c4dbeb69757"
+    },
+    "name": "Creative Arts Shop",
+    "bio": "Art materials and creative supplies",
+    "category": "Arts & Crafts",
+    "address": "Karatina, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "c6bc32413e9443c2ae2d6f4d"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "4.0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "1e8c654fdfd947bdac1b40c3"
+    },
+    "name": "AutoCare Spares",
+    "bio": "Vehicle accessories and spare parts",
+    "category": "Automotive",
+    "address": "Nyeri Town, Kenya",
+    "opening_hours": [],
+    "website": "https://samkamdev.netlify.app",
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "sellerId": {
+      "$oid": "9ce2139043a44553aa6f0efe"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:43:40.896Z"
+    },
+    "deliveryZone": "Nyeri",
+    "deliveryFee": {
+      "$numberDouble": "5.0"
+    }
+  }
+]

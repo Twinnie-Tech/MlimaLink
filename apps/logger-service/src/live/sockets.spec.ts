@@ -73,12 +73,26 @@ describe('attachLiveLogs', () => {
     expect(await refusedWith('/api/logs/ws')).toBe(401);
   });
 
+  it('signs in with a socket ticket when admin-ui is on another site', async () => {
+    const ws = new WebSocket(`${baseUrl}/api/logs/ws?ticket=t1`, {
+      headers: { origin: ORIGIN },
+    });
+    ws.on('error', () => undefined);
+    await new Promise((resolve) => ws.once('message', resolve));
+
+    expect(findSignedInAdmin).toHaveBeenCalledWith(
+      expect.objectContaining({ origin: ORIGIN }),
+      't1',
+    );
+  });
+
   it('greets the admin, then streams every line as it happens', async () => {
     const { next } = connect();
 
     expect(await next(1)).toEqual({ type: 'ready' });
     expect(findSignedInAdmin).toHaveBeenCalledWith(
       expect.objectContaining({ cookie: 'adminAccessToken=token' }),
+      undefined,
     );
     expect(hub.size).toBe(1);
 

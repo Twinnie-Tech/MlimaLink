@@ -810,6 +810,21 @@ describe('ChatProvider', () => {
     expect(FakeWebSocket.instances).toHaveLength(0);
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it('signs in with a ticket when the socket is on another site', async () => {
+    vi.stubEnv('NEXT_PUBLIC_CHAT_WS_URL', 'wss://api.example/api/chat/ws');
+    try {
+      reply('POST /api/chat/socket-ticket?as=user', 200, { ticket: 't1' });
+      renderLive(<p>Home</p>);
+
+      await waitFor(() => expect(FakeWebSocket.instances).toHaveLength(1));
+      expect(latestSocket().url).toBe(
+        'wss://api.example/api/chat/ws?as=user&ticket=t1',
+      );
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });
 
 describe('StatusPicker', () => {

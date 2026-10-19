@@ -28,7 +28,12 @@ import {
   type Presence,
   type PresenceStatus,
 } from '@org/models/chat';
-import { chatSocketUrl, createChatApi, type ChatApi } from './chat-api';
+import {
+  chatSocketNeedsTicket,
+  chatSocketUrl,
+  createChatApi,
+  type ChatApi,
+} from './chat-api';
 import { chatKeys, useUnseenTotal } from './chat-queries';
 import { useIdleStatus } from './use-idle-status';
 
@@ -333,7 +338,28 @@ export function ChatProvider({
     };
 
     function connect() {
-      const ws = new WebSocket(chatSocketUrl(account));
+      if (!chatSocketNeedsTicket()) {
+        open(chatSocketUrl(account));
+        return;
+      }
+      api.socketTicket().then(
+        ({ ticket }) => {
+          if (!closed) {
+            open(chatSocketUrl(account, undefined, undefined, ticket));
+          }
+        },
+        () => {
+          // Fetching a ticket already renewed the session if that was the problem.
+          if (closed) return;
+          const delay = Math.min(1000 * 2 ** attempt, RECONNECT_MAX_MS);
+          attempt += 1;
+          reconnect(delay, false);
+        },
+      );
+    }
+
+    function open(url: string) {
+      const ws = new WebSocket(url);
       let opened = false;
       wsRef.current = ws;
 
@@ -386,7 +412,7 @@ export function ChatProvider({
       wsRef.current = null;
       setConnected(false);
     };
-  }, [account, viewerId, refreshSession, queryClient, idleStatusRef]);
+  }, [account, api, viewerId, refreshSession, queryClient, idleStatusRef]);
 
   // "(3) MlimaLink" in the tab title; Next.js rewrites the title on navigation, so it's
   // put back whenever the head changes.

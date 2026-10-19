@@ -165,6 +165,8 @@ export function createChatApi({ account, refreshSession }: ChatApiOptions) {
       if (q.trim()) params.set('q', q.trim());
       return request<GifPage>('GET', `gifs?${params}`);
     },
+    /** A short-lived ticket for opening the WebSocket on another site. */
+    socketTicket: () => request<{ ticket: string }>('POST', 'socket-ticket'),
   };
 }
 
@@ -173,9 +175,21 @@ export function chatSocketUrl(
   account: ChatRole,
   base = process.env.NEXT_PUBLIC_CHAT_WS_URL,
   location: Pick<Location, 'protocol' | 'host'> = window.location,
+  ticket?: string,
 ): string {
   const root = base
     ? base.replace(/\/+$/, '')
     : `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/chat/ws`;
-  return `${root}?as=${account}`;
+  const signIn = ticket ? `&ticket=${encodeURIComponent(ticket)}` : '';
+  return `${root}?as=${account}${signIn}`;
+}
+
+/**
+ * A socket on another site (NEXT_PUBLIC_CHAT_WS_URL) doesn't get this site's cookie, so
+ * it signs in with a short-lived ticket from `socketTicket()` instead.
+ */
+export function chatSocketNeedsTicket(
+  base = process.env.NEXT_PUBLIC_CHAT_WS_URL,
+): boolean {
+  return Boolean(base);
 }

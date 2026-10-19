@@ -1,0 +1,852 @@
+[
+  {
+    "_id": {
+      "$oid": "f738098e73d4498b91364ea8"
+    },
+    "name": "Njeri Electronics",
+    "email": "njeri.electronics@example.com",
+    "phone_number": "+254710000000",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "64b404da422d49a7bf1c7908"
+    },
+    "name": "Mukurweini Digital Hub",
+    "email": "mukurweini.digital.hub@example.com",
+    "phone_number": "+254711234567",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "ad0ad177fa624f9e8ad53452"
+    },
+    "name": "Mount Kenya Gadgets",
+    "email": "mount.kenya.gadgets@example.com",
+    "phone_number": "+254712469134",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "96f5821894754a14a0b6c4d8"
+    },
+    "name": "SmartBuy Electronics",
+    "email": "smartbuy.electronics@example.com",
+    "phone_number": "+254713703701",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "960cf744145b460bae6032b7"
+    },
+    "name": "TechNest Kenya",
+    "email": "technest.kenya@example.com",
+    "phone_number": "+254714938268",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "a56ebfe66bc14f9b8166be84"
+    },
+    "name": "Pixel Point",
+    "email": "pixel.point@example.com",
+    "phone_number": "+254716172835",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "eae25a5ec2d44a85a63456b3"
+    },
+    "name": "Gadget Corner",
+    "email": "gadget.corner@example.com",
+    "phone_number": "+254717407402",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6e727c8f7e9a4592822d0f17"
+    },
+    "name": "Digital World Nyeri",
+    "email": "digital.world.nyeri@example.com",
+    "phone_number": "+254718641969",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "02796c9e250e4cc09781c239"
+    },
+    "name": "Mobile Masters",
+    "email": "mobile.masters@example.com",
+    "phone_number": "+254719876536",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "9a8cdb2f811a4fcb8d3343e7"
+    },
+    "name": "Laptop Lounge",
+    "email": "laptop.lounge@example.com",
+    "phone_number": "+254721111103",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "96c182e730284fa9977c4ce7"
+    },
+    "name": "Fresh Basket Market",
+    "email": "fresh.basket.market@example.com",
+    "phone_number": "+254722345670",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "0ac528200500481e9e76ec43"
+    },
+    "name": "Green Valley Grocers",
+    "email": "green.valley.grocers@example.com",
+    "phone_number": "+254723580237",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "0092b1ec9da8435db78e00a3"
+    },
+    "name": "Mama Mboga Online",
+    "email": "mama.mboga.online@example.com",
+    "phone_number": "+254724814804",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b3cfbe73da9d456c82fce39b"
+    },
+    "name": "Farm Fresh Hub",
+    "email": "farm.fresh.hub@example.com",
+    "phone_number": "+254726049371",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "e50f9765fb2f4e4393135e84"
+    },
+    "name": "Golden Grain Stores",
+    "email": "golden.grain.stores@example.com",
+    "phone_number": "+254727283938",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "f92a91c829934dacbe0c586d"
+    },
+    "name": "Mountain Harvest",
+    "email": "mountain.harvest@example.com",
+    "phone_number": "+254728518505",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "80d99b44bb4545baac42fc1a"
+    },
+    "name": "Daily Needs Store",
+    "email": "daily.needs.store@example.com",
+    "phone_number": "+254729753072",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "1d268bd7a2f14c2089c5d9ac"
+    },
+    "name": "Family Choice Mart",
+    "email": "family.choice.mart@example.com",
+    "phone_number": "+254730987639",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "f25767dd058544cf8622f10f"
+    },
+    "name": "Sunrise Mini Mart",
+    "email": "sunrise.mini.mart@example.com",
+    "phone_number": "+254732222206",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "cf7875625c3a49e888420d7b"
+    },
+    "name": "Prime Pantry",
+    "email": "prime.pantry@example.com",
+    "phone_number": "+254733456773",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "adb8f6d5d6d24624afb2413b"
+    },
+    "name": "Urban Style Boutique",
+    "email": "urban.style.boutique@example.com",
+    "phone_number": "+254734691340",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "26dbab4b4397489e8fe47136"
+    },
+    "name": "Elegance Wear",
+    "email": "elegance.wear@example.com",
+    "phone_number": "+254735925907",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "4807ebf66bf446eeb8cf02f1"
+    },
+    "name": "Mt Kenya Fashion House",
+    "email": "mt.kenya.fashion.house@example.com",
+    "phone_number": "+254737160474",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "613bfa54f7e3402e8145a3aa"
+    },
+    "name": "Shoe Avenue",
+    "email": "shoe.avenue@example.com",
+    "phone_number": "+254738395041",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "f8b58e1ae5b14e44954df4eb"
+    },
+    "name": "Classic Kicks",
+    "email": "classic.kicks@example.com",
+    "phone_number": "+254739629608",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "528a488629594babb1b8c687"
+    },
+    "name": "Royal Threads",
+    "email": "royal.threads@example.com",
+    "phone_number": "+254740864175",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "578ec7b632bc452b8fcd0a50"
+    },
+    "name": "Little Stars Kidswear",
+    "email": "little.stars.kidswear@example.com",
+    "phone_number": "+254742098742",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "3f8cfd44eca94607b538c406"
+    },
+    "name": "Trendsetters Boutique",
+    "email": "trendsetters.boutique@example.com",
+    "phone_number": "+254743333309",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "7b15e380ba594edea1505435"
+    },
+    "name": "Leather Craft Kenya",
+    "email": "leather.craft.kenya@example.com",
+    "phone_number": "+254744567876",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "c362d5c43458444e901ad595"
+    },
+    "name": "Everyday Apparel",
+    "email": "everyday.apparel@example.com",
+    "phone_number": "+254745802443",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "36271671eb2c4ec69c1439c6"
+    },
+    "name": "Home Comforts",
+    "email": "home.comforts@example.com",
+    "phone_number": "+254747037010",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6da1706377354c8087036e39"
+    },
+    "name": "Kitchen Essentials",
+    "email": "kitchen.essentials@example.com",
+    "phone_number": "+254748271577",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "8965ca2d713649f28df33692"
+    },
+    "name": "Cozy Living Store",
+    "email": "cozy.living.store@example.com",
+    "phone_number": "+254749506144",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "a7a311975fa64698926e9ae4"
+    },
+    "name": "Bright Home Appliances",
+    "email": "bright.home.appliances@example.com",
+    "phone_number": "+254750740711",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "e527ae47a2b742bab5651def"
+    },
+    "name": "Sleep Well Bedding",
+    "email": "sleep.well.bedding@example.com",
+    "phone_number": "+254751975278",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "267842d3fe4a496e9869df75"
+    },
+    "name": "CleanSpace Supplies",
+    "email": "cleanspace.supplies@example.com",
+    "phone_number": "+254753209845",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "416dbb8805c940468f98e70a"
+    },
+    "name": "Decor Haven",
+    "email": "decor.haven@example.com",
+    "phone_number": "+254754444412",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "0c69ac19399b4e75926f9fd3"
+    },
+    "name": "Furniture Point",
+    "email": "furniture.point@example.com",
+    "phone_number": "+254755678979",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "ee00e287ca604deaaa84229f"
+    },
+    "name": "Garden & Grow",
+    "email": "garden.and.grow@example.com",
+    "phone_number": "+254756913546",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "73ebfeb89baa4821bbf6b06d"
+    },
+    "name": "PowerHouse Electricals",
+    "email": "powerhouse.electricals@example.com",
+    "phone_number": "+254758148113",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "e0f02fe1990d49d2a807fde7"
+    },
+    "name": "Beauty Bloom",
+    "email": "beauty.bloom@example.com",
+    "phone_number": "+254759382680",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "76d9ad390ec04b1c80eef10a"
+    },
+    "name": "Glow Up Cosmetics",
+    "email": "glow.up.cosmetics@example.com",
+    "phone_number": "+254760617247",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "fe736852527844959246dc9e"
+    },
+    "name": "Natural Care Shop",
+    "email": "natural.care.shop@example.com",
+    "phone_number": "+254761851814",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b69534a0cdbc47d0af3efd39"
+    },
+    "name": "Healthy Living Pharmacy",
+    "email": "healthy.living.pharmacy@example.com",
+    "phone_number": "+254763086381",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "301d5e1e8a82409a853c70b1"
+    },
+    "name": "Little Angels Baby Shop",
+    "email": "little.angels.baby.shop@example.com",
+    "phone_number": "+254764320948",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "e44b8287355843ec9b3b045d"
+    },
+    "name": "Pet Care Corner",
+    "email": "pet.care.corner@example.com",
+    "phone_number": "+254765555515",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "9f2e975b15e04851a74ab0e4"
+    },
+    "name": "Sports Gear Hub",
+    "email": "sports.gear.hub@example.com",
+    "phone_number": "+254766790082",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "055a1bef89da4263ac4d1f94"
+    },
+    "name": "BookSmart Stationers",
+    "email": "booksmart.stationers@example.com",
+    "phone_number": "+254768024649",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "c6bc32413e9443c2ae2d6f4d"
+    },
+    "name": "Creative Arts Shop",
+    "email": "creative.arts.shop@example.com",
+    "phone_number": "+254769259216",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "9ce2139043a44553aa6f0efe"
+    },
+    "name": "AutoCare Spares",
+    "email": "autocare.spares@example.com",
+    "phone_number": "+254770493783",
+    "country": "KE",
+    "password": "$2b$10$yJeprxEqzdtJPMTZGNvCMuwL8uzwJr/4hIVDNo1Y4mFFlwXCKjF.i",
+    "suspended": false,
+    "createdAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:42:40.896Z"
+    }
+  }
+]

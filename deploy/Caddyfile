@@ -1,0 +1,6 @@
+# HTTPS for the gateway, with a free Let's Encrypt certificate. API_DOMAIN comes from
+# deploy/production.env, e.g. api.203-0-113-7.sslip.io (sslip.io resolves to the IP in the name).
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy gateway:3000
+}

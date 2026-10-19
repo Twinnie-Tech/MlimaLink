@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { refreshAdminSession } from '../utils/admin-api';
 import {
   LOGS_SESSION_EXPIRED_CODE,
-  logsSocketUrl,
+  logsSocketAddress,
   parseLogsEvent,
   type LogLine,
 } from '../utils/logs-api';
@@ -41,10 +41,31 @@ export function useLiveLogs(onLines: (lines: LogLine[]) => void): LiveStatus {
       onLinesRef.current(lines);
     }, FLUSH_EVERY_MS);
 
+    const retry = () => {
+      const delay =
+        RETRY_DELAYS_MS[Math.min(failures, RETRY_DELAYS_MS.length - 1)];
+      failures += 1;
+      retryTimer = setTimeout(connect, delay);
+    };
+
     const connect = () => {
       if (stopped) return;
+      logsSocketAddress().then(
+        (url) => {
+          if (!stopped) open(url);
+        },
+        () => {
+          // Fetching a ticket already renewed the session if that was the problem.
+          if (stopped) return;
+          setStatus('reconnecting');
+          retry();
+        },
+      );
+    };
+
+    const open = (url: string) => {
       let ready = false;
-      const socket = new WebSocket(logsSocketUrl());
+      const socket = new WebSocket(url);
       ws = socket;
       socket.onmessage = (message) => {
         const event = parseLogsEvent(message.data);
@@ -60,16 +81,13 @@ export function useLiveLogs(onLines: (lines: LogLine[]) => void): LiveStatus {
       socket.onclose = (event) => {
         if (stopped || ws !== socket) return;
         setStatus('reconnecting');
-        const delay =
-          RETRY_DELAYS_MS[Math.min(failures, RETRY_DELAYS_MS.length - 1)];
-        failures += 1;
         // Refused before it was ready usually means the access token expired too.
         const renew =
           event.code === LOGS_SESSION_EXPIRED_CODE || !ready
             ? refreshAdminSession().catch(() => undefined)
             : Promise.resolve();
         void renew.then(() => {
-          retryTimer = setTimeout(connect, delay);
+          if (!stopped) retry();
         });
       };
     };

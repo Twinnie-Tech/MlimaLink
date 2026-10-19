@@ -1,0 +1,88 @@
+# Production backend: the gateway and every service behind it, Kafka and Redis, with
+# Caddy in front for HTTPS. Only Caddy is reachable from the internet.
+#   docker compose -f docker-compose.prod.yml up -d --build
+# Settings come from deploy/production.env (copy deploy/production.env.example).
+
+x-backend: &backend
+  build: .
+  image: mlimalink-backend:latest
+  restart: unless-stopped
+  env_file: deploy/production.env
+  depends_on: [kafka, redis]
+
+services:
+  gateway:
+    <<: *backend
+    command: node apps/api-gateway/dist/main.js
+    environment:
+      API_URL: http://api:3333
+      AUTH_SERVICE_URL: http://auth:3334
+      CHAT_SERVICE_URL: http://chat:3336
+      LOGGER_SERVICE_URL: http://logger:3337
+      RECOMMENDATION_SERVICE_URL: http://recommendation:3338
+  api:
+    <<: *backend
+    command: node apps/api/dist/main.js
+  auth:
+    <<: *backend
+    command: node apps/auth-service/dist/main.js
+  kafka-service:
+    <<: *backend
+    command: node apps/kafka-service/dist/main.js
+  chat:
+    <<: *backend
+    command: node apps/chatting-service/dist/main.js
+    environment:
+      CHAT_INSTANCE_ID: chat-1
+  logger:
+    <<: *backend
+    command: node apps/logger-service/dist/main.js
+    environment:
+      LOGGER_INSTANCE_ID: logger-1
+  recommendation:
+    <<: *backend
+    command: node apps/recommendation-service/dist/main.js
+
+  kafka:
+    image: apache/kafka:3.9.1
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    env_file: deploy/production.env
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [gateway]
+
+volumes:
+  kafka-data:
+  redis-data:
+  caddy-data:

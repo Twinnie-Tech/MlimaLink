@@ -26,6 +26,7 @@ MlimaLink is a marketplace platform built as an [Nx](https://nx.dev) monorepo. S
 - [Database (Prisma)](#database-prisma)
 - [Testing and quality checks](#testing-and-quality-checks)
 - [Continuous integration](#continuous-integration)
+- [Deployment](#deployment)
 - [Project structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
 
@@ -594,6 +595,43 @@ npx nx graph                               # project dependency graph
 4. `npx nx run-many -t e2e --parallel=1`
 
 Run steps 2 and 3 locally before pushing.
+
+---
+
+## Deployment
+
+The free setup: the three UIs on Vercel, every backend service on one server (e.g. an Oracle Cloud Always Free VM) with Docker Compose, and MongoDB on Atlas M0.
+
+| File                            | Purpose                                                                         |
+| ------------------------------- | ------------------------------------------------------------------------------- |
+| `Dockerfile`                    | One image with every backend service built                                      |
+| `docker-compose.prod.yml`       | The gateway and six services, Kafka, Redis, and Caddy for HTTPS on ports 80/443 |
+| `deploy/Caddyfile`              | Serves the gateway at `API_DOMAIN` with a free Let's Encrypt certificate        |
+| `deploy/production.env.example` | Every production setting; copy to `deploy/production.env` on the server         |
+
+**Server**
+
+```bash
+git clone <repo> && cd MlimaLink
+cp deploy/production.env.example deploy/production.env   # fill it in
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Without a domain, use `API_DOMAIN=api.<server-ip-with-dashes>.sslip.io`, which resolves to the server's IP. Open ports 80 and 443 to the server. Run `npx prisma db push` against Atlas once, from any machine, before the first start.
+
+**Vercel** (one project per UI): Root Directory `apps/user-ui`, `apps/seller-ui` or `apps/admin-ui`; Install Command `cd ../.. && npm ci`; then set:
+
+| Variable                    | UIs           | Value                            |
+| --------------------------- | ------------- | -------------------------------- |
+| `API_GATEWAY_URL`           | all           | `https://<API_DOMAIN>`           |
+| `NEXT_PUBLIC_CHAT_WS_URL`   | all           | `wss://<API_DOMAIN>/api/chat/ws` |
+| `NEXT_PUBLIC_SELLER_UI_URL` | user-ui       | the seller-ui address            |
+| `NEXT_PUBLIC_SHOP_URL`      | seller, admin | the user-ui address              |
+| `NEXT_PUBLIC_LOGS_WS_URL`   | admin-ui      | `wss://<API_DOMAIN>/api/logs/ws` |
+
+They're read at build time, so redeploy after changing them. HTTP requests still go through each UI's `/api` rewrite, so login cookies stay on the UI's own site. Vercel can't proxy WebSockets, so chat and live logs connect to the gateway directly. That's another site, so the browser won't send the cookie; instead the UI first gets a 60-second ticket from `POST /api/chat/socket-ticket` or `POST /api/logs/socket-ticket` and opens the socket with `?ticket=`. Without `NEXT_PUBLIC_*_WS_URL` (local development), sockets stay on the UI's own origin and use the cookie.
+
+**Updating:** `git pull && docker compose -f docker-compose.prod.yml up -d --build` on the server; Vercel redeploys on every push to `main`.
 
 ---
 

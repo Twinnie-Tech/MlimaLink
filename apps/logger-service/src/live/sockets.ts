@@ -33,7 +33,8 @@ function reject(socket: Duplex, status: number, reason: string) {
 }
 
 /**
- * Serves live logs to signed-in admins at ws://host/api/logs/ws. The server sends
+ * Serves live logs to signed-in admins at ws://host/api/logs/ws; admin-ui on another site
+ * adds `?ticket=` from POST /api/logs/socket-ticket. The server sends
  * `{ type: 'ready' }`, then `{ type: 'log', log: { id, level, message, source,
  * timestamp, meta? } }` for every line any service logs, as it happens. Clients don't
  * send anything.
@@ -58,7 +59,10 @@ export function attachLiveLogs(
         reject(socket, 403, 'Forbidden');
         return;
       }
-      const admin = await findSignedInAdmin(req.headers);
+      const admin = await findSignedInAdmin(
+        req.headers,
+        url.searchParams.get('ticket') ?? undefined,
+      );
       if (!admin) {
         reject(socket, 401, 'Unauthorized');
         return;

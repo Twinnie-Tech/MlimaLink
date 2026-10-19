@@ -46,6 +46,21 @@ export function logsSocketUrl(
   return `${protocol}//${window.location.host}/api/logs/ws`;
 }
 
+/**
+ * Where to open the live logs WebSocket. A socket on another site (NEXT_PUBLIC_LOGS_WS_URL)
+ * doesn't get admin-ui's cookie, so it carries a short-lived ticket from logger-service.
+ */
+export async function logsSocketAddress(
+  configured = process.env.NEXT_PUBLIC_LOGS_WS_URL,
+): Promise<string> {
+  const url = logsSocketUrl(configured);
+  if (!configured) return url;
+  const { ticket } = await withSession(() =>
+    requestJson<{ ticket: string }>('POST', '/api/logs/socket-ticket'),
+  );
+  return `${url}${url.includes('?') ? '&' : '?'}ticket=${encodeURIComponent(ticket)}`;
+}
+
 export function parseLogsEvent(data: unknown): LogsSocketEvent | null {
   if (typeof data !== 'string') return null;
   try {

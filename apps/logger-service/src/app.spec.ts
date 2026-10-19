@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { verifyAccessToken } from '@org/utils/auth';
+import { verifyAccessToken, verifySocketTicket } from '@org/utils/auth';
 import { createApp } from './app';
 import { listSources, queryLogs } from './logs/store';
 import { prisma } from './prisma';
@@ -66,6 +66,24 @@ describe('logger-service app', () => {
       before: new Date('2026-10-08T10:00:00.000Z'),
       limit: 20,
     });
+  });
+
+  it('issues a socket ticket to signed-in admins only', async () => {
+    vi.stubEnv('ADMIN_ACCESS_TOKEN_SECRET', 'a'.repeat(64));
+    try {
+      const response = await request(createApp())
+        .post('/api/logs/socket-ticket')
+        .expect(200);
+      expect(response.headers['cache-control']).toBe('no-store');
+      expect(verifySocketTicket(response.body.ticket, 'admin')?.id).toBe(
+        adminId,
+      );
+
+      vi.mocked(verifyAccessToken).mockReturnValueOnce(null);
+      await request(createApp()).post('/api/logs/socket-ticket').expect(401);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it.each([

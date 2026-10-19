@@ -120,6 +120,18 @@ describe('attachChatSockets', () => {
     expect(authenticate).toHaveBeenCalledWith(
       'user',
       expect.objectContaining({ origin: ORIGIN }),
+      undefined,
+    );
+  });
+
+  it('signs in with a socket ticket when the UI is on another site', async () => {
+    const { next } = connect('/api/chat/ws?as=user&ticket=t1');
+
+    await next(1);
+    expect(authenticate).toHaveBeenCalledWith(
+      'user',
+      expect.objectContaining({ origin: ORIGIN }),
+      't1',
     );
   });
 

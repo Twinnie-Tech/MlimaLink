@@ -1,4 +1,5 @@
 import request from 'supertest';
+import { verifySocketTicket } from '@org/utils/auth';
 import { createApp } from './app';
 import { TOO_LARGE_MESSAGE, uploadChatFile } from './chat/attachments';
 import {
@@ -118,6 +119,24 @@ describe('chatting-service app', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual([]);
     expect(listConversations).toHaveBeenCalledWith(shopper);
+  });
+
+  it('issues a socket ticket for the signed-in session', async () => {
+    vi.stubEnv('ACCESS_TOKEN_SECRET', 'u'.repeat(64));
+    try {
+      const response = await request(createApp()).post(
+        '/api/chat/socket-ticket?as=user',
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.headers['cache-control']).toBe('no-store');
+      expect(verifySocketTicket(response.body.ticket, 'user')).toEqual({
+        id: shopper.id,
+        expiresAt: Math.floor(shopper.expiresAt / 1000) * 1000,
+      });
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('opens a chat from the request body', async () => {

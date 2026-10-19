@@ -4,6 +4,7 @@ import express, {
   type Request,
   type Response,
 } from 'express';
+import { issueSocketTicket } from '@org/utils/auth';
 import { isLogLevel } from '@org/utils/logs';
 import { findSignedInAdmin } from './admin-auth';
 import { listSources, queryLogs, type LogQuery } from './logs/store';
@@ -84,6 +85,16 @@ export function createApp() {
       listSources(),
     ]);
     res.json({ logs, sources });
+  });
+
+  /** A short-lived ticket for opening the live logs WebSocket from admin-ui on another site. */
+  app.post('/api/logs/socket-ticket', async (req, res) => {
+    const admin = await findSignedInAdmin(req.headers);
+    if (!admin) {
+      throw new HttpError(401, 'Please log in as an admin to continue.');
+    }
+    res.set('Cache-Control', 'no-store');
+    res.json({ ticket: issueSocketTicket('admin', admin) });
   });
 
   app.use(handleErrors);

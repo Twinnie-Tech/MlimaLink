@@ -1,0 +1,15 @@
+.git
+.github
+.cursor
+.nx
+.vscode
+**/node_modules
+**/dist
+**/.next
+**/test-output
+**/playwright-report
+.env
+.env.*
+!.env.example
+deploy/production.env
+*_mongodb.json

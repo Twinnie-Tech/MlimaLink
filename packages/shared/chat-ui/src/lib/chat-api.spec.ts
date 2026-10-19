@@ -1,4 +1,9 @@
-import { ChatRequestError, chatSocketUrl, createChatApi } from './chat-api';
+import {
+  ChatRequestError,
+  chatSocketNeedsTicket,
+  chatSocketUrl,
+  createChatApi,
+} from './chat-api';
 
 const respond = (status: number, body: unknown) => ({
   ok: status >= 200 && status < 300,
@@ -172,5 +177,34 @@ describe('chatSocketUrl', () => {
     expect(chatSocketUrl('seller', 'ws://localhost:6007/api/chat/ws/')).toBe(
       'ws://localhost:6007/api/chat/ws?as=seller',
     );
+  });
+});
+
+describe('socket tickets', () => {
+  it('are needed only for a socket on another site', () => {
+    expect(chatSocketNeedsTicket(undefined)).toBe(false);
+    expect(chatSocketNeedsTicket('wss://api.example/api/chat/ws')).toBe(true);
+  });
+
+  it('go in the socket address', () => {
+    expect(
+      chatSocketUrl(
+        'seller',
+        'wss://api.example/api/chat/ws',
+        undefined,
+        'a.b+c',
+      ),
+    ).toBe('wss://api.example/api/chat/ws?as=seller&ticket=a.b%2Bc');
+  });
+
+  it('come from chatting-service', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(respond(200, { ticket: 't' }));
+    vi.stubGlobal('fetch', fetchMock);
+    const api = createChatApi({ account: 'admin', refreshSession: vi.fn() });
+
+    await expect(api.socketTicket()).resolves.toEqual({ ticket: 't' });
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/chat/socket-ticket?as=admin');
+    expect(fetchMock.mock.calls[0][1].method).toBe('POST');
+    vi.unstubAllGlobals();
   });
 });

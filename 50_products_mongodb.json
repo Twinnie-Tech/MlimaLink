@@ -1,0 +1,6652 @@
+[
+  {
+    "_id": {
+      "$oid": "6ace5fd023c730645f074300"
+    },
+    "title": "Samsung Galaxy A55 5G",
+    "shortDescription": "Premium mid-range 5G phone with a 50MP camera and all-day battery",
+    "description": "<p><strong>Samsung Galaxy A55 5G Key Features</strong></p><ol><li><p>RAM: 8GB</p></li><li><p>Display: 6.6-inch Super AMOLED, 120Hz</p></li><li><p>Chipset: Exynos 1480</p></li><li><p>Main Camera: 50MP + 12MP + 5MP</p></li><li><p>Selfie Camera: 32MP</p></li><li><p>Battery: 5000 mAh with 25W fast charging</p></li><li><p>Water resistance: IP67</p></li></ol><p>Sold by Njeri Electronics, Nyeri Town, Kenya.</p>",
+    "category": "Electronics",
+    "subCategory": "Phones & tablets",
+    "tags": [
+      "samsung",
+      "smartphone",
+      "5g"
+    ],
+    "price": {
+      "$numberDouble": "449.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "86"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "d62a7a5c0b5d4ecca815807f"
+    },
+    "sellerId": {
+      "$oid": "f738098e73d4498b91364ea8"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:00.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Samsung"
+      },
+      {
+        "name": "Model",
+        "value": "Galaxy A55"
+      },
+      {
+        "name": "Condition",
+        "value": "New"
+      },
+      {
+        "name": "Warranty",
+        "value": "12 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "Navy",
+            "swatch": "#1e3a8a"
+          },
+          {
+            "label": "Silver",
+            "swatch": "#c0c0c0"
+          }
+        ]
+      },
+      {
+        "name": "Storage",
+        "values": [
+          {
+            "label": "128 GB"
+          },
+          {
+            "label": "256 GB"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Storage": "128 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "22"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "499.0"
+        },
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Storage": "128 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "499.0"
+        },
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Silver",
+          "Storage": "128 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Silver",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "499.0"
+        },
+        "stock": {
+          "$numberLong": "20"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace5fd795addd6ff1deb4da"
+    },
+    "title": "HP 250 G10 Laptop",
+    "shortDescription": "Reliable 15.6-inch laptop for work and study",
+    "description": "<p><strong>HP 250 G10 Laptop Key Features</strong></p><ol><li><p>Processor: Intel Core i5-1335U</p></li><li><p>Display: 15.6-inch Full HD anti-glare</p></li><li><p>Graphics: Intel Iris Xe</p></li><li><p>OS: Windows 11 Home</p></li><li><p>Ports: USB-C, 2x USB-A, HDMI</p></li><li><p>Battery: up to 9 hours</p></li></ol><p>Sold by Mukurweini Digital Hub, Mukurwe-ini, Nyeri.</p>",
+    "category": "Electronics",
+    "subCategory": "Computers",
+    "tags": [
+      "hp",
+      "laptop"
+    ],
+    "price": {
+      "$numberDouble": "589.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "62"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "b018bea13ebe4b2bbd90463b"
+    },
+    "sellerId": {
+      "$oid": "64b404da422d49a7bf1c7908"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:07.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:07.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "HP"
+      },
+      {
+        "name": "Model",
+        "value": "250 G10"
+      },
+      {
+        "name": "Processor",
+        "value": "Intel Core i5-1335U"
+      },
+      {
+        "name": "Condition",
+        "value": "New"
+      },
+      {
+        "name": "Warranty",
+        "value": "12 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Memory",
+        "values": [
+          {
+            "label": "8 GB"
+          },
+          {
+            "label": "16 GB"
+          }
+        ]
+      },
+      {
+        "name": "Storage",
+        "values": [
+          {
+            "label": "256 GB"
+          },
+          {
+            "label": "512 GB"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Memory": "8 GB",
+          "Storage": "256 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Memory": "8 GB",
+          "Storage": "512 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Memory": "16 GB",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "649.0"
+        },
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Memory": "16 GB",
+          "Storage": "512 GB"
+        },
+        "price": {
+          "$numberDouble": "649.0"
+        },
+        "stock": {
+          "$numberLong": "13"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace5fde39575abe366a7aca"
+    },
+    "title": "Oraimo FreePods 4 Wireless Earbuds",
+    "shortDescription": "Noise-cancelling earbuds with 35 hours of playtime",
+    "description": "<p><strong>Oraimo FreePods 4 Wireless Earbuds Key Features</strong></p><ol><li><p>Active noise cancellation</p></li><li><p>Bluetooth 5.3</p></li><li><p>Playtime: 35 hours with case</p></li><li><p>Fast charging: 10 min for 2 hours</p></li><li><p>Water resistance: IPX5</p></li></ol><p>Sold by Mount Kenya Gadgets, Nyeri Town, Kenya.</p>",
+    "category": "Electronics",
+    "subCategory": "Audio",
+    "tags": [
+      "earbuds",
+      "oraimo",
+      "bluetooth"
+    ],
+    "price": {
+      "$numberDouble": "39.0"
+    },
+    "salePrice": {
+      "$numberDouble": "32.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "15"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "4ddb9198222c430c9f6cb71d"
+    },
+    "sellerId": {
+      "$oid": "ad0ad177fa624f9e8ad53452"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:14.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:14.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Oraimo"
+      },
+      {
+        "name": "Model",
+        "value": "FreePods 4"
+      },
+      {
+        "name": "Warranty",
+        "value": "6 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "White",
+            "swatch": "#ffffff"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "9"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace5fe51584036d8ab5e7ac"
+    },
+    "title": "TCL Smart Android TV",
+    "shortDescription": "Full HD and 4K smart TVs with Google TV built in",
+    "description": "<p><strong>TCL Smart Android TV Key Features</strong></p><ol><li><p>OS: Google TV</p></li><li><p>HDR10 and Dolby Audio</p></li><li><p>Built-in Chromecast</p></li><li><p>Ports: 3x HDMI, 2x USB</p></li><li><p>Wi-Fi and Bluetooth</p></li></ol><p>Sold by SmartBuy Electronics, Karatina, Kenya.</p>",
+    "category": "Electronics",
+    "subCategory": "TVs",
+    "tags": [
+      "tv",
+      "tcl",
+      "smart tv"
+    ],
+    "price": {
+      "$numberDouble": "279.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "31"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "baf25abbe48e4507b707f843"
+    },
+    "sellerId": {
+      "$oid": "96f5821894754a14a0b6c4d8"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:21.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:21.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "TCL"
+      },
+      {
+        "name": "Model",
+        "value": "P635"
+      },
+      {
+        "name": "Condition",
+        "value": "New"
+      },
+      {
+        "name": "Warranty",
+        "value": "24 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Screen size",
+        "values": [
+          {
+            "label": "43\""
+          },
+          {
+            "label": "50\""
+          },
+          {
+            "label": "55\""
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Screen size": "43\""
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "14"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Screen size": "50\""
+        },
+        "price": {
+          "$numberDouble": "339.0"
+        },
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Screen size": "55\""
+        },
+        "price": {
+          "$numberDouble": "399.0"
+        },
+        "stock": {
+          "$numberLong": "13"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace5fec0a274ca5ceb03e9c"
+    },
+    "title": "Apple iPad 10th Generation",
+    "shortDescription": "10.9-inch Liquid Retina iPad with A14 Bionic chip",
+    "description": "<p><strong>Apple iPad 10th Generation Key Features</strong></p><ol><li><p>Display: 10.9-inch Liquid Retina</p></li><li><p>Chipset: A14 Bionic</p></li><li><p>Camera: 12MP wide, 12MP landscape front camera</p></li><li><p>Connectivity: Wi-Fi 6, USB-C</p></li><li><p>Works with Apple Pencil (1st gen) and Magic Keyboard Folio</p></li></ol><p>Sold by TechNest Kenya, Nanyuki, Kenya.</p>",
+    "category": "Electronics",
+    "subCategory": "Phones & tablets",
+    "tags": [
+      "apple",
+      "ipad",
+      "tablet"
+    ],
+    "price": {
+      "$numberDouble": "399.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "75"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "f6e5bbe7596546d98b13265a"
+    },
+    "sellerId": {
+      "$oid": "960cf744145b460bae6032b7"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:28.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:28.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Apple"
+      },
+      {
+        "name": "Model",
+        "value": "iPad 10th Gen"
+      },
+      {
+        "name": "Condition",
+        "value": "New"
+      },
+      {
+        "name": "Warranty",
+        "value": "12 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Silver",
+            "swatch": "#c0c0c0"
+          },
+          {
+            "label": "Blue",
+            "swatch": "#2563eb"
+          },
+          {
+            "label": "Pink",
+            "swatch": "#ec4899"
+          }
+        ]
+      },
+      {
+        "name": "Storage",
+        "values": [
+          {
+            "label": "64 GB"
+          },
+          {
+            "label": "256 GB"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Silver",
+          "Storage": "64 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "15"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Silver",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "549.0"
+        },
+        "stock": {
+          "$numberLong": "5"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Storage": "64 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "549.0"
+        },
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Pink",
+          "Storage": "64 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Pink",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "549.0"
+        },
+        "stock": {
+          "$numberLong": "10"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace5ff35b3cd0dbbd9bd0ee"
+    },
+    "title": "Anker 20W USB-C Fast Charger",
+    "shortDescription": "Compact fast charger for iPhone, Samsung and more",
+    "description": "<p><strong>Anker 20W USB-C Fast Charger Key Features</strong></p><ol><li><p>Output: 20W Power Delivery</p></li><li><p>Charges iPhone 15 to 50% in 25 minutes</p></li><li><p>Foldable plug</p></li><li><p>Overheat and surge protection</p></li></ol><p>Sold by Pixel Point, Nyeri Town, Kenya.</p>",
+    "category": "Electronics",
+    "subCategory": "Accessories",
+    "tags": [
+      "charger",
+      "anker",
+      "usb-c"
+    ],
+    "price": {
+      "$numberDouble": "19.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "22"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "a66255633681476691b54e08"
+    },
+    "sellerId": {
+      "$oid": "a56ebfe66bc14f9b8166be84"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:35.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:35.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Anker"
+      },
+      {
+        "name": "Compatible with",
+        "value": "iPhone, Samsung Galaxy, iPad"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "White",
+            "swatch": "#ffffff"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "5"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace5ffa89d39f30cdc49ab0"
+    },
+    "title": "JBL Flip 6 Bluetooth Speaker",
+    "shortDescription": "Portable waterproof speaker with bold JBL sound",
+    "description": "<p><strong>JBL Flip 6 Bluetooth Speaker Key Features</strong></p><ol><li><p>Playtime: 12 hours</p></li><li><p>Waterproof and dustproof: IP67</p></li><li><p>PartyBoost to pair multiple speakers</p></li><li><p>Bluetooth 5.1</p></li></ol><p>Sold by Gadget Corner, Othaya, Nyeri.</p>",
+    "category": "Electronics",
+    "subCategory": "Audio",
+    "tags": [
+      "jbl",
+      "speaker",
+      "bluetooth"
+    ],
+    "price": {
+      "$numberDouble": "129.0"
+    },
+    "salePrice": {
+      "$numberDouble": "115.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "24"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "290b5a6cfb7b477b98916153"
+    },
+    "sellerId": {
+      "$oid": "eae25a5ec2d44a85a63456b3"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:42.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:42.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "JBL"
+      },
+      {
+        "name": "Model",
+        "value": "Flip 6"
+      },
+      {
+        "name": "Warranty",
+        "value": "12 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "Blue",
+            "swatch": "#2563eb"
+          },
+          {
+            "label": "Red",
+            "swatch": "#dc2626"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "9"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "11"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6001b5af590e0fcea191"
+    },
+    "title": "Hisense 4K UHD Smart TV",
+    "shortDescription": "Big-screen 4K TV with Dolby Vision and VIDAA OS",
+    "description": "<p><strong>Hisense 4K UHD Smart TV Key Features</strong></p><ol><li><p>Resolution: 4K Ultra HD</p></li><li><p>Dolby Vision and HDR10+</p></li><li><p>OS: VIDAA with Netflix and YouTube</p></li><li><p>Game mode with low latency</p></li><li><p>Ports: 3x HDMI, 2x USB</p></li></ol><p>Sold by Digital World Nyeri, Nyeri Town, Kenya.</p>",
+    "category": "Electronics",
+    "subCategory": "TVs",
+    "tags": [
+      "hisense",
+      "4k",
+      "smart tv"
+    ],
+    "price": {
+      "$numberDouble": "449.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1461151304267-38535e780c79?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "35"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "e08a640b88574ccd982a596f"
+    },
+    "sellerId": {
+      "$oid": "6e727c8f7e9a4592822d0f17"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:49.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:49.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Hisense"
+      },
+      {
+        "name": "Model",
+        "value": "A6K"
+      },
+      {
+        "name": "Condition",
+        "value": "New"
+      },
+      {
+        "name": "Warranty",
+        "value": "24 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Screen size",
+        "values": [
+          {
+            "label": "55\""
+          },
+          {
+            "label": "65\""
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Screen size": "55\""
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Screen size": "65\""
+        },
+        "price": {
+          "$numberDouble": "629.0"
+        },
+        "stock": {
+          "$numberLong": "10"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace600825556074799f1f9d"
+    },
+    "title": "Tecno Spark 20 Pro",
+    "shortDescription": "Stylish phone with 108MP camera and 33W fast charging",
+    "description": "<p><strong>Tecno Spark 20 Pro Key Features</strong></p><ol><li><p>RAM: 8GB (+8GB extended)</p></li><li><p>Display: 6.78-inch FHD+, 120Hz</p></li><li><p>Chipset: MediaTek Helio G99</p></li><li><p>Main Camera: 108MP</p></li><li><p>Battery: 5000 mAh, 33W fast charging</p></li></ol><p>Sold by Mobile Masters, Karatina, Kenya.</p>",
+    "category": "Electronics",
+    "subCategory": "Phones & tablets",
+    "tags": [
+      "tecno",
+      "smartphone"
+    ],
+    "price": {
+      "$numberDouble": "179.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "76"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "1c5bb15642b2412fa336855b"
+    },
+    "sellerId": {
+      "$oid": "02796c9e250e4cc09781c239"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:44:56.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:44:56.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Tecno"
+      },
+      {
+        "name": "Model",
+        "value": "Spark 20 Pro"
+      },
+      {
+        "name": "Condition",
+        "value": "New"
+      },
+      {
+        "name": "Warranty",
+        "value": "12 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "Gold",
+            "swatch": "#d4a017"
+          },
+          {
+            "label": "Green",
+            "swatch": "#16a34a"
+          }
+        ]
+      },
+      {
+        "name": "Storage",
+        "values": [
+          {
+            "label": "128 GB"
+          },
+          {
+            "label": "256 GB"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Storage": "128 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "205.0"
+        },
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Gold",
+          "Storage": "128 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "13"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Gold",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "205.0"
+        },
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Green",
+          "Storage": "128 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Green",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "205.0"
+        },
+        "stock": {
+          "$numberLong": "22"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace600f310a2daab80fb817"
+    },
+    "title": "Lenovo ThinkPad T14 (Refurbished)",
+    "shortDescription": "Business-grade ThinkPad, tested and refurbished",
+    "description": "<p><strong>Lenovo ThinkPad T14 (Refurbished) Key Features</strong></p><ol><li><p>Processor: Intel Core i5 10th Gen</p></li><li><p>Display: 14-inch Full HD IPS</p></li><li><p>Backlit spill-resistant keyboard</p></li><li><p>Fingerprint reader</p></li><li><p>OS: Windows 11 Pro</p></li></ol><p>Sold by Laptop Lounge, Nyeri Town, Kenya.</p>",
+    "category": "Electronics",
+    "subCategory": "Computers",
+    "tags": [
+      "lenovo",
+      "thinkpad",
+      "refurbished"
+    ],
+    "price": {
+      "$numberDouble": "429.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "63"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "f9ead54cefe244cab19d6172"
+    },
+    "sellerId": {
+      "$oid": "9a8cdb2f811a4fcb8d3343e7"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:03.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:03.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Lenovo"
+      },
+      {
+        "name": "Model",
+        "value": "ThinkPad T14 Gen 1"
+      },
+      {
+        "name": "Processor",
+        "value": "Intel Core i5-10310U"
+      },
+      {
+        "name": "Condition",
+        "value": "Refurbished"
+      },
+      {
+        "name": "Warranty",
+        "value": "6 months"
+      }
+    ],
+    "options": [
+      {
+        "name": "Memory",
+        "values": [
+          {
+            "label": "8 GB"
+          },
+          {
+            "label": "16 GB"
+          }
+        ]
+      },
+      {
+        "name": "Storage",
+        "values": [
+          {
+            "label": "256 GB"
+          },
+          {
+            "label": "512 GB"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Memory": "8 GB",
+          "Storage": "256 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Memory": "8 GB",
+          "Storage": "512 GB"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Memory": "16 GB",
+          "Storage": "256 GB"
+        },
+        "price": {
+          "$numberDouble": "479.0"
+        },
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Memory": "16 GB",
+          "Storage": "512 GB"
+        },
+        "price": {
+          "$numberDouble": "479.0"
+        },
+        "stock": {
+          "$numberLong": "13"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6016f463b40b5c3de7ea"
+    },
+    "title": "Fresh Hass Avocados",
+    "shortDescription": "Creamy Hass avocados picked from Murang’a farms",
+    "description": "<p><strong>Fresh Hass Avocados Key Features</strong></p><ol><li><p>Variety: Hass</p></li><li><p>Picked at maturity and ripened naturally</p></li><li><p>Great for salads, smoothies and guacamole</p></li><li><p>Packed and delivered the same day</p></li></ol><p>Sold by Fresh Basket Market, Mukurwe-ini, Nyeri.</p>",
+    "category": "Fruits & Vegetables",
+    "subCategory": "Fruits",
+    "tags": [
+      "avocado",
+      "fresh",
+      "fruit"
+    ],
+    "price": {
+      "$numberDouble": "2.5"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "37"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "a263c2e154f74c689beb51cf"
+    },
+    "sellerId": {
+      "$oid": "96c182e730284fa9977c4ce7"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:10.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:10.000Z"
+    },
+    "specs": [
+      {
+        "name": "Variety",
+        "value": "Hass"
+      },
+      {
+        "name": "Organic",
+        "value": "Yes"
+      },
+      {
+        "name": "Origin",
+        "value": "Murang’a"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack size",
+        "values": [
+          {
+            "label": "1 kg"
+          },
+          {
+            "label": "2 kg"
+          },
+          {
+            "label": "5 kg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "1 kg"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "14"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "2 kg"
+        },
+        "price": {
+          "$numberDouble": "4.5"
+        },
+        "stock": {
+          "$numberLong": "9"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "5 kg"
+        },
+        "price": {
+          "$numberDouble": "10.0"
+        },
+        "stock": {
+          "$numberLong": "14"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace601d7d3abb961ea8bd40"
+    },
+    "title": "Sukuma Wiki (Collard Greens)",
+    "shortDescription": "Freshly harvested sukuma wiki, washed and bundled",
+    "description": "<p><strong>Sukuma Wiki (Collard Greens) Key Features</strong></p><ol><li><p>Harvested every morning</p></li><li><p>Grown without chemical pesticides</p></li><li><p>Rich in vitamins A, C and K</p></li><li><p>Ready to cook</p></li></ol><p>Sold by Green Valley Grocers, Othaya, Nyeri.</p>",
+    "category": "Fruits & Vegetables",
+    "subCategory": "Vegetables",
+    "tags": [
+      "sukuma wiki",
+      "greens",
+      "vegetables"
+    ],
+    "price": {
+      "$numberDouble": "0.8"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1515471209610-dae1c92d8777?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "45"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "d9c510c0a7474309bf3bcac3"
+    },
+    "sellerId": {
+      "$oid": "0ac528200500481e9e76ec43"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:17.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:17.000Z"
+    },
+    "specs": [
+      {
+        "name": "Variety",
+        "value": "Sukuma wiki"
+      },
+      {
+        "name": "Organic",
+        "value": "Yes"
+      },
+      {
+        "name": "Origin",
+        "value": "Nyeri"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack size",
+        "values": [
+          {
+            "label": "500 g"
+          },
+          {
+            "label": "1 kg"
+          },
+          {
+            "label": "2 kg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "500 g"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "1 kg"
+        },
+        "price": {
+          "$numberDouble": "1.4"
+        },
+        "stock": {
+          "$numberLong": "12"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "2 kg"
+        },
+        "price": {
+          "$numberDouble": "2.6"
+        },
+        "stock": {
+          "$numberLong": "8"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace602433978a4db06ada4f"
+    },
+    "title": "Ripe Red Tomatoes",
+    "shortDescription": "Firm, juicy tomatoes for stews and salads",
+    "description": "<p><strong>Ripe Red Tomatoes Key Features</strong></p><ol><li><p>Variety: Anna F1</p></li><li><p>Hand-sorted for size and ripeness</p></li><li><p>Sourced from Kirinyaga farmers</p></li><li><p>Delivered within 24 hours of harvest</p></li></ol><p>Sold by Mama Mboga Online, Nyeri Town, Kenya.</p>",
+    "category": "Fruits & Vegetables",
+    "subCategory": "Vegetables",
+    "tags": [
+      "tomatoes",
+      "vegetables"
+    ],
+    "price": {
+      "$numberDouble": "1.2"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "28"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "209838de8f5541fda7e3c944"
+    },
+    "sellerId": {
+      "$oid": "0092b1ec9da8435db78e00a3"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:24.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:24.000Z"
+    },
+    "specs": [
+      {
+        "name": "Variety",
+        "value": "Anna F1"
+      },
+      {
+        "name": "Organic",
+        "value": "No"
+      },
+      {
+        "name": "Origin",
+        "value": "Kirinyaga"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack size",
+        "values": [
+          {
+            "label": "1 kg"
+          },
+          {
+            "label": "2 kg"
+          },
+          {
+            "label": "5 kg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "1 kg"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "2 kg"
+        },
+        "price": {
+          "$numberDouble": "2.2"
+        },
+        "stock": {
+          "$numberLong": "13"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "5 kg"
+        },
+        "price": {
+          "$numberDouble": "5.0"
+        },
+        "stock": {
+          "$numberLong": "11"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace602b01c90dcb6ec9e1f8"
+    },
+    "title": "Kienyeji Free-Range Eggs",
+    "shortDescription": "Farm-fresh free-range kienyeji eggs",
+    "description": "<p><strong>Kienyeji Free-Range Eggs Key Features</strong></p><ol><li><p>Laid by free-range indigenous chickens</p></li><li><p>Rich golden yolks</p></li><li><p>Collected daily and graded by hand</p></li><li><p>Packed in protective trays</p></li></ol><p>Sold by Farm Fresh Hub, Karatina, Kenya.</p>",
+    "category": "Dairy & Eggs",
+    "subCategory": "Eggs",
+    "tags": [
+      "eggs",
+      "kienyeji",
+      "free range"
+    ],
+    "price": {
+      "$numberDouble": "2.2"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "47"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "0db09e24ff1b475891d1651c"
+    },
+    "sellerId": {
+      "$oid": "b3cfbe73da9d456c82fce39b"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:31.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:31.000Z"
+    },
+    "specs": [
+      {
+        "name": "Type",
+        "value": "Kienyeji"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack",
+        "values": [
+          {
+            "label": "6 eggs"
+          },
+          {
+            "label": "12 eggs"
+          },
+          {
+            "label": "Tray of 30"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack": "6 eggs"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack": "12 eggs"
+        },
+        "price": {
+          "$numberDouble": "4.0"
+        },
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack": "Tray of 30"
+        },
+        "price": {
+          "$numberDouble": "9.5"
+        },
+        "stock": {
+          "$numberLong": "11"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60322f49f32c37b9cbc9"
+    },
+    "title": "Pishori Rice (Mwea)",
+    "shortDescription": "Aromatic long-grain Pishori rice from Mwea",
+    "description": "<p><strong>Pishori Rice (Mwea) Key Features</strong></p><ol><li><p>Grade 1 aromatic Pishori</p></li><li><p>Cleaned and sorted, stone-free</p></li><li><p>Fluffy texture when cooked</p></li><li><p>Sealed bags for freshness</p></li></ol><p>Sold by Golden Grain Stores, Nanyuki, Kenya.</p>",
+    "category": "Grains & Cereals",
+    "subCategory": "Rice",
+    "tags": [
+      "rice",
+      "pishori",
+      "mwea"
+    ],
+    "price": {
+      "$numberDouble": "2.8"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "51"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "7b2cb5bfc021492b81c46983"
+    },
+    "sellerId": {
+      "$oid": "e50f9765fb2f4e4393135e84"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:38.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:38.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Golden Grain"
+      },
+      {
+        "name": "Grade",
+        "value": "Grade 1"
+      },
+      {
+        "name": "Origin",
+        "value": "Mwea"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack size",
+        "values": [
+          {
+            "label": "1 kg"
+          },
+          {
+            "label": "5 kg"
+          },
+          {
+            "label": "10 kg"
+          },
+          {
+            "label": "25 kg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "1 kg"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "5 kg"
+        },
+        "price": {
+          "$numberDouble": "13.0"
+        },
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "10 kg"
+        },
+        "price": {
+          "$numberDouble": "25.0"
+        },
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "25 kg"
+        },
+        "price": {
+          "$numberDouble": "60.0"
+        },
+        "stock": {
+          "$numberLong": "20"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60393536c0ce565d58dd"
+    },
+    "title": "Nyeri AA Arabica Coffee",
+    "shortDescription": "Single-origin AA coffee from the slopes of Mt Kenya",
+    "description": "<p><strong>Nyeri AA Arabica Coffee Key Features</strong></p><ol><li><p>Grade: AA Arabica</p></li><li><p>Tasting notes: blackcurrant, citrus, brown sugar</p></li><li><p>Roasted weekly in small batches</p></li><li><p>Grown at 1,800 m above sea level</p></li></ol><p>Sold by Mountain Harvest, Mukurwe-ini, Nyeri.</p>",
+    "category": "Beverages",
+    "subCategory": "Coffee",
+    "tags": [
+      "coffee",
+      "arabica",
+      "nyeri"
+    ],
+    "price": {
+      "$numberDouble": "9.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "111"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "b7febd0a3cd8404d9f2bb02a"
+    },
+    "sellerId": {
+      "$oid": "f92a91c829934dacbe0c586d"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:45.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:45.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Mountain Harvest"
+      },
+      {
+        "name": "Roast",
+        "value": "Medium"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack size",
+        "values": [
+          {
+            "label": "250 g"
+          },
+          {
+            "label": "500 g"
+          },
+          {
+            "label": "1 kg"
+          }
+        ]
+      },
+      {
+        "name": "Grind",
+        "values": [
+          {
+            "label": "Whole bean"
+          },
+          {
+            "label": "Ground"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "250 g",
+          "Grind": "Whole bean"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "19"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "250 g",
+          "Grind": "Ground"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "500 g",
+          "Grind": "Whole bean"
+        },
+        "price": {
+          "$numberDouble": "16.0"
+        },
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "500 g",
+          "Grind": "Ground"
+        },
+        "price": {
+          "$numberDouble": "16.0"
+        },
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "1 kg",
+          "Grind": "Whole bean"
+        },
+        "price": {
+          "$numberDouble": "30.0"
+        },
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "1 kg",
+          "Grind": "Ground"
+        },
+        "price": {
+          "$numberDouble": "30.0"
+        },
+        "stock": {
+          "$numberLong": "22"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60404c878bc2fdc83dc8"
+    },
+    "title": "Kericho Gold Pure Black Tea",
+    "shortDescription": "Rich, full-bodied Kenyan black tea leaves",
+    "description": "<p><strong>Kericho Gold Pure Black Tea Key Features</strong></p><ol><li><p>100% pure Kenyan black tea</p></li><li><p>Grown in the Kericho highlands</p></li><li><p>Strong colour and bright flavour</p></li><li><p>Perfect for chai with milk</p></li></ol><p>Sold by Daily Needs Store, Nyeri Town, Kenya.</p>",
+    "category": "Beverages",
+    "subCategory": "Tea",
+    "tags": [
+      "tea",
+      "kenyan tea"
+    ],
+    "price": {
+      "$numberDouble": "2.5"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "45"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "7401173d10fb4a76a867db56"
+    },
+    "sellerId": {
+      "$oid": "80d99b44bb4545baac42fc1a"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:52.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:52.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Kericho Gold"
+      },
+      {
+        "name": "Type",
+        "value": "Black"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack size",
+        "values": [
+          {
+            "label": "250 g"
+          },
+          {
+            "label": "500 g"
+          },
+          {
+            "label": "1 kg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "250 g"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "500 g"
+        },
+        "price": {
+          "$numberDouble": "4.5"
+        },
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "1 kg"
+        },
+        "price": {
+          "$numberDouble": "8.5"
+        },
+        "stock": {
+          "$numberLong": "25"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60477b197a7d783a615d"
+    },
+    "title": "Jogoo Maize Meal",
+    "shortDescription": "Fortified sifted maize flour for soft ugali",
+    "description": "<p><strong>Jogoo Maize Meal Key Features</strong></p><ol><li><p>Fortified with vitamins and minerals</p></li><li><p>Finely sifted for smooth ugali</p></li><li><p>Made from selected Kenyan maize</p></li><li><p>KEBS certified</p></li></ol><p>Sold by Family Choice Mart, Karatina, Kenya.</p>",
+    "category": "Grains & Cereals",
+    "subCategory": "Flour",
+    "tags": [
+      "maize flour",
+      "unga",
+      "ugali"
+    ],
+    "price": {
+      "$numberDouble": "1.5"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "30"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "7ad514d35f374afd92989772"
+    },
+    "sellerId": {
+      "$oid": "1d268bd7a2f14c2089c5d9ac"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:45:59.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:45:59.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Jogoo"
+      },
+      {
+        "name": "Grade",
+        "value": "Sifted"
+      },
+      {
+        "name": "Origin",
+        "value": "Kenya"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack size",
+        "values": [
+          {
+            "label": "2 kg"
+          },
+          {
+            "label": "10 kg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "2 kg"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "15"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack size": "10 kg"
+        },
+        "price": {
+          "$numberDouble": "7.0"
+        },
+        "stock": {
+          "$numberLong": "15"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace604ee540a3e019f930fe"
+    },
+    "title": "Brookside Fresh Whole Milk",
+    "shortDescription": "Fresh pasteurised whole milk",
+    "description": "<p><strong>Brookside Fresh Whole Milk Key Features</strong></p><ol><li><p>Pasteurised and homogenised</p></li><li><p>Rich in calcium and protein</p></li><li><p>Kept chilled until delivery</p></li><li><p>Best before 5 days from packing</p></li></ol><p>Sold by Sunrise Mini Mart, Nanyuki, Kenya.</p>",
+    "category": "Dairy & Eggs",
+    "subCategory": "Milk",
+    "tags": [
+      "milk",
+      "brookside",
+      "dairy"
+    ],
+    "price": {
+      "$numberDouble": "0.6"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "29"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "2fa2dc9c0dd047428cfaa1cc"
+    },
+    "sellerId": {
+      "$oid": "f25767dd058544cf8622f10f"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:46:06.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:46:06.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Brookside"
+      },
+      {
+        "name": "Type",
+        "value": "Fresh"
+      }
+    ],
+    "options": [
+      {
+        "name": "Volume",
+        "values": [
+          {
+            "label": "500 ml"
+          },
+          {
+            "label": "1 L"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Volume": "500 ml"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Volume": "1 L"
+        },
+        "price": {
+          "$numberDouble": "1.1"
+        },
+        "stock": {
+          "$numberLong": "8"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace605575b0ad6245d847e9"
+    },
+    "title": "Pure Mango Juice",
+    "shortDescription": "Refreshing juice made from ripe Kenyan mangoes",
+    "description": "<p><strong>Pure Mango Juice Key Features</strong></p><ol><li><p>Made from Apple and Ngowe mangoes</p></li><li><p>No artificial colours</p></li><li><p>Rich in vitamin C</p></li><li><p>Serve chilled</p></li></ol><p>Sold by Prime Pantry, Nyeri Town, Kenya.</p>",
+    "category": "Beverages",
+    "subCategory": "Juice",
+    "tags": [
+      "juice",
+      "mango"
+    ],
+    "price": {
+      "$numberDouble": "1.2"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "34"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "e64cb3917f944d90857bebfa"
+    },
+    "sellerId": {
+      "$oid": "cf7875625c3a49e888420d7b"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:46:13.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:46:13.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Prime Pantry"
+      },
+      {
+        "name": "Flavour",
+        "value": "Mango"
+      }
+    ],
+    "options": [
+      {
+        "name": "Volume",
+        "values": [
+          {
+            "label": "500 ml"
+          },
+          {
+            "label": "1 L"
+          },
+          {
+            "label": "2 L"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Volume": "500 ml"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "11"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Volume": "1 L"
+        },
+        "price": {
+          "$numberDouble": "2.0"
+        },
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Volume": "2 L"
+        },
+        "price": {
+          "$numberDouble": "3.6"
+        },
+        "stock": {
+          "$numberLong": "20"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace605c017c88ad1941b1f3"
+    },
+    "title": "Ankara Print Wrap Dress",
+    "shortDescription": "Flowing wrap dress in vibrant African print",
+    "description": "<p><strong>Ankara Print Wrap Dress Key Features</strong></p><ol><li><p>100% cotton wax print</p></li><li><p>Adjustable wrap tie waist</p></li><li><p>Midi length with flutter sleeves</p></li><li><p>Hand wash cold</p></li></ol><p>Sold by Urban Style Boutique, Nyeri Town, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Clothing",
+    "tags": [
+      "dress",
+      "ankara",
+      "african print"
+    ],
+    "price": {
+      "$numberDouble": "35.0"
+    },
+    "salePrice": {
+      "$numberDouble": "29.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "110"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "5b44b59faffe4986add22de3"
+    },
+    "sellerId": {
+      "$oid": "adb8f6d5d6d24624afb2413b"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:46:20.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:46:20.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Urban Style"
+      },
+      {
+        "name": "Fabric",
+        "value": "Cotton"
+      },
+      {
+        "name": "Fit",
+        "value": "Regular"
+      },
+      {
+        "name": "Gender",
+        "value": "Women"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Orange",
+            "swatch": "#f97316"
+          },
+          {
+            "label": "Blue",
+            "swatch": "#2563eb"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "S"
+          },
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          },
+          {
+            "label": "XL"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Orange",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "5"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Orange",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Orange",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Orange",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "22"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "7"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6063048e22adfafbfd10"
+    },
+    "title": "Women’s Tailored Blazer",
+    "shortDescription": "Sharp single-breasted blazer for office and events",
+    "description": "<p><strong>Women’s Tailored Blazer Key Features</strong></p><ol><li><p>Single-button closure</p></li><li><p>Fully lined</p></li><li><p>Two front flap pockets</p></li><li><p>Dry clean recommended</p></li></ol><p>Sold by Elegance Wear, Karatina, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Clothing",
+    "tags": [
+      "blazer",
+      "office wear"
+    ],
+    "price": {
+      "$numberDouble": "49.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "185"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "410444d15f1541e8baac748b"
+    },
+    "sellerId": {
+      "$oid": "26dbab4b4397489e8fe47136"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:46:27.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:46:27.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Elegance Wear"
+      },
+      {
+        "name": "Fabric",
+        "value": "Polyester blend"
+      },
+      {
+        "name": "Fit",
+        "value": "Slim"
+      },
+      {
+        "name": "Gender",
+        "value": "Women"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "Beige",
+            "swatch": "#e7d3b1"
+          },
+          {
+            "label": "Navy",
+            "swatch": "#1e3a8a"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "S"
+          },
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          },
+          {
+            "label": "XL"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "23"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "5"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "13"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "23"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "19"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "5"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace606a1ebdfcf83f1b6946"
+    },
+    "title": "Unisex Fleece Hoodie",
+    "shortDescription": "Warm pullover hoodie for chilly Mt Kenya mornings",
+    "description": "<p><strong>Unisex Fleece Hoodie Key Features</strong></p><ol><li><p>Soft brushed fleece inside</p></li><li><p>Kangaroo pocket and drawstring hood</p></li><li><p>Ribbed cuffs and hem</p></li><li><p>Machine washable</p></li></ol><p>Sold by Mt Kenya Fashion House, Nanyuki, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Clothing",
+    "tags": [
+      "hoodie",
+      "unisex"
+    ],
+    "price": {
+      "$numberDouble": "25.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "221"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "23bd8b9fd9704a12aa3ab1fe"
+    },
+    "sellerId": {
+      "$oid": "4807ebf66bf446eeb8cf02f1"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:46:34.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:46:34.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Mt Kenya Fashion"
+      },
+      {
+        "name": "Fabric",
+        "value": "Cotton fleece"
+      },
+      {
+        "name": "Fit",
+        "value": "Regular"
+      },
+      {
+        "name": "Gender",
+        "value": "Unisex"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "Grey",
+            "swatch": "#9ca3af"
+          },
+          {
+            "label": "Green",
+            "swatch": "#16a34a"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "S"
+          },
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          },
+          {
+            "label": "XL"
+          },
+          {
+            "label": "XXL"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "22"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "23"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "XXL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "23"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey",
+          "Size": "XXL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Green",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Green",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "11"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Green",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Green",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Green",
+          "Size": "XXL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace607101fc0a960d8d7ef2"
+    },
+    "title": "Men’s Leather Oxford Shoes",
+    "shortDescription": "Classic genuine leather Oxfords for the office",
+    "description": "<p><strong>Men’s Leather Oxford Shoes Key Features</strong></p><ol><li><p>Genuine full-grain leather upper</p></li><li><p>Cushioned leather insole</p></li><li><p>Durable rubber sole</p></li><li><p>Handmade in Kenya</p></li></ol><p>Sold by Shoe Avenue, Nyeri Town, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Shoes",
+    "tags": [
+      "shoes",
+      "leather",
+      "oxford"
+    ],
+    "price": {
+      "$numberDouble": "55.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "192"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "02450a11dc4b481fb7dfd029"
+    },
+    "sellerId": {
+      "$oid": "613bfa54f7e3402e8145a3aa"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:46:41.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:46:41.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Shoe Avenue"
+      },
+      {
+        "name": "Material",
+        "value": "Leather"
+      },
+      {
+        "name": "Gender",
+        "value": "Men"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "Brown",
+            "swatch": "#92400e"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "40"
+          },
+          {
+            "label": "41"
+          },
+          {
+            "label": "42"
+          },
+          {
+            "label": "43"
+          },
+          {
+            "label": "44"
+          },
+          {
+            "label": "45"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "40"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "41"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "22"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "42"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "43"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "44"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "14"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "45"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Brown",
+          "Size": "40"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Brown",
+          "Size": "41"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "5"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Brown",
+          "Size": "42"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Brown",
+          "Size": "43"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "12"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Brown",
+          "Size": "44"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Brown",
+          "Size": "45"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6078dc238e1690de47ba"
+    },
+    "title": "Classic Canvas Sneakers",
+    "shortDescription": "Everyday low-top canvas sneakers",
+    "description": "<p><strong>Classic Canvas Sneakers Key Features</strong></p><ol><li><p>Breathable canvas upper</p></li><li><p>Vulcanised rubber sole</p></li><li><p>Padded collar</p></li><li><p>Lace-up closure</p></li></ol><p>Sold by Classic Kicks, Karatina, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Shoes",
+    "tags": [
+      "sneakers",
+      "canvas"
+    ],
+    "price": {
+      "$numberDouble": "22.0"
+    },
+    "salePrice": {
+      "$numberDouble": "18.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "248"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "52ce8cbb71b8421481f61fb4"
+    },
+    "sellerId": {
+      "$oid": "f8b58e1ae5b14e44954df4eb"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:46:48.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:46:48.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Classic Kicks"
+      },
+      {
+        "name": "Material",
+        "value": "Canvas"
+      },
+      {
+        "name": "Gender",
+        "value": "Unisex"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "White",
+            "swatch": "#ffffff"
+          },
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "37"
+          },
+          {
+            "label": "38"
+          },
+          {
+            "label": "39"
+          },
+          {
+            "label": "40"
+          },
+          {
+            "label": "41"
+          },
+          {
+            "label": "42"
+          },
+          {
+            "label": "43"
+          },
+          {
+            "label": "44"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Size": "37"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Size": "38"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Size": "39"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Size": "40"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "12"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Size": "41"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "12"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Size": "42"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Size": "43"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "23"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Size": "44"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "14"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "37"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "38"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "39"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "40"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "41"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "42"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "7"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "43"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "12"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "44"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace607f0a6b16e05a5b7894"
+    },
+    "title": "Men’s Kitenge Print Shirt",
+    "shortDescription": "Short-sleeved shirt in bold kitenge print",
+    "description": "<p><strong>Men’s Kitenge Print Shirt Key Features</strong></p><ol><li><p>100% cotton kitenge fabric</p></li><li><p>Button-down front</p></li><li><p>Chest pocket</p></li><li><p>Tailored in Nyeri</p></li></ol><p>Sold by Royal Threads, Mukurwe-ini, Nyeri.</p>",
+    "category": "Fashion",
+    "subCategory": "Clothing",
+    "tags": [
+      "kitenge",
+      "shirt",
+      "african print"
+    ],
+    "price": {
+      "$numberDouble": "28.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "108"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "7289e94f0d534336ba002dfd"
+    },
+    "sellerId": {
+      "$oid": "528a488629594babb1b8c687"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:46:55.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:46:55.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Royal Threads"
+      },
+      {
+        "name": "Fabric",
+        "value": "Cotton"
+      },
+      {
+        "name": "Fit",
+        "value": "Regular"
+      },
+      {
+        "name": "Gender",
+        "value": "Men"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Blue",
+            "swatch": "#2563eb"
+          },
+          {
+            "label": "Red",
+            "swatch": "#dc2626"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          },
+          {
+            "label": "XL"
+          },
+          {
+            "label": "XXL"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "5"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "15"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "XXL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red",
+          "Size": "XXL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "12"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6086a5c4b8d6e2e70eb8"
+    },
+    "title": "Kids Cotton Pyjama Set",
+    "shortDescription": "Soft two-piece pyjamas for a good night’s sleep",
+    "description": "<p><strong>Kids Cotton Pyjama Set Key Features</strong></p><ol><li><p>100% breathable cotton</p></li><li><p>Elastic waistband</p></li><li><p>Tag-free for comfort</p></li><li><p>Machine washable</p></li></ol><p>Sold by Little Stars Kidswear, Nyeri Town, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Kids",
+    "tags": [
+      "kids",
+      "pyjamas"
+    ],
+    "price": {
+      "$numberDouble": "12.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "121"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "4aef89509be742e6a3165e38"
+    },
+    "sellerId": {
+      "$oid": "578ec7b632bc452b8fcd0a50"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:02.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:02.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Little Stars"
+      },
+      {
+        "name": "Fabric",
+        "value": "Cotton"
+      },
+      {
+        "name": "Gender",
+        "value": "Unisex"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Blue",
+            "swatch": "#2563eb"
+          },
+          {
+            "label": "Pink",
+            "swatch": "#ec4899"
+          }
+        ]
+      },
+      {
+        "name": "Age",
+        "values": [
+          {
+            "label": "3–4 years"
+          },
+          {
+            "label": "5–6 years"
+          },
+          {
+            "label": "7–8 years"
+          },
+          {
+            "label": "9–10 years"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Age": "3–4 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Age": "5–6 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Age": "7–8 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "12"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Age": "9–10 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Pink",
+          "Age": "3–4 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Pink",
+          "Age": "5–6 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "19"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Pink",
+          "Age": "7–8 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "14"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Pink",
+          "Age": "9–10 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "13"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace608db0effeae3502f5db"
+    },
+    "title": "Women’s Denim Jacket",
+    "shortDescription": "Timeless washed denim jacket",
+    "description": "<p><strong>Women’s Denim Jacket Key Features</strong></p><ol><li><p>Stretch cotton denim</p></li><li><p>Button front with chest pockets</p></li><li><p>Classic cropped fit</p></li><li><p>Machine wash cold</p></li></ol><p>Sold by Trendsetters Boutique, Nanyuki, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Clothing",
+    "tags": [
+      "denim",
+      "jacket"
+    ],
+    "price": {
+      "$numberDouble": "39.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "112"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "aa20ceac6df547aca0db865a"
+    },
+    "sellerId": {
+      "$oid": "3f8cfd44eca94607b538c406"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:09.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:09.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Trendsetters"
+      },
+      {
+        "name": "Fabric",
+        "value": "Denim"
+      },
+      {
+        "name": "Fit",
+        "value": "Regular"
+      },
+      {
+        "name": "Gender",
+        "value": "Women"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Blue",
+            "swatch": "#2563eb"
+          },
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "S"
+          },
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          },
+          {
+            "label": "XL"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "7"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "13"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6094688061649a3ce748"
+    },
+    "title": "Handmade Leather Messenger Bag",
+    "shortDescription": "Full-grain leather messenger bag that fits a 15-inch laptop",
+    "description": "<p><strong>Handmade Leather Messenger Bag Key Features</strong></p><ol><li><p>Full-grain Kenyan leather</p></li><li><p>Padded laptop sleeve (up to 15.6\")</p></li><li><p>Adjustable shoulder strap</p></li><li><p>Brass buckles and zips</p></li></ol><p>Sold by Leather Craft Kenya, Nyeri Town, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Bags",
+    "tags": [
+      "leather",
+      "bag",
+      "handmade"
+    ],
+    "price": {
+      "$numberDouble": "65.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "46"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "bc6900ba602f49e7bc4bba01"
+    },
+    "sellerId": {
+      "$oid": "7b15e380ba594edea1505435"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:16.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:16.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Leather Craft Kenya"
+      },
+      {
+        "name": "Material",
+        "value": "Leather"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Brown",
+            "swatch": "#92400e"
+          },
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Brown"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace609b1c7210800ed6a3a5"
+    },
+    "title": "Men’s Slim Fit Chinos",
+    "shortDescription": "Comfortable stretch chinos for everyday wear",
+    "description": "<p><strong>Men’s Slim Fit Chinos Key Features</strong></p><ol><li><p>Cotton with 2% stretch</p></li><li><p>Slim tapered leg</p></li><li><p>Four pockets</p></li><li><p>Machine washable</p></li></ol><p>Sold by Everyday Apparel, Othaya, Nyeri.</p>",
+    "category": "Fashion",
+    "subCategory": "Clothing",
+    "tags": [
+      "chinos",
+      "trousers"
+    ],
+    "price": {
+      "$numberDouble": "24.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "204"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "a352cf019797498ba453a493"
+    },
+    "sellerId": {
+      "$oid": "c362d5c43458444e901ad595"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:23.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:23.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Everyday Apparel"
+      },
+      {
+        "name": "Fabric",
+        "value": "Cotton stretch"
+      },
+      {
+        "name": "Fit",
+        "value": "Slim"
+      },
+      {
+        "name": "Gender",
+        "value": "Men"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Beige",
+            "swatch": "#e7d3b1"
+          },
+          {
+            "label": "Navy",
+            "swatch": "#1e3a8a"
+          },
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "S"
+          },
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          },
+          {
+            "label": "XL"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "9"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "23"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "14"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "19"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60a27c48fad096e128d3"
+    },
+    "title": "Decorative Cushion Covers (Set of 2)",
+    "shortDescription": "Soft woven cushion covers to brighten your sofa",
+    "description": "<p><strong>Decorative Cushion Covers (Set of 2) Key Features</strong></p><ol><li><p>Set of 2 covers</p></li><li><p>Hidden zip closure</p></li><li><p>Fits 45 × 45 cm inserts</p></li><li><p>Machine washable</p></li></ol><p>Sold by Home Comforts, Nyeri Town, Kenya.</p>",
+    "category": "Home & Living",
+    "subCategory": "Decor",
+    "tags": [
+      "cushion",
+      "decor"
+    ],
+    "price": {
+      "$numberDouble": "15.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "20"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "7abf307ef347413597487a24"
+    },
+    "sellerId": {
+      "$oid": "36271671eb2c4ec69c1439c6"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:30.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:30.000Z"
+    },
+    "specs": [
+      {
+        "name": "Material",
+        "value": "Cotton blend"
+      },
+      {
+        "name": "Dimensions",
+        "value": "45 × 45 cm"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Beige",
+            "swatch": "#e7d3b1"
+          },
+          {
+            "label": "Grey",
+            "swatch": "#9ca3af"
+          },
+          {
+            "label": "Yellow",
+            "swatch": "#facc15"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Yellow"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "9"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60a93922109571afea0d"
+    },
+    "title": "Non-Stick Cookware Set (7 Pieces)",
+    "shortDescription": "Granite-coated pots and pans for everyday cooking",
+    "description": "<p><strong>Non-Stick Cookware Set (7 Pieces) Key Features</strong></p><ol><li><p>Includes 3 pots with lids and a frying pan</p></li><li><p>PFOA-free granite coating</p></li><li><p>Works on gas, electric and induction</p></li><li><p>Heat-resistant handles</p></li></ol><p>Sold by Kitchen Essentials, Karatina, Kenya.</p>",
+    "category": "Home & Living",
+    "subCategory": "Kitchen & dining",
+    "tags": [
+      "cookware",
+      "non-stick",
+      "kitchen"
+    ],
+    "price": {
+      "$numberDouble": "75.0"
+    },
+    "salePrice": {
+      "$numberDouble": "65.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "30"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "2d113ae689844968abed8e73"
+    },
+    "sellerId": {
+      "$oid": "6da1706377354c8087036e39"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:37.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:37.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Kitchen Essentials"
+      },
+      {
+        "name": "Material",
+        "value": "Aluminium with granite coating"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "Grey",
+            "swatch": "#9ca3af"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "13"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60b0d2a79a3efd96d351"
+    },
+    "title": "Ceramic Table Lamp",
+    "shortDescription": "Warm bedside lamp with a linen shade",
+    "description": "<p><strong>Ceramic Table Lamp Key Features</strong></p><ol><li><p>Glazed ceramic base</p></li><li><p>Linen fabric shade</p></li><li><p>E27 bulb holder (bulb not included)</p></li><li><p>In-line on/off switch</p></li></ol><p>Sold by Cozy Living Store, Nanyuki, Kenya.</p>",
+    "category": "Home & Living",
+    "subCategory": "Decor",
+    "tags": [
+      "lamp",
+      "lighting",
+      "decor"
+    ],
+    "price": {
+      "$numberDouble": "32.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "47"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "b20ebb0af3ca4feeaf23e280"
+    },
+    "sellerId": {
+      "$oid": "8965ca2d713649f28df33692"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:44.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:44.000Z"
+    },
+    "specs": [
+      {
+        "name": "Material",
+        "value": "Ceramic and linen"
+      },
+      {
+        "name": "Dimensions",
+        "value": "28 × 28 × 45 cm"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "White",
+            "swatch": "#ffffff"
+          },
+          {
+            "label": "Beige",
+            "swatch": "#e7d3b1"
+          },
+          {
+            "label": "Green",
+            "swatch": "#16a34a"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Beige"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "5"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Green"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60b7402c0d7209ae0908"
+    },
+    "title": "Ramtons 1.7L Electric Kettle",
+    "shortDescription": "Fast-boiling cordless kettle with auto shut-off",
+    "description": "<p><strong>Ramtons 1.7L Electric Kettle Key Features</strong></p><ol><li><p>Capacity: 1.7 litres</p></li><li><p>Power: 2200W</p></li><li><p>360° cordless base</p></li><li><p>Auto shut-off and boil-dry protection</p></li></ol><p>Sold by Bright Home Appliances, Nyeri Town, Kenya.</p>",
+    "category": "Home & Living",
+    "subCategory": "Kitchen & dining",
+    "tags": [
+      "kettle",
+      "ramtons",
+      "appliance"
+    ],
+    "price": {
+      "$numberDouble": "24.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1594213114663-d94db9b17125?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "33"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "0314796715cb4d5c84e63575"
+    },
+    "sellerId": {
+      "$oid": "a7a311975fa64698926e9ae4"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:51.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:51.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Ramtons"
+      },
+      {
+        "name": "Material",
+        "value": "Stainless steel"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Silver",
+            "swatch": "#c0c0c0"
+          },
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Silver"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "14"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "19"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60be4dc561f9948b30cd"
+    },
+    "title": "Cotton Duvet Set",
+    "shortDescription": "Duvet with matching bedsheet and pillowcases",
+    "description": "<p><strong>Cotton Duvet Set Key Features</strong></p><ol><li><p>Includes duvet, flat sheet and 2 pillowcases</p></li><li><p>Soft polycotton</p></li><li><p>Warm hollow-fibre filling</p></li><li><p>Machine washable</p></li></ol><p>Sold by Sleep Well Bedding, Mukurwe-ini, Nyeri.</p>",
+    "category": "Home & Living",
+    "subCategory": "Bedding",
+    "tags": [
+      "duvet",
+      "bedding"
+    ],
+    "price": {
+      "$numberDouble": "38.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "120"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "b315eff55bfa4eaeadf642b4"
+    },
+    "sellerId": {
+      "$oid": "e527ae47a2b742bab5651def"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:47:58.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:47:58.000Z"
+    },
+    "specs": [
+      {
+        "name": "Fabric",
+        "value": "Polycotton"
+      },
+      {
+        "name": "Thread count",
+        "value": "200"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "White",
+            "swatch": "#ffffff"
+          },
+          {
+            "label": "Grey",
+            "swatch": "#9ca3af"
+          },
+          {
+            "label": "Navy",
+            "swatch": "#1e3a8a"
+          }
+        ]
+      },
+      {
+        "name": "Bed size",
+        "values": [
+          {
+            "label": "4×6"
+          },
+          {
+            "label": "5×6"
+          },
+          {
+            "label": "6×6"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Bed size": "4×6"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "22"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Bed size": "5×6"
+        },
+        "price": {
+          "$numberDouble": "44.0"
+        },
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Bed size": "6×6"
+        },
+        "price": {
+          "$numberDouble": "50.0"
+        },
+        "stock": {
+          "$numberLong": "7"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey",
+          "Bed size": "4×6"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey",
+          "Bed size": "5×6"
+        },
+        "price": {
+          "$numberDouble": "44.0"
+        },
+        "stock": {
+          "$numberLong": "11"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Grey",
+          "Bed size": "6×6"
+        },
+        "price": {
+          "$numberDouble": "50.0"
+        },
+        "stock": {
+          "$numberLong": "12"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Bed size": "4×6"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "7"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Bed size": "5×6"
+        },
+        "price": {
+          "$numberDouble": "44.0"
+        },
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Navy",
+          "Bed size": "6×6"
+        },
+        "price": {
+          "$numberDouble": "50.0"
+        },
+        "stock": {
+          "$numberLong": "25"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60c5c485786fb37228ba"
+    },
+    "title": "Multi-Purpose Surface Cleaner 5L",
+    "shortDescription": "Concentrated cleaner for floors, tiles and kitchens",
+    "description": "<p><strong>Multi-Purpose Surface Cleaner 5L Key Features</strong></p><ol><li><p>Volume: 5 litres</p></li><li><p>Lemon fresh scent</p></li><li><p>Kills 99.9% of germs</p></li><li><p>Dilute 1 cap in 5 litres of water</p></li></ol><p>Sold by CleanSpace Supplies, Othaya, Nyeri.</p>",
+    "category": "Other",
+    "subCategory": "General",
+    "tags": [
+      "cleaning",
+      "detergent"
+    ],
+    "price": {
+      "$numberDouble": "9.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "120"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "450f205ef698444e8a932bee"
+    },
+    "sellerId": {
+      "$oid": "267842d3fe4a496e9869df75"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:48:05.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:48:05.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "CleanSpace"
+      }
+    ],
+    "options": [],
+    "variants": []
+  },
+  {
+    "_id": {
+      "$oid": "6ace60cce28bd4c3f2d2f9f8"
+    },
+    "title": "Round Wall Mirror",
+    "shortDescription": "Minimalist round mirror with a metal frame",
+    "description": "<p><strong>Round Wall Mirror Key Features</strong></p><ol><li><p>Diameter: 60 cm</p></li><li><p>Powder-coated metal frame</p></li><li><p>Shatter-resistant backing</p></li><li><p>Wall hook included</p></li></ol><p>Sold by Decor Haven, Nyeri Town, Kenya.</p>",
+    "category": "Home & Living",
+    "subCategory": "Decor",
+    "tags": [
+      "mirror",
+      "decor"
+    ],
+    "price": {
+      "$numberDouble": "45.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "34"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "3e955bf516c14d00b8140dd6"
+    },
+    "sellerId": {
+      "$oid": "416dbb8805c940468f98e70a"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:48:12.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:48:12.000Z"
+    },
+    "specs": [
+      {
+        "name": "Material",
+        "value": "Glass and metal"
+      },
+      {
+        "name": "Dimensions",
+        "value": "60 cm diameter"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Gold",
+            "swatch": "#d4a017"
+          },
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Gold"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "18"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "16"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60d3f7aa5abe3a5efb59"
+    },
+    "title": "Mahogany Coffee Table",
+    "shortDescription": "Solid mahogany coffee table with a lower shelf",
+    "description": "<p><strong>Mahogany Coffee Table Key Features</strong></p><ol><li><p>Solid mahogany wood</p></li><li><p>Lower storage shelf</p></li><li><p>Hand-finished by local carpenters</p></li><li><p>Delivered assembled within Nyeri</p></li></ol><p>Sold by Furniture Point, Karatina, Kenya.</p>",
+    "category": "Home & Living",
+    "subCategory": "Furniture",
+    "tags": [
+      "furniture",
+      "coffee table",
+      "mahogany"
+    ],
+    "price": {
+      "$numberDouble": "160.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "15"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "046dee409f0e4602a1b5f4ed"
+    },
+    "sellerId": {
+      "$oid": "0c69ac19399b4e75926f9fd3"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:48:19.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:48:19.000Z"
+    },
+    "specs": [
+      {
+        "name": "Material",
+        "value": "Mahogany"
+      },
+      {
+        "name": "Dimensions",
+        "value": "120 × 60 × 45 cm"
+      }
+    ],
+    "options": [
+      {
+        "name": "Finish",
+        "values": [
+          {
+            "label": "Brown",
+            "swatch": "#92400e"
+          },
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Finish": "Brown"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "12"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Finish": "Black"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60da2bf8d25e1ae5a09a"
+    },
+    "title": "30m Garden Hose with Spray Gun",
+    "shortDescription": "Kink-resistant hose with a 7-pattern spray nozzle",
+    "description": "<p><strong>30m Garden Hose with Spray Gun Key Features</strong></p><ol><li><p>Length: 30 metres</p></li><li><p>Reinforced anti-kink PVC</p></li><li><p>7-pattern spray gun included</p></li><li><p>Universal tap connector</p></li></ol><p>Sold by Garden & Grow, Nanyuki, Kenya.</p>",
+    "category": "Farm Equipment",
+    "subCategory": "Irrigation",
+    "tags": [
+      "hose",
+      "garden",
+      "irrigation"
+    ],
+    "price": {
+      "$numberDouble": "28.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "40"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "19ace0a9a5db40888daaeec3"
+    },
+    "sellerId": {
+      "$oid": "ee00e287ca604deaaa84229f"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:48:26.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:48:26.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Garden & Grow"
+      },
+      {
+        "name": "Model",
+        "value": "GH-30"
+      },
+      {
+        "name": "Condition",
+        "value": "New"
+      },
+      {
+        "name": "Warranty",
+        "value": "6 months"
+      }
+    ],
+    "options": [],
+    "variants": []
+  },
+  {
+    "_id": {
+      "$oid": "6ace60e1a08ace3f122b2cfd"
+    },
+    "title": "Philips LED Bulb 9W (Pack of 4)",
+    "shortDescription": "Energy-saving E27 LED bulbs, warm white",
+    "description": "<p><strong>Philips LED Bulb 9W (Pack of 4) Key Features</strong></p><ol><li><p>Power: 9W (equivalent to 60W)</p></li><li><p>Fitting: E27 screw</p></li><li><p>Lifetime: 15,000 hours</p></li><li><p>Warm white 2700K</p></li></ol><p>Sold by PowerHouse Electricals, Nyeri Town, Kenya.</p>",
+    "category": "Other",
+    "subCategory": "General",
+    "tags": [
+      "led",
+      "bulb",
+      "lighting"
+    ],
+    "price": {
+      "$numberDouble": "8.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1550985616-10810253b84d?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "200"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "21a01d6f5e5b4a649da46f92"
+    },
+    "sellerId": {
+      "$oid": "73ebfeb89baa4821bbf6b06d"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:48:33.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:48:33.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Philips"
+      }
+    ],
+    "options": [],
+    "variants": []
+  },
+  {
+    "_id": {
+      "$oid": "6ace60e869dcfdb2048b46c7"
+    },
+    "title": "Shea Butter Body Lotion",
+    "shortDescription": "Deeply moisturising lotion with pure shea butter",
+    "description": "<p><strong>Shea Butter Body Lotion Key Features</strong></p><ol><li><p>Enriched with shea butter and vitamin E</p></li><li><p>Non-greasy, fast absorbing</p></li><li><p>24-hour hydration</p></li><li><p>Dermatologically tested</p></li></ol><p>Sold by Beauty Bloom, Nyeri Town, Kenya.</p>",
+    "category": "Health & Beauty",
+    "subCategory": "Skincare",
+    "tags": [
+      "lotion",
+      "shea butter",
+      "skincare"
+    ],
+    "price": {
+      "$numberDouble": "6.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "27"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "967abb6a6141460eafd321c8"
+    },
+    "sellerId": {
+      "$oid": "e0f02fe1990d49d2a807fde7"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:48:40.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:48:40.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Beauty Bloom"
+      },
+      {
+        "name": "Skin type",
+        "value": "All"
+      }
+    ],
+    "options": [
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "200 ml"
+          },
+          {
+            "label": "500 ml"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Size": "200 ml"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Size": "500 ml"
+        },
+        "price": {
+          "$numberDouble": "11.0"
+        },
+        "stock": {
+          "$numberLong": "17"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60ef3e47e35b96e340cb"
+    },
+    "title": "Matte Liquid Lipstick",
+    "shortDescription": "Long-wear matte lipstick that doesn’t dry your lips",
+    "description": "<p><strong>Matte Liquid Lipstick Key Features</strong></p><ol><li><p>Up to 12 hours of wear</p></li><li><p>Transfer-proof matte finish</p></li><li><p>Enriched with vitamin E</p></li><li><p>Cruelty free</p></li></ol><p>Sold by Glow Up Cosmetics, Karatina, Kenya.</p>",
+    "category": "Health & Beauty",
+    "subCategory": "Makeup",
+    "tags": [
+      "lipstick",
+      "makeup"
+    ],
+    "price": {
+      "$numberDouble": "7.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "66"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "8d9c1f34293f43efa662098e"
+    },
+    "sellerId": {
+      "$oid": "76d9ad390ec04b1c80eef10a"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:48:47.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:48:47.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Glow Up"
+      }
+    ],
+    "options": [
+      {
+        "name": "Shade",
+        "values": [
+          {
+            "label": "Ruby Red",
+            "swatch": "#9b111e"
+          },
+          {
+            "label": "Nude Rose",
+            "swatch": "#c48a7a"
+          },
+          {
+            "label": "Berry",
+            "swatch": "#7b2d43"
+          },
+          {
+            "label": "Cocoa",
+            "swatch": "#6b4226"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Shade": "Ruby Red"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Shade": "Nude Rose"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Shade": "Berry"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Shade": "Cocoa"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "18"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60f6ada9a3b02bce7446"
+    },
+    "title": "Natural Hair Growth Oil",
+    "shortDescription": "Rosemary and castor oil blend for natural hair",
+    "description": "<p><strong>Natural Hair Growth Oil Key Features</strong></p><ol><li><p>Rosemary, castor and coconut oils</p></li><li><p>Strengthens edges and reduces breakage</p></li><li><p>Soothes dry scalp</p></li><li><p>No mineral oil or parabens</p></li></ol><p>Sold by Natural Care Shop, Othaya, Nyeri.</p>",
+    "category": "Health & Beauty",
+    "subCategory": "Hair care",
+    "tags": [
+      "hair oil",
+      "natural hair"
+    ],
+    "price": {
+      "$numberDouble": "8.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "43"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "ce500daf49c64d6182c4c67a"
+    },
+    "sellerId": {
+      "$oid": "fe736852527844959246dc9e"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:48:54.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:48:54.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Natural Care"
+      },
+      {
+        "name": "Hair type",
+        "value": "Natural"
+      }
+    ],
+    "options": [
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "100 ml"
+          },
+          {
+            "label": "200 ml"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Size": "100 ml"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Size": "200 ml"
+        },
+        "price": {
+          "$numberDouble": "14.0"
+        },
+        "stock": {
+          "$numberLong": "18"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace60fd690504ad8e461695"
+    },
+    "title": "Vitamin C 1000mg Tablets",
+    "shortDescription": "Daily immune support with zinc",
+    "description": "<p><strong>Vitamin C 1000mg Tablets Key Features</strong></p><ol><li><p>1000mg vitamin C per tablet</p></li><li><p>With zinc for immune support</p></li><li><p>One tablet daily</p></li><li><p>Pharmacy dispensed</p></li></ol><p>Sold by Healthy Living Pharmacy, Nyeri Town, Kenya.</p>",
+    "category": "Health & Beauty",
+    "subCategory": "Supplements",
+    "tags": [
+      "vitamin c",
+      "immunity",
+      "supplements"
+    ],
+    "price": {
+      "$numberDouble": "9.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "18"
+    },
+    "paymentOptions": [
+      "full_upfront"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "0f0b4ae306564273bed51e8f"
+    },
+    "sellerId": {
+      "$oid": "b69534a0cdbc47d0af3efd39"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:49:01.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:49:01.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Healthy Living"
+      }
+    ],
+    "options": [
+      {
+        "name": "Pack",
+        "values": [
+          {
+            "label": "30 tablets"
+          },
+          {
+            "label": "60 tablets"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Pack": "30 tablets"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "9"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Pack": "60 tablets"
+        },
+        "price": {
+          "$numberDouble": "16.0"
+        },
+        "stock": {
+          "$numberLong": "9"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6104fd29b58ba234ef8e"
+    },
+    "title": "Newborn Cotton Bodysuits (Pack of 3)",
+    "shortDescription": "Soft snap-button bodysuits for babies",
+    "description": "<p><strong>Newborn Cotton Bodysuits (Pack of 3) Key Features</strong></p><ol><li><p>Pack of 3 bodysuits</p></li><li><p>100% organic cotton</p></li><li><p>Easy snap buttons</p></li><li><p>Gentle on sensitive skin</p></li></ol><p>Sold by Little Angels Baby Shop, Karatina, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Kids",
+    "tags": [
+      "baby",
+      "bodysuit"
+    ],
+    "price": {
+      "$numberDouble": "14.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "108"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "556005ecf8de43c6ae9a6a38"
+    },
+    "sellerId": {
+      "$oid": "301d5e1e8a82409a853c70b1"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:49:08.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:49:08.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Little Angels"
+      },
+      {
+        "name": "Fabric",
+        "value": "Organic cotton"
+      },
+      {
+        "name": "Gender",
+        "value": "Unisex"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "White",
+            "swatch": "#ffffff"
+          },
+          {
+            "label": "Yellow",
+            "swatch": "#facc15"
+          }
+        ]
+      },
+      {
+        "name": "Age",
+        "values": [
+          {
+            "label": "0–6 months"
+          },
+          {
+            "label": "6–12 months"
+          },
+          {
+            "label": "1–2 years"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Age": "0–6 months"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Age": "6–12 months"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "White",
+          "Age": "1–2 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "8"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Yellow",
+          "Age": "0–6 months"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "19"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Yellow",
+          "Age": "6–12 months"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Yellow",
+          "Age": "1–2 years"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "10"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace610b206024beb2676069"
+    },
+    "title": "Adult Dog Food - Chicken & Rice",
+    "shortDescription": "Complete, balanced dry food for adult dogs",
+    "description": "<p><strong>Adult Dog Food - Chicken & Rice Key Features</strong></p><ol><li><p>Real chicken as the first ingredient</p></li><li><p>Added vitamins and minerals</p></li><li><p>Supports healthy digestion</p></li><li><p>Suitable for all breeds</p></li></ol><p>Sold by Pet Care Corner, Nyeri Town, Kenya.</p>",
+    "category": "Farm Inputs",
+    "subCategory": "Animal feed",
+    "tags": [
+      "dog food",
+      "pets"
+    ],
+    "price": {
+      "$numberDouble": "12.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "12"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "b141a329052e4a6585eab4df"
+    },
+    "sellerId": {
+      "$oid": "e44b8287355843ec9b3b045d"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:49:15.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:49:15.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Pet Care Corner"
+      },
+      {
+        "name": "For",
+        "value": "Adult dogs"
+      }
+    ],
+    "options": [
+      {
+        "name": "Bag size",
+        "values": [
+          {
+            "label": "2 kg"
+          },
+          {
+            "label": "10 kg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Bag size": "2 kg"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "6"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Bag size": "10 kg"
+        },
+        "price": {
+          "$numberDouble": "48.0"
+        },
+        "stock": {
+          "$numberLong": "6"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6112ddd561390d5d58bd"
+    },
+    "title": "Men’s Dri-Fit Running T-Shirt",
+    "shortDescription": "Lightweight quick-dry tee for training and runs",
+    "description": "<p><strong>Men’s Dri-Fit Running T-Shirt Key Features</strong></p><ol><li><p>Moisture-wicking fabric</p></li><li><p>Breathable mesh panels</p></li><li><p>Reflective logo</p></li><li><p>Machine washable</p></li></ol><p>Sold by Sports Gear Hub, Nanyuki, Kenya.</p>",
+    "category": "Fashion",
+    "subCategory": "Clothing",
+    "tags": [
+      "sportswear",
+      "running",
+      "t-shirt"
+    ],
+    "price": {
+      "$numberDouble": "15.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "151"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "b4976f3ccbfb43f1b04c5485"
+    },
+    "sellerId": {
+      "$oid": "9f2e975b15e04851a74ab0e4"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:49:22.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:49:22.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Sports Gear Hub"
+      },
+      {
+        "name": "Fabric",
+        "value": "Polyester"
+      },
+      {
+        "name": "Fit",
+        "value": "Slim"
+      },
+      {
+        "name": "Gender",
+        "value": "Men"
+      }
+    ],
+    "options": [
+      {
+        "name": "Colour",
+        "values": [
+          {
+            "label": "Black",
+            "swatch": "#111111"
+          },
+          {
+            "label": "Blue",
+            "swatch": "#2563eb"
+          },
+          {
+            "label": "Red",
+            "swatch": "#dc2626"
+          }
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "S"
+          },
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          },
+          {
+            "label": "XL"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "16"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "15"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Black",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "20"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "15"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "24"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Blue",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "4"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red",
+          "Size": "S"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "10"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red",
+          "Size": "M"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "3"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red",
+          "Size": "L"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "17"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Colour": "Red",
+          "Size": "XL"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "21"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace6119ca4347298be6ac82"
+    },
+    "title": "A4 Exercise Books (Pack of 10)",
+    "shortDescription": "200-page ruled exercise books for school and office",
+    "description": "<p><strong>A4 Exercise Books (Pack of 10) Key Features</strong></p><ol><li><p>Pack of 10 books</p></li><li><p>200 pages, ruled</p></li><li><p>A4 size</p></li><li><p>Durable laminated cover</p></li></ol><p>Sold by BookSmart Stationers, Nyeri Town, Kenya.</p>",
+    "category": "Other",
+    "subCategory": "General",
+    "tags": [
+      "stationery",
+      "exercise books",
+      "school"
+    ],
+    "price": {
+      "$numberDouble": "6.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "300"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "0f524622de044912ba3cfffa"
+    },
+    "sellerId": {
+      "$oid": "055a1bef89da4263ac4d1f94"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:49:29.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:49:29.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "BookSmart"
+      }
+    ],
+    "options": [],
+    "variants": []
+  },
+  {
+    "_id": {
+      "$oid": "6ace6120fb465ac2a0e29536"
+    },
+    "title": "Maasai Mara Sunset Acrylic Painting",
+    "shortDescription": "Original acrylic painting on stretched canvas",
+    "description": "<p><strong>Maasai Mara Sunset Acrylic Painting Key Features</strong></p><ol><li><p>Original artwork, signed by the artist</p></li><li><p>Acrylic on stretched canvas</p></li><li><p>Ready to hang</p></li><li><p>Certificate of authenticity included</p></li></ol><p>Sold by Creative Arts Shop, Karatina, Kenya.</p>",
+    "category": "Crafts & Handmade",
+    "subCategory": "Art & decor",
+    "tags": [
+      "painting",
+      "art",
+      "handmade"
+    ],
+    "price": {
+      "$numberDouble": "60.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "54"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "deposit"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "c857468e0e0e4c4dbeb69757"
+    },
+    "sellerId": {
+      "$oid": "c6bc32413e9443c2ae2d6f4d"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:49:36.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:49:36.000Z"
+    },
+    "specs": [
+      {
+        "name": "Medium",
+        "value": "Acrylic on canvas"
+      },
+      {
+        "name": "Artist",
+        "value": "Wanjiru Kamau"
+      }
+    ],
+    "options": [
+      {
+        "name": "Size",
+        "values": [
+          {
+            "label": "A3"
+          },
+          {
+            "label": "A2"
+          },
+          {
+            "label": "A1"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "sku": null,
+        "choices": {
+          "Size": "A3"
+        },
+        "price": null,
+        "stock": {
+          "$numberLong": "23"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Size": "A2"
+        },
+        "price": {
+          "$numberDouble": "90.0"
+        },
+        "stock": {
+          "$numberLong": "25"
+        }
+      },
+      {
+        "sku": null,
+        "choices": {
+          "Size": "A1"
+        },
+        "price": {
+          "$numberDouble": "140.0"
+        },
+        "stock": {
+          "$numberLong": "6"
+        }
+      }
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "6ace612753b4cf185a253bba"
+    },
+    "title": "Toyota Front Brake Pads",
+    "shortDescription": "Ceramic front brake pads for Toyota saloons",
+    "description": "<p><strong>Toyota Front Brake Pads Key Features</strong></p><ol><li><p>Low-dust ceramic compound</p></li><li><p>Quiet braking with shims included</p></li><li><p>OEM-grade fit</p></li><li><p>Sold as a set of 4 pads</p></li></ol><p>Sold by AutoCare Spares, Nyeri Town, Kenya.</p>",
+    "category": "Vehicles",
+    "subCategory": "Spare parts & accessories",
+    "tags": [
+      "brake pads",
+      "toyota",
+      "spare parts"
+    ],
+    "price": {
+      "$numberDouble": "35.0"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=80&auto=format&fit=crop"
+    ],
+    "imageFileIds": [],
+    "stock": {
+      "$numberLong": "25"
+    },
+    "paymentOptions": [
+      "full_upfront",
+      "cash_on_delivery"
+    ],
+    "ratings": {
+      "$numberDouble": "0.0"
+    },
+    "reviewCount": {
+      "$numberLong": "0"
+    },
+    "shopId": {
+      "$oid": "1e8c654fdfd947bdac1b40c3"
+    },
+    "sellerId": {
+      "$oid": "9ce2139043a44553aa6f0efe"
+    },
+    "createdAt": {
+      "$date": "2026-10-13T16:49:43.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T16:49:43.000Z"
+    },
+    "specs": [
+      {
+        "name": "Brand",
+        "value": "Bosch"
+      },
+      {
+        "name": "Part number",
+        "value": "04465-12610"
+      },
+      {
+        "name": "Fits",
+        "value": "Toyota Fielder, Axio, Premio 2007–2018"
+      },
+      {
+        "name": "Condition",
+        "value": "New"
+      }
+    ],
+    "options": [],
+    "variants": []
+  }
+]

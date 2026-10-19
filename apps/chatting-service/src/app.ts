@@ -4,7 +4,7 @@ import express, {
   type Request,
   type Response,
 } from 'express';
-import { isAccountType } from '@org/utils/auth';
+import { isAccountType, issueSocketTicket } from '@org/utils/auth';
 import {
   TOO_LARGE_MESSAGE,
   parseFileUpload,
@@ -229,6 +229,13 @@ export function createApp({ hub }: { hub?: ChatHub } = {}) {
 
   chat.get('/unseen', async (_req, res: ChatResponse) => {
     res.json(await countUnseen(res.locals.participant));
+  });
+
+  /** A short-lived ticket for opening the chat WebSocket from a UI on another site. */
+  chat.post('/socket-ticket', (_req, res: ChatResponse) => {
+    const { role, id, expiresAt } = res.locals.participant;
+    res.set('Cache-Control', 'no-store');
+    res.json({ ticket: issueSocketTicket(role, { id, expiresAt }) });
   });
 
   app.use('/api/chat', chat);

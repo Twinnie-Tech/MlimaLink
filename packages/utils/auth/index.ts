@@ -26,8 +26,70 @@ export interface VerifiedAccess {
   expiresAt: number;
 }
 
+/** How long a socket ticket can be used to open a connection. */
+export const SOCKET_TICKET_SECONDS = 60;
+
 export function isAccountType(value: unknown): value is AccountType {
   return ACCOUNT_TYPES.includes(value as AccountType);
+}
+
+function secretFor(account: AccountType): string {
+  const secret = process.env[SECRET_ENV[account]];
+  if (!secret) {
+    throw new Error(`${SECRET_ENV[account]} must be set in .env`);
+  }
+  return secret;
+}
+
+/**
+ * A short-lived ticket for opening a WebSocket on another site, where the browser won't
+ * send the UI's cookie. It only opens sockets (it isn't an access token), and the socket
+ * still closes when the session it came from expires.
+ */
+export function issueSocketTicket(
+  account: AccountType,
+  access: VerifiedAccess,
+): string {
+  return jwt.sign(
+    {
+      userId: access.id,
+      role: account,
+      sessionExp: Math.floor(access.expiresAt / 1000),
+    },
+    secretFor(account),
+    {
+      audience: `${account}-socket`,
+      issuer: TOKEN_ISSUER,
+      expiresIn: SOCKET_TICKET_SECONDS,
+    },
+  );
+}
+
+/** The session behind a socket ticket, or null when it's missing, expired or forged. */
+export function verifySocketTicket(
+  ticket: string | undefined,
+  account: AccountType,
+): VerifiedAccess | null {
+  const secret = secretFor(account);
+  if (!ticket) return null;
+  try {
+    const payload = jwt.verify(ticket, secret, {
+      audience: `${account}-socket`,
+      issuer: TOKEN_ISSUER,
+    });
+    if (
+      typeof payload === 'string' ||
+      typeof payload.userId !== 'string' ||
+      payload.role !== account ||
+      typeof payload.sessionExp !== 'number' ||
+      payload.sessionExp * 1000 <= Date.now()
+    ) {
+      return null;
+    }
+    return { id: payload.userId, expiresAt: payload.sessionExp * 1000 };
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -39,10 +101,7 @@ export function verifyAccessToken(
   token: string | undefined,
   account: AccountType,
 ): VerifiedAccess | null {
-  const secret = process.env[SECRET_ENV[account]];
-  if (!secret) {
-    throw new Error(`${SECRET_ENV[account]} must be set in .env`);
-  }
+  const secret = secretFor(account);
   if (!token) return null;
   try {
     const payload = jwt.verify(token, secret, {

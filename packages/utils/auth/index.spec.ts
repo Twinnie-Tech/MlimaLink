@@ -1,5 +1,12 @@
 import jwt from 'jsonwebtoken';
-import { readAccessToken, readCookie, verifyAccessToken } from './index.js';
+import {
+  SOCKET_TICKET_SECONDS,
+  issueSocketTicket,
+  readAccessToken,
+  readCookie,
+  verifyAccessToken,
+  verifySocketTicket,
+} from './index.js';
 
 const SELLER_SECRET = 's'.repeat(64);
 const USER_SECRET = 'u'.repeat(64);
@@ -73,6 +80,48 @@ describe('verifyAccessToken', () => {
     expect(() => verifyAccessToken('token', 'admin')).toThrow(
       'ADMIN_ACCESS_TOKEN_SECRET must be set in .env',
     );
+  });
+});
+
+describe('socket tickets', () => {
+  const session = { id: sellerId, expiresAt: Date.now() + 10 * 60_000 };
+
+  it('opens a socket for the session it was issued for', () => {
+    const ticket = issueSocketTicket('seller', session);
+
+    expect(verifySocketTicket(ticket, 'seller')).toEqual({
+      id: sellerId,
+      expiresAt: Math.floor(session.expiresAt / 1000) * 1000,
+    });
+  });
+
+  it('works only as a ticket, for its own account', () => {
+    const ticket = issueSocketTicket('seller', session);
+
+    expect(verifyAccessToken(ticket, 'seller')).toBeNull();
+    expect(verifySocketTicket(ticket, 'user')).toBeNull();
+    expect(
+      verifySocketTicket(sign({ userId: sellerId, role: 'seller' }), 'seller'),
+    ).toBeNull();
+  });
+
+  it('rejects missing tickets, expired tickets and ended sessions', () => {
+    expect(verifySocketTicket(undefined, 'seller')).toBeNull();
+
+    vi.useFakeTimers();
+    try {
+      const ticket = issueSocketTicket('seller', session);
+      vi.advanceTimersByTime((SOCKET_TICKET_SECONDS + 1) * 1000);
+      expect(verifySocketTicket(ticket, 'seller')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+
+    const ended = issueSocketTicket('seller', {
+      id: sellerId,
+      expiresAt: Date.now() - 1000,
+    });
+    expect(verifySocketTicket(ended, 'seller')).toBeNull();
   });
 });
 
